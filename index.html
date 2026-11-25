@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f5f8f5">\n<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f8f5">
+<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="NuTrick: registro alimentar e acompanhamento nutricional.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -31,9 +32,10 @@
 <section id="s-evolucao" class="screen"><p class="eyebrow">ACOMPANHAMENTO</p><h1>Sua evolução</h1><article class="card"><h2>Registrar medidas</h2><form id="measureForm" class="formgrid"><label>Peso (kg)<input name="weight" type="number" step=".1" min="1" placeholder="75"></label><label>Cintura (cm)<input name="waist" type="number" step=".1" min="1"></label><button class="primary span">Salvar medida</button></form></article><article class="card"><h2>Histórico</h2><div id="measures"></div></article><article class="card"><h2>Metas</h2><form id="goalsForm" class="formgrid"><label>Calorias<input name="kcal" type="number" value="2250"></label><label>Proteínas<input name="protein" type="number" value="160"></label><label>Carboidratos<input name="carbs" type="number" value="265"></label><label>Gorduras<input name="fat" type="number" value="60"></label><label>Fibras<input name="fiber" type="number" value="30"></label><label>Água (ml)<input name="water" type="number" value="2700"></label><button class="primary span">Atualizar metas</button></form></article><article class="card"><h2>Dados e privacidade</h2><p class="notice">Os registros ficam neste navegador. Exporte cópias de segurança regularmente.</p><div class="row"><button class="soft" id="export">Exportar backup</button><label class="soft">Importar backup<input id="import" type="file" accept="application/json" hidden></label></div></article></section>
 </div>
 <nav class="tabs"><button class="tab active" data-tab="hoje"><span>⌂</span>Hoje</button><button class="tab" data-tab="diario"><span>▤</span>Diário</button><button class="tab" data-tab="alimentos"><span>⌕</span>Alimentos</button><button class="tab" data-tab="evolucao"><span>↗</span>Evolução</button></nav>
-<div id="toast" class="toast"></div><div id="analysis" class="hidden" role="dialog" aria-modal="true" aria-labelledby="analysisTitle" style="position:fixed;inset:0;z-index:30;background:#10251b88;padding:18px;overflow:auto"><div style="background:white;border-radius:18px;padding:18px;width:min(560px,100%);margin:7vh auto;max-height:85vh;overflow:auto"><div class="titleRow"><h2 id="analysisTitle">Análise da refeição</h2><button class="smallbtn" id="close" type="button">Fechar</button></div><div id="analysisBody"></div></div></div>
+<div id="toast" class="toast"></div><div id="analysis" class="hidden" role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="analysisTitle" style="position:fixed;inset:0;z-index:30;background:#10251b88;padding:18px;overflow:auto"><div style="background:white;border-radius:18px;padding:18px;width:min(560px,100%);margin:7vh auto;max-height:85vh;overflow:auto"><div class="titleRow"><h2 id="analysisTitle">Análise da refeição</h2><button class="smallbtn" id="close" type="button">Fechar</button></div><div id="analysisBody"></div></div></div>
 <script>
-(()=>{'use strict';\nwindow.addEventListener('error',e=>{const t=document.getElementById('toast');if(t){t.textContent='Erro no NuTrick: '+(e.message||'falha inesperada');t.classList.add('show')}});
+(()=>{'use strict';
+window.addEventListener('error',e=>{const t=document.getElementById('toast');if(t){t.textContent='Erro no NuTrick: '+(e.message||'falha inesperada');t.classList.add('show')}});
 const $=s=>document.querySelector(s), today=()=>new Date().toISOString().slice(0,10), fmt=n=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:1}), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const seed=[
 {id:'coffee',name:'Café coado sem açúcar',unit:'ml',base:100,kcal:2,protein:.1,carbs:.3,fat:0,source:'Referência ilustrativa'},
@@ -73,6 +75,7 @@ if(!items.length)questions.push('Não identifiquei alimentos suficientes. Tente 
 return {items,questions,raw:text}}
 let pending=null;
 function analyze(){try{let txt=$('#entry').value.trim();if(!txt)return toast('Descreva sua refeição.');pending=parse(txt);showAnalysis()}catch(err){console.error('NuTrick analyze error',err);toast('Não foi possível analisar. Atualize a página e tente novamente.')}}
+function closeAnalysis(){const panel=$('#analysis');panel.classList.add('hidden');panel.setAttribute('aria-hidden','true')}
 function showAnalysis(){
 let t=sum(pending.items),html='<div class="status '+(pending.questions.length?'':'ok')+'">'+(pending.questions.length?'Há informações pendentes. Nada será salvo ainda.':'Alimentos identificados. Como os valores desta versão são demonstrativos, confirme a estimativa antes de registrar.')+'</div>';
 html+=pending.items.map(i=>'<div class="result"><div><b>'+esc(i.name)+'</b><small>'+fmt(i.qty)+' '+i.unit+' · '+esc(i.source)+'</small></div><b>'+fmt(i.kcal)+' kcal<small>P '+fmt(i.protein)+' · C '+fmt(i.carbs)+' · G '+fmt(i.fat)+'</small></b></div>').join('');
@@ -81,10 +84,13 @@ if(pending.questions.length){html+=pending.questions.map(q=>'<div class="status"
 else if(pending.saved){html+='<div class="status ok">Refeição registrada no diário.</div><button class="primary" id="finishAnalysis">Concluir</button>'}
 else{html+='<p class="notice">Estes números são ilustrativos. Confira as quantidades e os rótulos antes de confirmar.</p><button class="primary" id="confirmEstimate">Confirmar e salvar no diário</button>'}
 $('#analysisBody').innerHTML=html;
+const analysisPanel=$('#analysis');
+analysisPanel.classList.remove('hidden');
+analysisPanel.setAttribute('aria-hidden','false');
 $('#editDescription')?.addEventListener('click',()=>{$('#analysis').classList.add('hidden');$('#entry').focus()});
 
 $('#confirmEstimate')?.addEventListener('click',()=>{pending.estimatedAccepted=true;saveMeal()});
-$('#finishAnalysis')?.addEventListener('click',()=>$('#analysis').close());
+$('#finishAnalysis')?.addEventListener('click',()=>closeAnalysis());
 }
 function saveMeal(){
 if(!pending||pending.saved||pending.questions.length||!pending.items.length||!pending.estimatedAccepted)return;
@@ -92,7 +98,7 @@ st.meals.push({id:Date.now().toString(),date:today(),type:$('#mealType').value,i
 pending.saved=true;save();render();showAnalysis();toast('Refeição salva no diário.');
 }
 document.addEventListener('click',e=>{let tab=e.target.closest('[data-tab]');if(tab){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('#s-'+tab.dataset.tab).classList.add('active');tab.classList.add('active')}let del=e.target.closest('[data-delete]');if(del&&confirm('Excluir esta refeição?')){st.meals=st.meals.filter(m=>m.id!==del.dataset.delete);save();render()}let w=e.target.closest('[data-water]');if(w){st.water.push({date:today(),ml:Number(w.dataset.water)});save();render()}});
-$('#analyze').onclick=analyze;$('#close').onclick=()=>$('#analysis').close();
+$('#analyze').onclick=analyze;$('#close').onclick=()=>closeAnalysis();
 $('#search').oninput=e=>{let q=e.target.value.toLowerCase();$('#results').innerHTML=st.foods.filter(f=>f.name.toLowerCase().includes(q)).map(f=>'<div class="result"><div><b>'+esc(f.name)+'</b><small>'+f.kcal+' kcal / '+f.base+f.unit+'</small></div><span class="pill">'+esc(f.source)+'</span></div>').join('')};
 $('#foodForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);st.foods.push({id:'u'+Date.now(),name:f.get('name'),base:+f.get('base'),unit:f.get('unit'),kcal:+f.get('kcal'),protein:+f.get('protein'),carbs:+f.get('carbs'),fat:+f.get('fat'),source:'Cadastro manual'});save();e.target.reset();toast('Alimento cadastrado.');};
 $('#measureForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);st.measures.push({date:today(),weight:f.get('weight')?+f.get('weight'):null,waist:f.get('waist')?+f.get('waist'):null});save();render();e.target.reset();toast('Medida registrada.');};
