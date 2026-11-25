@@ -1,0 +1,18 @@
+{
+  "name": "NuTrick - Nutrição em foco",
+  "short_name": "NuTrick",
+  "description": "Registre sua alimentação e acompanhe seus nutrientes.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f8f5",
+  "theme_color": "#f5f8f5",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
