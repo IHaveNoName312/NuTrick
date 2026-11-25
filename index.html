@@ -76,12 +76,12 @@ function showAnalysis(){
 let t=sum(pending.items),html='<div class="status '+(pending.questions.length?'':'ok')+'">'+(pending.questions.length?'Há informações pendentes. Nada será salvo ainda.':'Alimentos identificados. Como os valores desta versão são demonstrativos, confirme a estimativa antes de registrar.')+'</div>';
 html+=pending.items.map(i=>'<div class="result"><div><b>'+esc(i.name)+'</b><small>'+fmt(i.qty)+' '+i.unit+' · '+esc(i.source)+'</small></div><b>'+fmt(i.kcal)+' kcal<small>P '+fmt(i.protein)+' · C '+fmt(i.carbs)+' · G '+fmt(i.fat)+'</small></b></div>').join('');
 html+='<div class="pillrow"><span class="pill">'+fmt(t.kcal)+' kcal</span><span class="pill">P '+fmt(t.protein)+' g</span><span class="pill">C '+fmt(t.carbs)+' g</span><span class="pill">G '+fmt(t.fat)+' g</span></div>';
-if(pending.questions.length){html+=pending.questions.map(q=>'<div class="status">'+esc(q)+'</div>').join('');html+='<button class="soft" id="editDescription">Voltar e corrigir descrição</button>';if(pending.items.length)html+='<button class="primary" id="acceptEstimate">Aceitar estimativa e salvar</button>'}
+if(pending.questions.length){html+=pending.questions.map(q=>'<div class="status">'+esc(q)+'</div>').join('');html+='<button class="soft" id="editDescription">Voltar e corrigir descrição</button><p class="notice">Resolva as informações pendentes na descrição antes de registrar. Estimativas não substituem dados ausentes.</p>'}
 else if(pending.saved){html+='<div class="status ok">Refeição registrada no diário.</div><button class="primary" id="finishAnalysis">Concluir</button>'}
 else{html+='<p class="notice">Estes números são ilustrativos. Confira as quantidades e os rótulos antes de confirmar.</p><button class="primary" id="confirmEstimate">Confirmar e salvar no diário</button>'}
 $('#analysisBody').innerHTML=html;
 $('#editDescription')?.addEventListener('click',()=>{$('#analysis').close();$('#entry').focus()});
-$('#acceptEstimate')?.addEventListener('click',()=>{pending.questions=[];pending.estimatedAccepted=true;saveMeal()});
+
 $('#confirmEstimate')?.addEventListener('click',()=>{pending.estimatedAccepted=true;saveMeal()});
 $('#finishAnalysis')?.addEventListener('click',()=>$('#analysis').close());
 }
