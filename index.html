@@ -60,7 +60,7 @@ function suggest(){let el=$('#recurring'),items=st.meals.filter(m=>m.date!==toda
 function parse(text){let s=text.toLowerCase(),items=[],questions=[],recognized=[];const add=(id,qty)=>{let f=st.foods.find(x=>x.id===id);if(f){items.push({...calc(f,qty),confidence:'estimated'});recognized.push(id)}};
 let m=s.match(/(\d+(?:[,.]\d+)?)\s*ml\s+de?\s*caf[eé]/);if(m)add('coffee',Number(m[1].replace(',','.')));
 m=s.match(/(\d+(?:[,.]\d+)?)\s*ml\s+de?\s*leite/);if(m){if(s.includes('integral'))add('milk',Number(m[1].replace(',','.')));else if(s.includes('semidesnatado'))add('milksemi',Number(m[1].replace(',','.')));else questions.push('Qual tipo de leite?');}
-m=s.match(/(\d+)\s*(?:fatias?|fatia)\s+de?\s*p[aã]o/);if(m){let q=s.match(/(\d+(?:[,.]\d+)?)\s*g[^,.;]*/);if(q)add('bread',Number(q[1].replace(',','.')));else questions.push('Informe o peso total das fatias de pão em gramas.');if(/marca\s+[\w-]+/.test(s))questions.push('A marca e a versão do pão não foram identificadas na base. Confirme o produto ou cadastre o rótulo.');}
+m=s.match(/(?:2|duas?)\s+fatias?\s+de?\s+p[aã]o/);if(m){let q=s.match(/(\d+(?:[,.]\d+)?)\s*g[^,.;]*/);if(q)add('bread',Number(q[1].replace(',','.')));else questions.push('Informe o peso total das fatias de pão em gramas.');if(/marca\s+[\w-]+/.test(s))questions.push('A marca e a versão do pão não foram identificadas na base. Confirme o produto ou cadastre o rótulo.');}
 m=s.match(/(\d+)\s*ovos?/);if(m)add('egg',Number(m[1])*50);
 m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s+de?\s*(?:arroz)/);if(m)add('rice',Number(m[1].replace(',','.')));
 m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s+de?\s*(?:feij[aã]o)/);if(m)add('beans',Number(m[1].replace(',','.')));
@@ -72,8 +72,24 @@ if(!items.length)questions.push('Não identifiquei alimentos suficientes. Tente 
 return {items,questions,raw:text}}
 let pending=null;
 function analyze(){let txt=$('#entry').value.trim();if(!txt)return toast('Descreva sua refeição.');pending=parse(txt);showAnalysis()}
-function showAnalysis(){let t=sum(pending.items),ok=!pending.questions.length&&pending.items.length>0;$('#analysisBody').innerHTML='<div class="status '+(ok?'ok':'')+'">'+(ok?'Itens identificados. A refeição será salva automaticamente.':'Precisamos confirmar alguns detalhes antes de salvar.')+'</div>'+pending.items.map(i=>'<div class="result"><div><b>'+esc(i.name)+'</b><small>'+fmt(i.qty)+' '+i.unit+' · '+esc(i.source)+'</small></div><b>'+fmt(i.kcal)+' kcal<small>P '+fmt(i.protein)+' · C '+fmt(i.carbs)+' · G '+fmt(i.fat)+'</small></b></div>').join('')+'<div class="pillrow"><span class="pill">'+fmt(t.kcal)+' kcal</span><span class="pill">P '+fmt(t.protein)+' g</span><span class="pill">C '+fmt(t.carbs)+' g</span><span class="pill">G '+fmt(t.fat)+' g</span></div>'+(pending.questions.map(q=>'<div class="status">'+esc(q)+'</div>').join(''))+'<p class="notice">Valores demonstrativos. Confirme os dados do rótulo antes de confiar nos resultados.</p><button class="primary" id="saveMeal" '+(!ok?'disabled':'')+'>Salvar no diário</button>';$('#analysis').showModal();if(ok){saveMeal();}}
-function saveMeal(){if(!pending||pending.questions.length||!pending.items.length)return;st.meals.push({id:Date.now().toString(),date:today(),type:$('#mealType').value,items:pending.items,raw:pending.raw});save();render();toast('Refeição salva automaticamente.');pending=null;$('#analysis').close();$('#entry').value=''}
+function showAnalysis(){
+let t=sum(pending.items),html='<div class="status '+(pending.questions.length?'':'ok')+'">'+(pending.questions.length?'Há informações pendentes. Nada será salvo ainda.':'Alimentos identificados. Como os valores desta versão são demonstrativos, confirme a estimativa antes de registrar.')+'</div>';
+html+=pending.items.map(i=>'<div class="result"><div><b>'+esc(i.name)+'</b><small>'+fmt(i.qty)+' '+i.unit+' · '+esc(i.source)+'</small></div><b>'+fmt(i.kcal)+' kcal<small>P '+fmt(i.protein)+' · C '+fmt(i.carbs)+' · G '+fmt(i.fat)+'</small></b></div>').join('');
+html+='<div class="pillrow"><span class="pill">'+fmt(t.kcal)+' kcal</span><span class="pill">P '+fmt(t.protein)+' g</span><span class="pill">C '+fmt(t.carbs)+' g</span><span class="pill">G '+fmt(t.fat)+' g</span></div>';
+if(pending.questions.length){html+=pending.questions.map(q=>'<div class="status">'+esc(q)+'</div>').join('');html+='<button class="soft" id="editDescription">Voltar e corrigir descrição</button>';if(pending.items.length)html+='<button class="primary" id="acceptEstimate">Aceitar estimativa e salvar</button>'}
+else if(pending.saved){html+='<div class="status ok">Refeição registrada no diário.</div><button class="primary" id="finishAnalysis">Concluir</button>'}
+else{html+='<p class="notice">Estes números são ilustrativos. Confira as quantidades e os rótulos antes de confirmar.</p><button class="primary" id="confirmEstimate">Confirmar e salvar no diário</button>'}
+$('#analysisBody').innerHTML=html;
+$('#editDescription')?.addEventListener('click',()=>{$('#analysis').close();$('#entry').focus()});
+$('#acceptEstimate')?.addEventListener('click',()=>{pending.questions=[];pending.estimatedAccepted=true;saveMeal()});
+$('#confirmEstimate')?.addEventListener('click',()=>{pending.estimatedAccepted=true;saveMeal()});
+$('#finishAnalysis')?.addEventListener('click',()=>$('#analysis').close());
+}
+function saveMeal(){
+if(!pending||pending.saved||pending.questions.length||!pending.items.length||!pending.estimatedAccepted)return;
+st.meals.push({id:Date.now().toString(),date:today(),type:$('#mealType').value,items:pending.items,raw:pending.raw});
+pending.saved=true;save();render();showAnalysis();toast('Refeição salva no diário.');
+}
 document.addEventListener('click',e=>{let tab=e.target.closest('[data-tab]');if(tab){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('#s-'+tab.dataset.tab).classList.add('active');tab.classList.add('active')}let del=e.target.closest('[data-delete]');if(del&&confirm('Excluir esta refeição?')){st.meals=st.meals.filter(m=>m.id!==del.dataset.delete);save();render()}let w=e.target.closest('[data-water]');if(w){st.water.push({date:today(),ml:Number(w.dataset.water)});save();render()}});
 $('#analyze').onclick=analyze;$('#close').onclick=()=>$('#analysis').close();
 $('#search').oninput=e=>{let q=e.target.value.toLowerCase();$('#results').innerHTML=st.foods.filter(f=>f.name.toLowerCase().includes(q)).map(f=>'<div class="result"><div><b>'+esc(f.name)+'</b><small>'+f.kcal+' kcal / '+f.base+f.unit+'</small></div><span class="pill">'+esc(f.source)+'</span></div>').join('')};
