@@ -54,14 +54,17 @@ const extract = (start, end) => {
 const normalizeCode = extract("function normalizeText(value)", "async function loadTacoData()");
 const offCode = extract("function offNumber(value)", "async function searchOFFProducts(term)");
 const portionCode = extract("function portionFor(food)", "function todayMeals()");
+const backupCode = extract("function isRecord(value)", "function load()");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script(normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal;").runInContext(testContext);
+new vm.Script("const BACKUP_FORMAT_VERSION=1;\n" + backupCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
 const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
 const sumForTest = testContext.sumForTest;
 const formatNutrientTotalForTest = testContext.formatNutrientTotalForTest;
 const formatGoalTotalForTest = testContext.formatGoalTotalForTest;
+const validateStateForTest = testContext.validateStateForTest;
+const unwrapBackupForTest = testContext.unwrapBackupForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
   const result = parseForTest(description);
@@ -104,6 +107,66 @@ const twelvePeanuts = testContext.calcForTest(manualPeanut, 12, "un");
 if (Math.abs(twelvePeanuts.kcal - 72) > 0.01 || twelvePeanuts.baseQuantity !== 12) {
   throw new Error("Twelve counted peanuts should convert using the configured grams-per-unit value");
 }
+
+const validBackupState = {
+  goals: { kcal: 2250, protein: 160, carbs: 265, fat: 60, fiber: 30, water: 2700 },
+  foods: tacoFoods,
+  meals: [{
+    id: "meal-20261126",
+    date: "2026-11-26",
+    type: "Almoço",
+    raw: "100 g de arroz",
+    items: [{
+      foodId: "taco-003",
+      name: "Arroz, tipo 1, cozido",
+      qty: 100,
+      unit: "g",
+      baseUnit: "g",
+      baseQuantity: 100,
+      kcal: 128,
+      protein: 2.5,
+      carbs: 28.1,
+      fat: 0.2,
+      fiber: 1.6,
+      sodium: 1
+    }]
+  }],
+  measures: [{ date: "2026-11-26", weight: 75, waist: null }],
+  water: [{ date: "2026-11-26", ml: 500 }],
+  portions: { "taco-488": { amount: 50, name: "ovo" } }
+};
+if (validateStateForTest(validBackupState) !== null) {
+  throw new Error("A valid current NuTrick state should pass backup validation");
+}
+const legacyBackup = { ...validBackupState };
+delete legacyBackup.portions;
+const preparedLegacy = unwrapBackupForTest(legacyBackup);
+if (!preparedLegacy.legacy || !preparedLegacy.state.portions || Object.keys(preparedLegacy.state.portions).length !== 0) {
+  throw new Error("Legacy backups without custom portions should be accepted and normalized");
+}
+const envelopeBackup = unwrapBackupForTest({
+  app: "NuTrick",
+  formatVersion: 1,
+  exportedAt: "2026-11-26T20:00:00.000Z",
+  data: validBackupState
+});
+if (envelopeBackup.legacy || envelopeBackup.state.meals.length !== 1) {
+  throw new Error("Versioned NuTrick backup envelopes should be accepted");
+}
+function assertBackupRejected(payload, label) {
+  let rejected = false;
+  try { unwrapBackupForTest(payload); } catch { rejected = true; }
+  if (!rejected) throw new Error("Backup validator should reject: " + label);
+}
+assertBackupRejected({ ...validBackupState, goals: { ...validBackupState.goals, protein: -1 } }, "negative nutrition goal");
+assertBackupRejected({ ...validBackupState, meals: [{ ...validBackupState.meals[0], date: "2026-02-30" }] }, "impossible meal date");
+assertBackupRejected({ ...validBackupState, foods: [{ ...tacoFoods[0], base: 0 }] }, "zero food reference basis");
+assertBackupRejected({ ...validBackupState, water: [{ date: "2026-11-26", ml: 0 }] }, "zero water entry");
+assertBackupRejected({ ...validBackupState, measures: [{ date: "26/11/2026", weight: 75, waist: null }] }, "non-ISO measure date");
+assertBackupRejected({ ...validBackupState, meals: [{ ...validBackupState.meals[0], items: [{ ...validBackupState.meals[0].items[0], qty: -100 }] }] }, "negative consumed quantity");
+assertBackupRejected({ ...validBackupState, meals: [{ ...validBackupState.meals[0], items: [{ ...validBackupState.meals[0].items[0], unit: "kg" }] }] }, "unsupported meal item unit");
+assertBackupRejected({ app: "NuTrick", formatVersion: 99, data: validBackupState }, "unknown future backup version");
+assertBackupRejected({ ...validBackupState, foods: [tacoFoods[0], tacoFoods[0]] }, "duplicate food id");
 
 const partialTotals = sumForTest([
   { kcal: 100, protein: 10, carbs: 20, fat: 4, fiber: null, sodium: null },
@@ -225,4 +288,4 @@ if (mixedBasis.complete || mixedBasis.carbs !== null || !mixedBasis.missing.incl
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; partial/zero nutrient totals; parser, count-unit, Open Food Facts mapping and v3/legacy barcode response checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; partial/zero nutrient totals; parser, count-unit, Open Food Facts mapping and v3/legacy barcode response checks passed.`);
