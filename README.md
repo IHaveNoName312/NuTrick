@@ -24,6 +24,8 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Compatibilidade de importação com backups antigos em JSON sem envelope de versão.
 - Ponto de restauração local automático antes de cada importação, com opção de alternar de volta à versão anterior.
 - Recuperação de um arquivo local inválido: o conteúdo original é preservado para download antes de o aplicativo iniciar com dados vazios.
+- Gravações locais validadas antes de persistir; em caso de erro ou falta de espaço, a alteração em memória é revertida para o último estado salvo e a interface não confirma o registro.
+- A tabela TACO fica no arquivo do aplicativo e não ocupa espaço duplicado no armazenamento local; somente alimentos pessoais, produtos e registros do usuário são persistidos.
 - Limite de 10 MB por arquivo de backup; se não for possível guardar o ponto de restauração, a importação é cancelada sem substituir os dados atuais.
 - Armazenamento no navegador e cache offline após a primeira visita em HTTPS.
 
@@ -36,7 +38,8 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - A interpretação de texto é local e baseada em regras, **não é uma IA conectada**.
 - Leitura de código de barras pela câmera e sincronização em nuvem ainda não foram implementadas. A consulta por digitação do código já está disponível.
 - Os dados alimentares ficam neste navegador/dispositivo. O ponto de restauração também fica no mesmo armazenamento local e não substitui uma cópia externa. Exporte backups regularmente e guarde-os fora do aparelho.
-- A validação detecta estruturas inválidas, mas não consegue provar que os números nutricionais digitados em um backup correspondem ao rótulo original.
+- A validação detecta estruturas inválidas e números fora do formato esperado, mas não consegue provar que os valores nutricionais digitados em um backup correspondem ao rótulo original.
+- O ponto de restauração local e os dados principais continuam no mesmo armazenamento do navegador. Mantenha backups externos, pois falhas, limpeza do Safari ou perda do aparelho podem apagar ambos.
 
 **Fonte TACO:** [NEPA/UNICAMP, 4ª edição](https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf).
 
