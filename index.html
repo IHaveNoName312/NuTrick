@@ -37,7 +37,7 @@
 <article class="card"><h2>Macronutrientes</h2><div id="macroBox"></div></article>
 </div>
 <article class="card"><div class="water"><div><p class="eyebrow">HIDRATAÇÃO</p><b><span id="water">0</span> / <span id="waterGoal">2.700</span> ml</b></div><div class="pillrow"><button class="smallbtn" data-water="250">+250</button><button class="smallbtn" data-water="500">+500</button></div></div></article>
-<article class="card entry"><p class="eyebrow">REGISTRO INTELIGENTE</p><h2>O que você consumiu?</h2><p class="muted">Descreva sua refeição em linguagem natural. A análise só começa quando você tocar no botão.</p><textarea id="entry" placeholder="Ex.: 150 ml de café sem açúcar, 300 ml de leite integral e 2 ovos."></textarea><label class="field">Tipo de refeição</label><select id="mealType"><option>Café da manhã</option><option>Almoço</option><option>Lanche</option><option>Jantar</option><option>Outra refeição</option></select><button class="primary" id="analyze">✳ Analisar macros</button><div id="recurring" class="suggest hidden"></div><p class="notice">A interpretação desta versão é local e demonstrativa. Os valores da base inicial são ilustrativos, não foram verificados contra TACO ou rótulos.</p></article>
+<article class="card entry"><p class="eyebrow">REGISTRO INTELIGENTE</p><h2>O que você consumiu?</h2><p class="muted">Descreva sua refeição em linguagem natural. A análise só começa quando você tocar no botão.</p><textarea id="entry" placeholder="Ex.: 150 ml de café sem açúcar, 300 ml de leite integral e 2 ovos."></textarea><label class="field">Tipo de refeição</label><select id="mealType"><option>Café da manhã</option><option>Almoço</option><option>Lanche</option><option>Jantar</option><option>Outra refeição</option></select><button class="primary" id="analyze">✳ Analisar macros</button><div id="recurring" class="suggest hidden"></div><p class="notice">A interpretação é local e baseada em regras, não é uma IA conectada. Confira a fonte dos alimentos e os rótulos dos produtos de marca antes de registrar.</p></article>
 <article class="card"><div class="titleRow"><h2>Refeições de hoje</h2><span class="badge" id="mealCount">0</span></div><div id="todayMeals" class="empty">Nenhuma refeição registrada.</div></article>
 </section>
 <section id="s-diario" class="screen"><p class="eyebrow">SEU HISTÓRICO</p><h1>Diário alimentar</h1><article class="card"><div class="grid"><div><span class="muted">Calorias</span><div class="metric" id="diaryKcal">0</div></div><div><span class="muted">Proteínas</span><div class="metric" id="diaryProtein">0 g</div></div></div></article><article class="card" id="diaryList"></article></section>
@@ -204,17 +204,61 @@ function calc(f,q,measureUnit,portionOverride){
   return {foodId:f.id,name:f.name,qty:Number(q),unit:measure==='un'?'un':f.unit,portionAmount:measure==='un'?Number(portion.amount):null,portionName:measure==='un'?(portion.name||'unidade'):null,baseUnit:f.unit,baseQuantity,kcal:scaled('kcal'),protein:scaled('protein'),carbs:scaled('carbs'),fat:scaled('fat'),fiber:scaled('fiber'),sodium:scaled('sodium'),source:f.source||'Cadastro pessoal',sourceUrl:f.sourceUrl||null,sourceStatus:f.sourceStatus||'manual',brand:f.brand||'',code:f.code||''};
 }
 function sum(items){
-  const out={kcal:0,protein:0,carbs:0,fat:0,fiber:0,fiberUnknown:false};
+  const keys=['kcal','protein','carbs','fat','fiber','sodium'];
+  const out={itemCount:items.length};
+  keys.forEach(key=>{out[key]=0;out[key+'Missing']=0});
   items.forEach(item=>{
-    ['kcal','protein','carbs','fat'].forEach(key=>{out[key]+=Number(item[key]||0)});
-    if(item.fiber===null||item.fiber===undefined)out.fiberUnknown=true;
-    else out.fiber+=Number(item.fiber);
+    keys.forEach(key=>{
+      const raw=item&&item[key];
+      if(raw===null||raw===undefined||raw===''||!Number.isFinite(Number(raw))){
+        out[key+'Missing']++;
+      }else{
+        out[key]+=Number(raw);
+      }
+    });
+  });
+  keys.forEach(key=>{
+    if(items.length>0&&out[key+'Missing']===items.length)out[key]=null;
   });
   return out;
 }
+function formatNutrientTotal(total,key,unit){
+  const value=total[key],missing=Number(total[key+'Missing']||0);
+  if(missing>0&&value===null)return 'Não informado';
+  if(missing>0)return '≥ '+fmt(value)+' '+unit+' (parcial)';
+  return fmt(value===null?0:value)+' '+unit;
+}
+function formatGoalTotal(total,key,goal){
+  const value=total[key],missing=Number(total[key+'Missing']||0);
+  const amount=value===null?'Não informado':(missing>0?'≥ ':'')+fmt(value);
+  return amount+' / '+fmt(goal)+' g'+(missing>0?' · parcial':'');
+}
 function todayMeals(){return st.meals.filter(m=>m.date===today())}
-function render(){let ms=todayMeals(),t=sum(ms.flatMap(m=>m.items)),g=st.goals,w=st.water.filter(x=>x.date===today()).reduce((a,x)=>a+x.ml,0);$('#date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'});$('#kcal').textContent=fmt(t.kcal);$('#goalKcal').textContent=fmt(g.kcal);$('#remaining').textContent=fmt(Math.max(0,g.kcal-t.kcal))+' kcal restantes';$('#kcalBar').style.width=Math.min(100,100*t.kcal/g.kcal)+'%';$('#water').textContent=fmt(w);$('#waterGoal').textContent=fmt(g.water);$('#macroBox').innerHTML=[['Proteínas',t.protein,g.protein,'#218356'],['Carboidratos',t.carbs,g.carbs,'#4b88bd'],['Gorduras',t.fat,g.fat,'#b57a24']].map(([n,v,goal,c])=>'<div class="macro"><div class="macroline"><b>'+n+'</b><span>'+fmt(v)+' / '+fmt(goal)+' g</span></div><div class="track"><div class="fill" style="width:'+Math.min(100,100*v/goal)+'%;background:'+c+'"></div></div></div>').join('');$('#mealCount').textContent=ms.length;$('#todayMeals').className=ms.length?'':'empty';$('#todayMeals').innerHTML=ms.length?ms.map(m=>mealHtml(m)).join(''):'Nenhuma refeição registrada.';$('#diaryKcal').textContent=fmt(t.kcal)+' kcal';$('#diaryProtein').textContent=fmt(t.protein)+' g';$('#diaryList').innerHTML=st.meals.slice().reverse().map(mealHtml).join('')||'<div class="empty">Sem registros.</div>';$('#measures').innerHTML=st.measures.slice().reverse().map(m=>'<div class="meal"><b>'+m.date+'</b><small>Peso: '+(m.weight||'--')+' kg · Cintura: '+(m.waist||'--')+' cm</small></div>').join('')||'<div class="empty">Sem medidas.</div>';suggest()}
-function mealHtml(m){let t=sum(m.items);return '<div class="meal"><b>'+esc(m.type)+'</b><span class="right">'+fmt(t.kcal)+' kcal</span><small>'+m.items.map(i=>esc(i.name)+' ('+esc(formatQuantity(i))+')').join(' · ')+'</small><button class="smallbtn" data-edit-meal="'+esc(m.id)+'">Editar</button> <button class="smallbtn" data-delete="'+esc(m.id)+'">Excluir</button></div>'}
+function render(){
+  let ms=todayMeals(),t=sum(ms.flatMap(m=>m.items)),g=st.goals,w=st.water.filter(x=>x.date===today()).reduce((a,x)=>a+x.ml,0);
+  $('#date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'});
+  $('#kcal').textContent=t.kcal===null?'Não informado':(t.kcalMissing?'≥ ':'')+fmt(t.kcal);
+  $('#goalKcal').textContent=fmt(g.kcal);
+  $('#remaining').textContent=t.kcalMissing?'Saldo indisponível: calorias incompletas':fmt(Math.max(0,g.kcal-t.kcal))+' kcal restantes';
+  $('#kcalBar').style.width=Math.min(100,100*(t.kcal||0)/g.kcal)+'%';
+  $('#kcalBar').style.opacity=t.kcalMissing?'0.55':'1';
+  $('#water').textContent=fmt(w);
+  $('#waterGoal').textContent=fmt(g.water);
+  $('#macroBox').innerHTML=[['Proteínas','protein',g.protein,'#218356'],['Carboidratos','carbs',g.carbs,'#4b88bd'],['Gorduras','fat',g.fat,'#b57a24']].map(([n,key,goal,c])=>'<div class="macro"><div class="macroline"><b>'+n+'</b><span>'+formatGoalTotal(t,key,goal)+'</span></div><div class="track"><div class="fill" style="width:'+Math.min(100,100*(t[key]||0)/goal)+'%;background:'+c+';opacity:'+(t[key+'Missing']?'0.55':'1')+'"></div></div></div>').join('');
+  if(['kcal','protein','carbs','fat'].some(key=>t[key+'Missing']>0))$('#macroBox').innerHTML+='<p class="notice">Totais com ≥ mostram apenas o subtotal conhecido. O saldo calórico e o progresso podem estar incompletos.</p>';
+  $('#mealCount').textContent=ms.length;
+  $('#todayMeals').className=ms.length?'':'empty';
+  $('#todayMeals').innerHTML=ms.length?ms.map(m=>mealHtml(m)).join(''):'Nenhuma refeição registrada.';
+  $('#diaryKcal').textContent=formatNutrientTotal(t,'kcal','kcal');
+  $('#diaryProtein').textContent=formatNutrientTotal(t,'protein','g');
+  $('#diaryList').innerHTML=st.meals.slice().reverse().map(mealHtml).join('')||'<div class="empty">Sem registros.</div>';
+  $('#measures').innerHTML=st.measures.slice().reverse().map(m=>'<div class="meal"><b>'+m.date+'</b><small>Peso: '+(m.weight||'--')+' kg · Cintura: '+(m.waist||'--')+' cm</small></div>').join('')||'<div class="empty">Sem medidas.</div>';
+  suggest();
+}
+function mealHtml(m){
+  let t=sum(m.items);
+  return '<div class="meal"><b>'+esc(m.type)+'</b><span class="right">'+formatNutrientTotal(t,'kcal','kcal')+'</span><small>'+m.items.map(i=>esc(i.name)+' ('+esc(formatQuantity(i))+')').join(' · ')+'</small><button class="smallbtn" data-edit-meal="'+esc(m.id)+'">Editar</button> <button class="smallbtn" data-delete="'+esc(m.id)+'">Excluir</button></div>';
+}
 function findFoodForMealItem(item){
   return st.foods.find(f=>f.id===item.foodId) || st.foods.find(f=>normalizeText(f.name)===normalizeText(item.name) && f.unit===item.unit) || null;
 }
