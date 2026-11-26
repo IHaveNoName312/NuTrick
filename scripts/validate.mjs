@@ -37,10 +37,12 @@ const extract = (start, end) => {
   return script.slice(a, b);
 };
 const normalizeCode = extract("function normalizeText(value)", "async function loadTacoData()");
+const offCode = extract("function offNumber(value)", "async function searchOFFProducts(term)");
 const portionCode = extract("function portionFor(food)", "function sum(items)");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script(normalizeCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity;").runInContext(testContext);
+new vm.Script(normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
+const mapOFFForTest = testContext.mapOFFForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
   const result = parseForTest(description);
@@ -84,7 +86,53 @@ if (Math.abs(twelvePeanuts.kcal - 72) > 0.01 || twelvePeanuts.baseQuantity !== 1
   throw new Error("Twelve counted peanuts should convert using the configured grams-per-unit value");
 }
 
+const standardLiquid = mapOFFForTest({
+  code: "7890000000000",
+  product_name: "Leite integral de teste",
+  quantity: "1 L",
+  product_quantity_unit: "ml",
+  nutriments: {
+    "energy-kj_100g": 418.4,
+    "proteins_100g": "3.2",
+    "carbohydrates_100g": 4.8,
+    "fat_100g": 3,
+    "fiber_100g": 0,
+    "sodium_100g": 0.04
+  }
+});
+if (!standardLiquid.complete || standardLiquid.unit !== "ml" || Math.abs(standardLiquid.kcal - 100) > 0.01 || Math.abs(standardLiquid.sodium - 40) > 0.01) {
+  throw new Error("Open Food Facts normalized fields should keep the liquid unit, convert kJ to kcal and sodium grams to mg");
+}
+const legacyLiquid = mapOFFForTest({
+  code: "7890000000001",
+  product_name: "Bebida de teste",
+  product_quantity_unit: "ml",
+  nutriments: {
+    "energy-kcal_100ml": 25,
+    "proteins_100ml": 1,
+    "carbohydrates_100ml": 5,
+    "fat_100ml": 0.2,
+    "salt_100ml": 0.2
+  }
+});
+if (!legacyLiquid.complete || legacyLiquid.unit !== "ml" || Math.abs(legacyLiquid.sodium - 80) > 0.01) {
+  throw new Error("Legacy 100ml fields and salt-to-sodium conversion should be supported");
+}
+const mixedBasis = mapOFFForTest({
+  code: "7890000000002",
+  product_name: "Produto incompleto",
+  nutriments: {
+    "energy-kcal_100g": 180,
+    "proteins_100g": 9,
+    "fat_100g": 5,
+    "carbohydrates_100ml": 20
+  }
+});
+if (mixedBasis.complete || mixedBasis.carbs !== null || !mixedBasis.missing.includes("carboidratos")) {
+  throw new Error("Open Food Facts must not combine nutrients from different reference bases");
+}
+
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 9 parser behavior checks and 2 count-unit conversion checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; parser, count-unit and 3 Open Food Facts mapping checks passed.`);
