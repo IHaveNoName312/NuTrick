@@ -282,6 +282,12 @@ if (persistedAfterSave.foods.some(food => food.id.startsWith("taco-")) ||
     !persistedAfterSave.foods.some(food => food.id === userFood.id)) {
   throw new Error("A successful save must persist personal food only, not the static TACO catalog");
 }
+const validBeforeInvalidMutation = fakeStorage.data.get("nutrick-v1");
+testContext.st.meals[0].items[0].qty = -100;
+if (saveForTest() !== false || testContext.st.meals[0].items[0].qty !== 100 ||
+    fakeStorage.data.get("nutrick-v1") !== validBeforeInvalidMutation) {
+  throw new Error("The save layer must validate internal state and roll back invalid mutations before writing");
+}
 setStorageProtectionForTest(true);
 testContext.st.goals.protein = 140;
 if (saveForTest() !== false || testContext.st.goals.protein !== 150) {
@@ -446,4 +452,4 @@ if (!html.includes("if(!save()){render();return}") || !html.includes("if(!save()
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and persistent corrupt-local-storage recovery; save-failure rollback and storage protection; static catalog excluded from local storage; failed import atomicity; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and persistent corrupt-local-storage recovery; save-failure rollback, invalid-state rejection and storage protection; static catalog excluded from local storage; failed import atomicity; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
