@@ -59,6 +59,7 @@ const fakeStorage = {
 const testContext = vm.createContext({
   st: { foods: tacoFoods, portions: {} },
   localStorage: fakeStorage,
+  toast: () => {},
   fmt: value => Number(value || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
 });
 const script = html.slice(scriptStart + "<script>".length, scriptEnd);
@@ -72,9 +73,10 @@ const normalizeCode = extract("function normalizeText(value)", "async function l
 const offCode = extract("function offNumber(value)", "async function searchOFFProducts(term)");
 const portionCode = extract("function portionFor(food)", "function todayMeals()");
 const backupCode = extract("function isRecord(value)", "function load()");
-const loadCode = extract("function load()", "function save()");
+const loadCode = extract("function load()", "function rollbackUnsavedState()");
+const saveCode = extract("function rollbackUnsavedState()", "let tacoReady=false;");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage='';\n" + backupCode + "\n" + loadCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw;").runInContext(testContext);
+new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st);\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(st); };").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
 const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
@@ -88,6 +90,9 @@ const restorePreImportForTest = testContext.restorePreImportForTest;
 const loadStateForTest = testContext.loadStateForTest;
 const getRollbackRawForTest = testContext.getRollbackRawForTest;
 const getRecoveryRawForTest = testContext.getRecoveryRawForTest;
+const saveForTest = testContext.saveForTest;
+const setStorageProtectionForTest = testContext.setStorageProtectionForTest;
+const refreshSavedSnapshotForTest = testContext.refreshSavedSnapshotForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
   const result = parseForTest(description);
@@ -223,6 +228,32 @@ const toggledState = JSON.parse(fakeStorage.getItem("nutrick-v1"));
 if (toggledState.measures[0].weight !== 76) {
   throw new Error("The restore point should be reversible without losing either state");
 }
+const durableState = {
+  ...validBackupState,
+  foods: tacoFoods,
+  goals: { ...validBackupState.goals }
+};
+testContext.st = JSON.parse(JSON.stringify(durableState));
+refreshSavedSnapshotForTest();
+const durableRaw = JSON.stringify(testContext.st);
+fakeStorage.data = new Map([["nutrick-v1", durableRaw]]);
+fakeStorage.failKey = "nutrick-v1";
+testContext.st.goals.protein = 999;
+if (saveForTest() !== false || testContext.st.goals.protein !== 160 || fakeStorage.data.get("nutrick-v1") !== durableRaw) {
+  throw new Error("Failed storage writes must roll back in-memory changes and preserve the last committed data");
+}
+fakeStorage.failKey = null;
+testContext.st.goals.protein = 150;
+if (saveForTest() !== true || JSON.parse(fakeStorage.data.get("nutrick-v1")).goals.protein !== 150) {
+  throw new Error("Successful storage writes should commit the new state and update the rollback snapshot");
+}
+setStorageProtectionForTest(true);
+testContext.st.goals.protein = 140;
+if (saveForTest() !== false || testContext.st.goals.protein !== 150) {
+  throw new Error("Storage protection mode must reject writes and restore the last committed state");
+}
+setStorageProtectionForTest(false);
+
 fakeStorage.data = new Map([["nutrick-v1", "{corrupted json"]]);
 fakeStorage.failKey = null;
 const recoveredDefault = loadStateForTest();
@@ -371,7 +402,12 @@ if (mixedBasis.complete || mixedBasis.carbs !== null || !mixedBasis.missing.incl
   throw new Error("Open Food Facts must not combine nutrients from different reference bases");
 }
 
+const userMutationSaveCalls = (html.match(/if\(!save\(\)\)/g) || []).length;
+if (userMutationSaveCalls < 10) throw new Error("Expected user-facing mutations to check save() success before confirming changes");
+if (!html.includes("if(!save()){render();return}") || !html.includes("if(!save()){renderFoodResults")) {
+  throw new Error("A failed save must stop success-side effects and restore the visible UI");
+
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and persistent corrupt-local-storage recovery; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and persistent corrupt-local-storage recovery; save-failure rollback and storage protection; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
