@@ -353,5 +353,90 @@
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-093",
+    "sourceCode": "93",
+    "name": "Batata, inglesa, frita",
+    "aliases": [
+      "batata frita",
+      "batata frita caseira"
+    ],
+    "category": "Tubérculos",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 267,
+    "protein": 5,
+    "carbs": 35.6,
+    "fat": 13.1,
+    "fiber": 8.1,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference",
+    "sourceNote": "Referência TACO para batata inglesa frita, preparada conforme o procedimento descrito na tabela. Receitas e absorção de óleo variam."
+  },
+  {
+    "id": "taco-461",
+    "sourceCode": "461",
+    "name": "Queijo, minas, frescal",
+    "aliases": [
+      "queijo minas frescal",
+      "queijo minas"
+    ],
+    "category": "Laticínios",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 264,
+    "protein": 17.4,
+    "carbs": 3.2,
+    "fat": 20.2,
+    "fiber": null,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-533",
+    "sourceCode": "533",
+    "name": "Cuscuz, de milho, cozido com sal",
+    "aliases": [
+      "cuscuz de milho",
+      "cuscuz nordestino"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 113,
+    "protein": 2.2,
+    "carbs": 25.3,
+    "fat": 0.7,
+    "fiber": 2.1,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-551",
+    "sourceCode": "551",
+    "name": "Tapioca, com manteiga",
+    "aliases": [
+      "tapioca com manteiga"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 348,
+    "protein": 0.1,
+    "carbs": 63.6,
+    "fat": 10.9,
+    "fiber": null,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference",
+    "sourceNote": "Esta referência é para tapioca preparada com manteiga, não para goma de tapioca hidratada pura."
   }
 ]
