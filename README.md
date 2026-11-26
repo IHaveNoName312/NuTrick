@@ -23,12 +23,17 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Exportação e importação de backup JSON.
 - Armazenamento no navegador e cache offline após a primeira visita em HTTPS.
 
-## Limitações da versão atual
+## Fontes e limitações dos dados
 
+- O catálogo inicial contém 21 registros associados à **TACO, 4ª edição revisada e ampliada, NEPA/UNICAMP (2011)**. Cada registro conserva o código do alimento e o endereço da fonte. A base ainda é parcial e não cobre todas as marcas, receitas ou métodos de preparo.
+- O café aparece em ml por uma aproximação de densidade de 1 g/ml; a TACO apresenta a composição por 100 g. Porções caseiras também podem variar, então pese o alimento quando precisar de mais precisão.
+- Produtos pesquisados no **Open Food Facts** vêm de uma base colaborativa. Confira os dados com o rótulo da embalagem; produtos sem calorias, proteínas, carboidratos ou gorduras identificados não podem ser adicionados ao diário.
+- Cadastros manuais dependem das informações digitadas pelo usuário.
 - A interpretação de texto é local e baseada em regras, **não é uma IA conectada**.
-- Os valores do catálogo inicial são **ilustrativos**, ainda não foram verificados contra a TACO, Open Food Facts ou rótulos reais. Não os use como referência nutricional.
-- Scanner de código de barras e sincronização em nuvem ainda não foram implementados.
+- Leitura de código de barras pela câmera e sincronização em nuvem ainda não foram implementadas. A consulta por digitação do código já está disponível.
 - Os dados alimentares ficam neste navegador/dispositivo. Limpar os dados do Safari pode apagá-los; exporte backups regularmente.
+
+**Fonte TACO:** [NEPA/UNICAMP, 4ª edição](https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf).
 
 ## Executar localmente
 
