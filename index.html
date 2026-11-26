@@ -173,17 +173,27 @@ function commitImportedBackup(parsed){
   if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de tentar importar.');
   const currentRaw=localStorage.getItem(STORAGE_KEY);
   localStorage.removeItem(PREIMPORT_ALT_KEY);
-  if(currentRaw!==null)localStorage.setItem(PREIMPORT_KEY,currentRaw);
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
+  if(currentRaw!==null)localStorage.setItem(PREIMPORT_ALT_KEY,currentRaw);
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
+  }catch(error){
+    try{localStorage.removeItem(PREIMPORT_ALT_KEY)}catch(cleanupError){}
+    throw error;
+  }
   st=prepared.state;
+  if(currentRaw!==null){
+    try{
+      localStorage.setItem(PREIMPORT_KEY,currentRaw);
+      localStorage.removeItem(PREIMPORT_ALT_KEY);
+    }catch(error){
+      // A cópia em PREIMPORT_ALT_KEY continua disponível como ponto de restauração.
+    }
+  }
   return prepared;
 }
 function getPreImportBackupRaw(){
-  const currentRaw=localStorage.getItem(STORAGE_KEY);
-  const previousRaw=localStorage.getItem(PREIMPORT_KEY);
   const alternateRaw=localStorage.getItem(PREIMPORT_ALT_KEY);
-  if(previousRaw!==null&&previousRaw!==currentRaw)return previousRaw;
-  return alternateRaw!==null?alternateRaw:previousRaw;
+  return alternateRaw!==null?alternateRaw:localStorage.getItem(PREIMPORT_KEY);
 }
 function restorePreImportBackup(){
   if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de continuar.');
@@ -192,14 +202,19 @@ function restorePreImportBackup(){
   const prepared=unwrapAndValidateBackup(JSON.parse(rollbackRaw));
   const currentRaw=localStorage.getItem(STORAGE_KEY);
   if(currentRaw!==null)localStorage.setItem(PREIMPORT_ALT_KEY,currentRaw);
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
+  }catch(error){
+    try{localStorage.removeItem(PREIMPORT_ALT_KEY)}catch(cleanupError){}
+    throw error;
+  }
   st=prepared.state;
   if(currentRaw!==null){
     try{
       localStorage.setItem(PREIMPORT_KEY,currentRaw);
       localStorage.removeItem(PREIMPORT_ALT_KEY);
     }catch(error){
-      // A cópia alternativa continua em PREIMPORT_ALT_KEY caso o armazenamento fique sem espaço.
+      // A cópia em PREIMPORT_ALT_KEY continua disponível como ponto de restauração.
     }
   }
   return prepared;
