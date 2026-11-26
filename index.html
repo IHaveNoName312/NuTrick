@@ -692,14 +692,13 @@ function downloadText(content,filename,type){
 }
 function updateRecoveryNotice(){
   const notice=$('#recoveryNotice'),button=$('#downloadRecovery'),restore=$('#restorePreImport');
-  if(recoveryRaw){
+  if(storageRecoveryMessage||recoveryRaw){
     notice.textContent=storageRecoveryMessage||'Uma cópia original de recuperação está disponível.';
     notice.classList.remove('hidden');
-    button.classList.remove('hidden');
   }else{
     notice.classList.add('hidden');
-    button.classList.add('hidden');
   }
+  button.classList.toggle('hidden',recoveryRaw===null);
   try{restore.classList.toggle('hidden',getPreImportBackupRaw()===null)}
   catch(error){restore.classList.add('hidden')}
 }
