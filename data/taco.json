@@ -15,7 +15,7 @@
     "carbs": 28.1,
     "fat": 0.2,
     "fiber": 1.6,
-    "sodium": null,
+    "sodium": 1,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference"
@@ -35,7 +35,7 @@
     "carbs": 25.8,
     "fat": 1,
     "fiber": 2.7,
-    "sodium": null,
+    "sodium": 1,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference"
@@ -265,7 +265,7 @@
     "carbs": 0,
     "fat": 2.5,
     "fiber": null,
-    "sodium": null,
+    "sodium": 50,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference"
@@ -307,7 +307,7 @@
     "carbs": 0,
     "fat": 11.6,
     "fiber": null,
-    "sodium": null,
+    "sodium": 52,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference"
@@ -395,7 +395,7 @@
     "carbs": 3.2,
     "fat": 20.2,
     "fiber": null,
-    "sodium": null,
+    "sodium": 31,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference"
@@ -436,7 +436,7 @@
     "carbs": 63.6,
     "fat": 10.9,
     "fiber": null,
-    "sodium": null,
+    "sodium": 158,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference",
