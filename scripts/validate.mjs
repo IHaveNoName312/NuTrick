@@ -76,7 +76,7 @@ const backupCode = extract("function isRecord(value)", "function load()");
 const loadCode = extract("function load()", "function rollbackUnsavedState()");
 const saveCode = extract("function rollbackUnsavedState()", "let tacoReady=false;");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st);\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(st); };").runInContext(testContext);
+new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st);\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
 const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
@@ -93,6 +93,8 @@ const getRecoveryRawForTest = testContext.getRecoveryRawForTest;
 const saveForTest = testContext.saveForTest;
 const setStorageProtectionForTest = testContext.setStorageProtectionForTest;
 const refreshSavedSnapshotForTest = testContext.refreshSavedSnapshotForTest;
+const setTacoCatalogForTest = testContext.setTacoCatalogForTest;
+const persistedStateForTest = testContext.persistedStateForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
   const result = parseForTest(description);
@@ -212,6 +214,14 @@ try { commitImportForTest(incomingEnvelope); } catch { snapshotWriteRejected = t
 if (!snapshotWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw) {
   throw new Error("A failed restore-point write must abort import before replacing current data");
 }
+fakeStorage.failKey = "nutrick-v1";
+let importMainWriteRejected = false;
+try { commitImportForTest(incomingEnvelope); } catch { importMainWriteRejected = true; }
+fakeStorage.failKey = null;
+if (!importMainWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw ||
+    getRollbackRawForTest() !== currentRaw) {
+  throw new Error("A failed main import write must preserve current data and the previous restore point");
+}
 fakeStorage.failKey = null;
 fakeStorage.data = new Map([
   ["nutrick-v1", importedRaw],
@@ -228,13 +238,33 @@ const toggledState = JSON.parse(fakeStorage.getItem("nutrick-v1"));
 if (toggledState.measures[0].weight !== 76) {
   throw new Error("The restore point should be reversible without losing either state");
 }
+const userFood = {
+  id: "u-personal-food",
+  name: "Alimento pessoal",
+  base: 100,
+  unit: "g",
+  kcal: 200,
+  protein: 10,
+  carbs: 20,
+  fat: 5,
+  fiber: null,
+  sodium: null,
+  source: "Cadastro manual",
+  sourceStatus: "manual"
+};
 const durableState = {
   ...validBackupState,
-  foods: tacoFoods,
+  foods: [...tacoFoods, userFood],
   goals: { ...validBackupState.goals }
 };
 testContext.st = JSON.parse(JSON.stringify(durableState));
+setTacoCatalogForTest(tacoFoods);
 refreshSavedSnapshotForTest();
+const persistedCatalogCheck = persistedStateForTest(testContext.st);
+if (persistedCatalogCheck.foods.some(food => food.id.startsWith("taco-")) ||
+    !persistedCatalogCheck.foods.some(food => food.id === userFood.id)) {
+  throw new Error("Static TACO foods must stay out of localStorage while personal foods remain persisted");
+}
 const durableRaw = JSON.stringify(testContext.st);
 fakeStorage.data = new Map([["nutrick-v1", durableRaw]]);
 fakeStorage.failKey = "nutrick-v1";
@@ -246,6 +276,11 @@ fakeStorage.failKey = null;
 testContext.st.goals.protein = 150;
 if (saveForTest() !== true || JSON.parse(fakeStorage.data.get("nutrick-v1")).goals.protein !== 150) {
   throw new Error("Successful storage writes should commit the new state and update the rollback snapshot");
+}
+const persistedAfterSave = JSON.parse(fakeStorage.data.get("nutrick-v1"));
+if (persistedAfterSave.foods.some(food => food.id.startsWith("taco-")) ||
+    !persistedAfterSave.foods.some(food => food.id === userFood.id)) {
+  throw new Error("A successful save must persist personal food only, not the static TACO catalog");
 }
 setStorageProtectionForTest(true);
 testContext.st.goals.protein = 140;
@@ -411,4 +446,4 @@ if (!html.includes("if(!save()){render();return}") || !html.includes("if(!save()
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and persistent corrupt-local-storage recovery; save-failure rollback and storage protection; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and persistent corrupt-local-storage recovery; save-failure rollback and storage protection; static catalog excluded from local storage; failed import atomicity; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
