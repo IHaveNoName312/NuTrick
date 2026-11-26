@@ -95,30 +95,49 @@ async function loadTacoData(){
     toast('Não foi possível carregar a base TACO. Confira a conexão e atualize.');
   }
 }
-function offNumber(value){return typeof value==='number'&&Number.isFinite(value)?value:null}
-function mapOFFProduct(product){
-  if(!product)return null;
-  const n=product.nutriments||{};
-  const hasMl=offNumber(n['energy-kcal_100ml'])!==null;
-  const suffix=hasMl?'100ml':'100g';
+function offNumber(value){
+  if(typeof value==='number')return Number.isFinite(value)?value:null;
+  if(typeof value==='string'&&value.trim()!==''){
+    const parsed=Number(value.replace(',','.'));
+    return Number.isFinite(parsed)?parsed:null;
+  }
+  return null;
+}
+function offNutrientSet(n,suffix){
   let kcal=offNumber(n['energy-kcal_'+suffix]);
-  if(kcal===null){const kj=offNumber(n['energy-kj_'+suffix]);if(kj!==null)kcal=kj/4.184}
+  if(kcal===null){
+    const kj=offNumber(n['energy-kj_'+suffix]);
+    if(kj!==null)kcal=kj/4.184;
+  }
   const protein=offNumber(n['proteins_'+suffix]);
   const carbs=offNumber(n['carbohydrates_'+suffix]);
   const fat=offNumber(n['fat_'+suffix]);
   const fiber=offNumber(n['fiber_'+suffix]);
-  const sodium=offNumber(n['sodium_'+suffix]);
+  const sodiumGrams=offNumber(n['sodium_'+suffix]);
+  const saltGrams=offNumber(n['salt_'+suffix]);
+  const sodium=sodiumGrams!==null?sodiumGrams*1000:(saltGrams!==null?saltGrams*400:null);
+  const core=[kcal,protein,carbs,fat];
+  return {suffix,kcal,protein,carbs,fat,fiber,sodium,complete:core.every(value=>value!==null),score:core.filter(value=>value!==null).length};
+}
+function mapOFFProduct(product){
+  if(!product)return null;
+  const n=product.nutriments||{};
+  const bases=['100g','100ml'].map(suffix=>offNutrientSet(n,suffix));
+  bases.sort((a,b)=>b.score-a.score||(a.suffix==='100g'?-1:1));
+  const chosen=bases[0];
+  const missing=[];
+  if(chosen.kcal===null)missing.push('calorias');
+  if(chosen.protein===null)missing.push('proteínas');
+  if(chosen.carbs===null)missing.push('carboidratos');
+  if(chosen.fat===null)missing.push('gorduras');
+  const explicitUnit=String(product.product_quantity_unit||product.serving_quantity_unit||'').trim().toLowerCase();
+  const unit=chosen.suffix==='100ml'?'ml':(explicitUnit==='ml'?'ml':'g');
   const name=product.product_name_pt||product.product_name||product.generic_name||'Produto sem nome';
   const brand=product.brands||'';
-  const missing=[];
-  if(kcal===null)missing.push('calorias');
-  if(protein===null)missing.push('proteínas');
-  if(carbs===null)missing.push('carboidratos');
-  if(fat===null)missing.push('gorduras');
-  return {id:'off-'+String(product.code||Date.now()),code:String(product.code||''),name:String(name),brand:String(brand),unit:hasMl?'ml':'g',base:100,kcal,protein,carbs,fat,fiber,sodium,source:'Open Food Facts (dados colaborativos)',sourceStatus:'openfoodfacts',sourceUrl:product.code?'https://world.openfoodfacts.org/product/'+encodeURIComponent(product.code):'https://world.openfoodfacts.org/',quantity:product.quantity||'',servingSize:product.serving_size||'',missing,complete:missing.length===0};
+  return {id:'off-'+String(product.code||Date.now()),code:String(product.code||''),name:String(name),brand:String(brand),unit,base:100,kcal:chosen.kcal,protein:chosen.protein,carbs:chosen.carbs,fat:chosen.fat,fiber:chosen.fiber,sodium:chosen.sodium,source:'Open Food Facts (dados colaborativos)',sourceStatus:'openfoodfacts',sourceUrl:product.code?'https://world.openfoodfacts.org/product/'+encodeURIComponent(product.code):'https://world.openfoodfacts.org/',quantity:product.quantity||'',servingSize:product.serving_size||'',missing,complete:missing.length===0};
 }
 async function searchOFFProducts(term){
-  const params=new URLSearchParams({search_terms:term,search_simple:'1',action:'process',json:'1',page_size:'8',fields:'code,product_name,product_name_pt,generic_name,brands,quantity,serving_size,nutriments'});
+  const params=new URLSearchParams({search_terms:term,search_simple:'1',action:'process',json:'1',page_size:'8',fields:'code,product_name,product_name_pt,generic_name,brands,quantity,product_quantity_unit,serving_size,serving_quantity_unit,nutriments'});
   const response=await fetch('https://world.openfoodfacts.org/cgi/search.pl?'+params.toString(),{headers:{Accept:'application/json'}});
   if(!response.ok)throw new Error('Open Food Facts respondeu HTTP '+response.status);
   const data=await response.json();
@@ -127,7 +146,7 @@ async function searchOFFProducts(term){
 async function lookupOFFBarcode(code){
   const clean=String(code||'').replace(/\D/g,'');
   if(!/^\d{8,14}$/.test(clean))throw new Error('Informe um código de barras com 8 a 14 dígitos.');
-  const url='https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(clean)+'.json?fields=code,product_name,product_name_pt,generic_name,brands,quantity,serving_size,nutriments';
+  const url='https://world.openfoodfacts.org/api/v3/product/'+encodeURIComponent(clean)+'.json?fields=code,product_name,product_name_pt,generic_name,brands,quantity,product_quantity_unit,serving_size,serving_quantity_unit,nutriments';
   const response=await fetch(url,{headers:{Accept:'application/json'}});
   if(!response.ok)throw new Error('Open Food Facts respondeu HTTP '+response.status);
   const data=await response.json();
