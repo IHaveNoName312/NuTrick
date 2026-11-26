@@ -123,9 +123,11 @@ function validateStateShape(value){
   const mealIds=new Set();
   for(let i=0;i<value.meals.length;i++){
     const meal=value.meals[i];
-    if(!isRecord(meal)||typeof meal.id!=='string'||!meal.id.trim()||typeof meal.type!=='string'||!meal.type.trim()||!isValidDate(meal.date)||!Array.isArray(meal.items))return 'A refeição '+(i+1)+' tem estrutura ou data inválida.';
-    if(mealIds.has(meal.id))return 'Há refeições duplicadas com o mesmo identificador.';
-    mealIds.add(meal.id);
+    const validMealId=(typeof meal?.id==='string'&&Boolean(meal.id.trim()))||(typeof meal?.id==='number'&&Number.isSafeInteger(meal.id)&&meal.id>0);
+    if(!isRecord(meal)||!validMealId||typeof meal.type!=='string'||!meal.type.trim()||!isValidDate(meal.date)||!Array.isArray(meal.items))return 'A refeição '+(i+1)+' tem estrutura ou data inválida.';
+    const mealKey=String(meal.id);
+    if(mealIds.has(mealKey))return 'Há refeições duplicadas com o mesmo identificador.';
+    mealIds.add(mealKey);
     if(meal.items.length>500)return 'Uma refeição contém itens demais.';
     for(let j=0;j<meal.items.length;j++){
       const item=meal.items[j];
