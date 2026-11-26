@@ -72,6 +72,7 @@ const $=s=>document.querySelector(s), today=()=>{const d=new Date();return [d.ge
 const STORAGE_KEY='nutrick-v1';
 const RECOVERY_PREFIX='nutrick-recovery-v1-';
 const PREIMPORT_KEY='nutrick-pre-import-v1';
+const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1';
 const BACKUP_FORMAT_VERSION=1;
 const MAX_BACKUP_BYTES=10*1024*1024;
 const seed=[];
@@ -163,6 +164,42 @@ function unwrapAndValidateBackup(parsed){
   const error=validateStateShape(payload);
   if(error)throw new Error(error);
   return {state:{...payload,portions:isRecord(payload.portions)?{...payload.portions}:{}},legacy};
+}
+function commitImportedBackup(parsed){
+  const prepared=unwrapAndValidateBackup(parsed);
+  if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de tentar importar.');
+  const currentRaw=localStorage.getItem(STORAGE_KEY);
+  localStorage.removeItem(PREIMPORT_ALT_KEY);
+  if(currentRaw!==null)localStorage.setItem(PREIMPORT_KEY,currentRaw);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
+  st=prepared.state;
+  return prepared;
+}
+function getPreImportBackupRaw(){
+  const currentRaw=localStorage.getItem(STORAGE_KEY);
+  const previousRaw=localStorage.getItem(PREIMPORT_KEY);
+  const alternateRaw=localStorage.getItem(PREIMPORT_ALT_KEY);
+  if(previousRaw!==null&&previousRaw!==currentRaw)return previousRaw;
+  return alternateRaw!==null?alternateRaw:previousRaw;
+}
+function restorePreImportBackup(){
+  if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de continuar.');
+  const rollbackRaw=getPreImportBackupRaw();
+  if(rollbackRaw===null)throw new Error('Não há uma cópia anterior disponível neste navegador.');
+  const prepared=unwrapAndValidateBackup(JSON.parse(rollbackRaw));
+  const currentRaw=localStorage.getItem(STORAGE_KEY);
+  if(currentRaw!==null)localStorage.setItem(PREIMPORT_ALT_KEY,currentRaw);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
+  st=prepared.state;
+  if(currentRaw!==null){
+    try{
+      localStorage.setItem(PREIMPORT_KEY,currentRaw);
+      localStorage.removeItem(PREIMPORT_ALT_KEY);
+    }catch(error){
+      // A cópia alternativa continua em PREIMPORT_ALT_KEY caso o armazenamento fique sem espaço.
+    }
+  }
+  return prepared;
 }
 function load(){
   let raw;
@@ -631,7 +668,7 @@ function updateRecoveryNotice(){
     notice.classList.add('hidden');
     button.classList.add('hidden');
   }
-  try{restore.classList.toggle('hidden',localStorage.getItem(PREIMPORT_KEY)===null)}
+  try{restore.classList.toggle('hidden',getPreImportBackupRaw()===null)}
   catch(error){restore.classList.add('hidden')}
 }
 $('#export').onclick=()=>{
@@ -649,13 +686,7 @@ $('#downloadRecovery').onclick=()=>{
 $('#restorePreImport').onclick=()=>{
   if(!confirm('Restaurar os dados que estavam no NuTrick antes da última importação? A versão atual será mantida como cópia alternativa.'))return;
   try{
-    const previousRaw=localStorage.getItem(PREIMPORT_KEY);
-    if(previousRaw===null)throw new Error('Não há uma cópia anterior disponível neste navegador.');
-    const prepared=unwrapAndValidateBackup(JSON.parse(previousRaw));
-    const currentRaw=localStorage.getItem(STORAGE_KEY);
-    if(currentRaw!==null)localStorage.setItem(PREIMPORT_KEY,currentRaw);
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
-    st=prepared.state;
+    restorePreImportBackup();
     render();updateRecoveryNotice();
     toast('Dados anteriores restaurados. A versão substituída foi preservada como cópia alternativa.');
   }catch(error){toast(error.message||'Não foi possível restaurar a cópia anterior.')}
@@ -666,15 +697,10 @@ $('#import').onchange=async e=>{
     if(!file)throw new Error('Selecione um arquivo de backup.');
     if(file.size<=0||file.size>MAX_BACKUP_BYTES)throw new Error('O arquivo está vazio ou ultrapassa o limite de 10 MB.');
     const parsed=JSON.parse(await file.text());
-    const prepared=unwrapAndValidateBackup(parsed);
-    if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de tentar importar.');
-    const currentRaw=localStorage.getItem(STORAGE_KEY);
-    if(currentRaw!==null)localStorage.setItem(PREIMPORT_KEY,currentRaw);
-    const nextRaw=JSON.stringify(prepared.state);
-    localStorage.setItem(STORAGE_KEY,nextRaw);
-    st=prepared.state;
+    const prepared=commitImportedBackup(parsed);
     render();
-    toast(prepared.legacy?'Backup antigo validado e importado.':'Backup validado e importado com sucesso.');updateRecoveryNotice();
+    toast(prepared.legacy?'Backup antigo validado e importado.':'Backup validado e importado com sucesso.');
+    updateRecoveryNotice();
   }catch(error){
     toast(error.message||'Não foi possível importar. Os dados atuais foram preservados.');
   }finally{
