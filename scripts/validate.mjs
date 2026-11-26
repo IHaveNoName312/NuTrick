@@ -26,7 +26,8 @@ for (const food of taco) {
 
 const tacoFoods = taco.map(food => ({ ...food, base: food.basis, sourceStatus: "taco" }));
 const testContext = vm.createContext({
-  st: { foods: tacoFoods },
+  st: { foods: tacoFoods, portions: {} },
+  fmt: value => Number(value || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
 });
 const script = html.slice(scriptStart + "<script>".length, scriptEnd);
 const extract = (start, end) => {
