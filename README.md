@@ -20,7 +20,11 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Perguntas de esclarecimento e confirmação antes de salvar estimativas.
 - Sugestões simples de refeições recorrentes.
 - Registro de peso e cintura.
-- Exportação e importação de backup JSON.
+- Exportação de backup JSON versionado e importação com validação estrutural antes de substituir os dados.
+- Compatibilidade de importação com backups antigos em JSON sem envelope de versão.
+- Ponto de restauração local automático antes de cada importação, com opção de alternar de volta à versão anterior.
+- Recuperação de um arquivo local inválido: o conteúdo original é preservado para download antes de o aplicativo iniciar com dados vazios.
+- Limite de 10 MB por arquivo de backup; se não for possível guardar o ponto de restauração, a importação é cancelada sem substituir os dados atuais.
 - Armazenamento no navegador e cache offline após a primeira visita em HTTPS.
 
 ## Fontes e limitações dos dados
@@ -31,7 +35,8 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Cadastros manuais dependem das informações digitadas pelo usuário.
 - A interpretação de texto é local e baseada em regras, **não é uma IA conectada**.
 - Leitura de código de barras pela câmera e sincronização em nuvem ainda não foram implementadas. A consulta por digitação do código já está disponível.
-- Os dados alimentares ficam neste navegador/dispositivo. Limpar os dados do Safari pode apagá-los; exporte backups regularmente.
+- Os dados alimentares ficam neste navegador/dispositivo. O ponto de restauração também fica no mesmo armazenamento local e não substitui uma cópia externa. Exporte backups regularmente e guarde-os fora do aparelho.
+- A validação detecta estruturas inválidas, mas não consegue provar que os números nutricionais digitados em um backup correspondem ao rótulo original.
 
 **Fonte TACO:** [NEPA/UNICAMP, 4ª edição](https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf).
 
