@@ -83,7 +83,7 @@ let storageWriteBlocked=false;
 let tacoCatalog=[];
 let st=load();
 st.portions=st.portions||{};
-let lastSavedRaw=JSON.stringify(st);
+let lastSavedRaw=JSON.stringify(persistedState(st));
 
 function isRecord(value){
   return value!==null&&typeof value==='object'&&!Array.isArray(value);
@@ -98,6 +98,12 @@ function isValidDate(value){
 }
 function createDefaultState(){
   return {goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[],portions:{}};
+}
+function isCatalogFood(food){
+  return Boolean(food&&typeof food.id==='string'&&food.id.startsWith('taco-'));
+}
+function persistedState(source=st){
+  return {...source,foods:(source.foods||[]).filter(food=>!isCatalogFood(food))};
 }
 function validateStateShape(value){
   if(!isRecord(value))return 'O arquivo não contém um objeto de dados válido.';
@@ -175,12 +181,15 @@ function commitImportedBackup(parsed){
   const prepared=unwrapAndValidateBackup(parsed);
   if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de tentar importar.');
   const currentRaw=localStorage.getItem(STORAGE_KEY);
-  const rollbackRaw=currentRaw===null?JSON.stringify(st):currentRaw;
+  const rollbackRaw=currentRaw===null?JSON.stringify(persistedState(st)):currentRaw;
+  const importedState={...prepared.state,foods:[...tacoCatalog,...prepared.state.foods.filter(food=>!isCatalogFood(food))]};
+  const importedRaw=JSON.stringify(persistedState(importedState));
   // Stage the current state first. A failed write must abort before the main key changes.
   localStorage.setItem(PREIMPORT_ALT_KEY,rollbackRaw);
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
-  st=prepared.state;
-  lastSavedRaw=JSON.stringify(st);
+  localStorage.setItem(STORAGE_KEY,importedRaw);
+  st=importedState;
+  prepared.state=importedState;
+  lastSavedRaw=importedRaw;
   try{
     localStorage.setItem(PREIMPORT_KEY,rollbackRaw);
     localStorage.removeItem(PREIMPORT_ALT_KEY);
@@ -201,12 +210,15 @@ function restorePreImportBackup(){
   if(rollbackRaw===null)throw new Error('Não há uma cópia anterior disponível neste navegador.');
   const prepared=unwrapAndValidateBackup(JSON.parse(rollbackRaw));
   const currentRaw=localStorage.getItem(STORAGE_KEY);
-  const currentStateRaw=currentRaw===null?JSON.stringify(st):currentRaw;
+  const currentStateRaw=currentRaw===null?JSON.stringify(persistedState(st)):currentRaw;
+  const restoredState={...prepared.state,foods:[...tacoCatalog,...prepared.state.foods.filter(food=>!isCatalogFood(food))]};
+  const restoredRaw=JSON.stringify(persistedState(restoredState));
   // Preserve the currently active state before attempting the rollback.
   localStorage.setItem(PREIMPORT_ALT_KEY,currentStateRaw);
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
-  st=prepared.state;
-  lastSavedRaw=JSON.stringify(st);
+  localStorage.setItem(STORAGE_KEY,restoredRaw);
+  st=restoredState;
+  prepared.state=restoredState;
+  lastSavedRaw=restoredRaw;
   try{
     localStorage.setItem(PREIMPORT_KEY,currentStateRaw);
     localStorage.removeItem(PREIMPORT_ALT_KEY);
@@ -259,8 +271,8 @@ function rollbackUnsavedState(){
     const previous=JSON.parse(lastSavedRaw);
     if(!isRecord(previous))throw new Error('Snapshot anterior inválido');
     const savedFoods=Array.isArray(previous.foods)?previous.foods:[];
-    const personalFoods=tacoCatalog.length?savedFoods.filter(food=>food.sourceStatus==='openfoodfacts'||food.source==='Cadastro manual'||food.sourceStatus==='manual'):savedFoods;
-    st={...previous,foods:tacoCatalog.length?[...tacoCatalog,...personalFoods]:savedFoods,portions:isRecord(previous.portions)?previous.portions:{}};
+    const restoredFoods=tacoCatalog.length?[...tacoCatalog,...savedFoods.filter(food=>!isCatalogFood(food))]:savedFoods;
+    st={...previous,foods:restoredFoods,portions:isRecord(previous.portions)?previous.portions:{}};
   }catch(error){
     storageWriteBlocked=true;
     storageRecoveryMessage='O NuTrick não conseguiu restaurar o último estado salvo em memória. Não continue registrando dados até recuperar um backup.';
@@ -274,7 +286,7 @@ function save(){
   }
   let serialized;
   try{
-    serialized=JSON.stringify(st);
+    serialized=JSON.stringify(persistedState(st));
     if(typeof serialized!=='string')throw new Error('Não foi possível serializar os dados.');
     localStorage.setItem(STORAGE_KEY,serialized);
     lastSavedRaw=serialized;
