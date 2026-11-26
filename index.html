@@ -175,29 +175,25 @@ function commitImportedBackup(parsed){
   const prepared=unwrapAndValidateBackup(parsed);
   if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de tentar importar.');
   const currentRaw=localStorage.getItem(STORAGE_KEY);
-  localStorage.removeItem(PREIMPORT_ALT_KEY);
-  if(currentRaw!==null)localStorage.setItem(PREIMPORT_ALT_KEY,currentRaw);
-  try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
-  }catch(error){
-    try{localStorage.removeItem(PREIMPORT_ALT_KEY)}catch(cleanupError){}
-    throw error;
-  }
+  const rollbackRaw=currentRaw===null?JSON.stringify(st):currentRaw;
+  // Stage the current state first. A failed write must abort before the main key changes.
+  localStorage.setItem(PREIMPORT_ALT_KEY,rollbackRaw);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
   st=prepared.state;
   lastSavedRaw=JSON.stringify(st);
-  if(currentRaw!==null){
-    try{
-      localStorage.setItem(PREIMPORT_KEY,currentRaw);
-      localStorage.removeItem(PREIMPORT_ALT_KEY);
-    }catch(error){
-      // A cópia em PREIMPORT_ALT_KEY continua disponível como ponto de restauração.
-    }
+  try{
+    localStorage.setItem(PREIMPORT_KEY,rollbackRaw);
+    localStorage.removeItem(PREIMPORT_ALT_KEY);
+  }catch(error){
+    // The staged rollback remains available if the primary restore-point write fails.
   }
   return prepared;
 }
 function getPreImportBackupRaw(){
+  const currentRaw=localStorage.getItem(STORAGE_KEY);
   const alternateRaw=localStorage.getItem(PREIMPORT_ALT_KEY);
-  return alternateRaw!==null?alternateRaw:localStorage.getItem(PREIMPORT_KEY);
+  if(alternateRaw!==null&&alternateRaw!==currentRaw)return alternateRaw;
+  return localStorage.getItem(PREIMPORT_KEY);
 }
 function restorePreImportBackup(){
   if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de continuar.');
@@ -205,21 +201,17 @@ function restorePreImportBackup(){
   if(rollbackRaw===null)throw new Error('Não há uma cópia anterior disponível neste navegador.');
   const prepared=unwrapAndValidateBackup(JSON.parse(rollbackRaw));
   const currentRaw=localStorage.getItem(STORAGE_KEY);
-  if(currentRaw!==null)localStorage.setItem(PREIMPORT_ALT_KEY,currentRaw);
-  try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
-  }catch(error){
-    try{localStorage.removeItem(PREIMPORT_ALT_KEY)}catch(cleanupError){}
-    throw error;
-  }
+  const currentStateRaw=currentRaw===null?JSON.stringify(st):currentRaw;
+  // Preserve the currently active state before attempting the rollback.
+  localStorage.setItem(PREIMPORT_ALT_KEY,currentStateRaw);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(prepared.state));
   st=prepared.state;
-  if(currentRaw!==null){
-    try{
-      localStorage.setItem(PREIMPORT_KEY,currentRaw);
-      localStorage.removeItem(PREIMPORT_ALT_KEY);
-    }catch(error){
-      // A cópia em PREIMPORT_ALT_KEY continua disponível como ponto de restauração.
-    }
+  lastSavedRaw=JSON.stringify(st);
+  try{
+    localStorage.setItem(PREIMPORT_KEY,currentStateRaw);
+    localStorage.removeItem(PREIMPORT_ALT_KEY);
+  }catch(error){
+    // The staged current state remains available as the next restore point.
   }
   return prepared;
 }
@@ -266,8 +258,9 @@ function rollbackUnsavedState(){
   try{
     const previous=JSON.parse(lastSavedRaw);
     if(!isRecord(previous))throw new Error('Snapshot anterior inválido');
-    const personalFoods=(previous.foods||[]).filter(food=>food.sourceStatus==='openfoodfacts'||food.source==='Cadastro manual'||food.sourceStatus==='manual');
-    st={...previous,foods:[...tacoCatalog,...personalFoods],portions:isRecord(previous.portions)?previous.portions:{}};
+    const savedFoods=Array.isArray(previous.foods)?previous.foods:[];
+    const personalFoods=tacoCatalog.length?savedFoods.filter(food=>food.sourceStatus==='openfoodfacts'||food.source==='Cadastro manual'||food.sourceStatus==='manual'):savedFoods;
+    st={...previous,foods:tacoCatalog.length?[...tacoCatalog,...personalFoods]:savedFoods,portions:isRecord(previous.portions)?previous.portions:{}};
   }catch(error){
     storageWriteBlocked=true;
     storageRecoveryMessage='O NuTrick não conseguiu restaurar o último estado salvo em memória. Não continue registrando dados até recuperar um backup.';
