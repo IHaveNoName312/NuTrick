@@ -1,0 +1,357 @@
+[
+  {
+    "id": "taco-003",
+    "sourceCode": "3",
+    "name": "Arroz, tipo 1, cozido",
+    "aliases": [
+      "arroz branco cozido",
+      "arroz branco"
+    ],
+    "category": "Cereais",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 128,
+    "protein": 2.5,
+    "carbs": 28.1,
+    "fat": 0.2,
+    "fiber": 1.6,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-001",
+    "sourceCode": "1",
+    "name": "Arroz integral, cozido",
+    "aliases": [
+      "arroz integral"
+    ],
+    "category": "Cereais",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 124,
+    "protein": 2.6,
+    "carbs": 25.8,
+    "fat": 1,
+    "fiber": 2.7,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-007",
+    "sourceCode": "7",
+    "name": "Aveia, flocos, crua",
+    "aliases": [
+      "aveia",
+      "aveia em flocos"
+    ],
+    "category": "Cereais",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 394,
+    "protein": 13.9,
+    "carbs": 66.6,
+    "fat": 8.5,
+    "fiber": 9.1,
+    "sodium": 5,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-048",
+    "sourceCode": "48",
+    "name": "Pão, aveia, forma",
+    "aliases": [
+      "pão de aveia",
+      "pão de forma de aveia"
+    ],
+    "category": "Cereais",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 343,
+    "protein": 12.4,
+    "carbs": 59.6,
+    "fat": 5.7,
+    "fiber": 6,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-052",
+    "sourceCode": "52",
+    "name": "Pão, trigo, forma, integral",
+    "aliases": [
+      "pão integral",
+      "pão de forma integral"
+    ],
+    "category": "Cereais",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 253,
+    "protein": 9.4,
+    "carbs": 49.9,
+    "fat": 3.7,
+    "fiber": 6.9,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-053",
+    "sourceCode": "53",
+    "name": "Pão, trigo, francês",
+    "aliases": [
+      "pão francês",
+      "pão de sal"
+    ],
+    "category": "Cereais",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 300,
+    "protein": 8,
+    "carbs": 58.6,
+    "fat": 3.1,
+    "fiber": 2.3,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-036",
+    "sourceCode": "36",
+    "name": "Farinha láctea, de cereais",
+    "aliases": [
+      "farinha láctea"
+    ],
+    "category": "Cereais",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 415,
+    "protein": 11.9,
+    "carbs": 77.8,
+    "fat": 5.8,
+    "fiber": 1.9,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-179",
+    "sourceCode": "179",
+    "name": "Banana, nanica, crua",
+    "aliases": [
+      "banana nanica",
+      "banana"
+    ],
+    "category": "Frutas",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 92,
+    "protein": 1.4,
+    "carbs": 23.8,
+    "fat": 0.1,
+    "fiber": 1.9,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-182",
+    "sourceCode": "182",
+    "name": "Banana, prata, crua",
+    "aliases": [
+      "banana prata"
+    ],
+    "category": "Frutas",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 98,
+    "protein": 1.3,
+    "carbs": 26,
+    "fat": 0.1,
+    "fiber": 2,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-471",
+    "sourceCode": "471",
+    "name": "Café, infusão 10%",
+    "aliases": [
+      "café coado",
+      "café sem açúcar",
+      "café preto"
+    ],
+    "category": "Bebidas",
+    "basis": 100,
+    "unit": "ml",
+    "kcal": 9,
+    "protein": 0.7,
+    "carbs": 1.5,
+    "fat": 0.1,
+    "fiber": null,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceNote": "A TACO apresenta a composição por 100 g. O uso em ml considera aproximação de densidade de 1 g/ml para café coado.",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference_approx_volume"
+  },
+  {
+    "id": "taco-561",
+    "sourceCode": "561",
+    "name": "Feijão, carioca, cozido",
+    "aliases": [
+      "feijão carioca",
+      "feijão"
+    ],
+    "category": "Leguminosas",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 76,
+    "protein": 4.8,
+    "carbs": 13.6,
+    "fat": 0.5,
+    "fiber": 8.5,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-567",
+    "sourceCode": "567",
+    "name": "Feijão, preto, cozido",
+    "aliases": [
+      "feijão preto"
+    ],
+    "category": "Leguminosas",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 77,
+    "protein": 4.5,
+    "carbs": 14,
+    "fat": 0.5,
+    "fiber": 8.4,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-410",
+    "sourceCode": "410",
+    "name": "Frango, peito, sem pele, grelhado",
+    "aliases": [
+      "peito de frango grelhado",
+      "frango grelhado"
+    ],
+    "category": "Carnes",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 159,
+    "protein": 32,
+    "carbs": 0,
+    "fat": 2.5,
+    "fiber": null,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-377",
+    "sourceCode": "377",
+    "name": "Carne bovina, patinho, sem gordura, grelhado",
+    "aliases": [
+      "patinho grelhado",
+      "patinho"
+    ],
+    "category": "Carnes",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 219,
+    "protein": 35.9,
+    "carbs": 0,
+    "fat": 7.3,
+    "fiber": null,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-370",
+    "sourceCode": "370",
+    "name": "Carne bovina, miolo de alcatra, sem gordura, grelhado",
+    "aliases": [
+      "alcatra grelhada",
+      "miolo de alcatra"
+    ],
+    "category": "Carnes",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 241,
+    "protein": 31.9,
+    "carbs": 0,
+    "fat": 11.6,
+    "fiber": null,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-488",
+    "sourceCode": "488",
+    "name": "Ovo de galinha, inteiro, cozido",
+    "aliases": [
+      "ovo cozido",
+      "ovos cozidos"
+    ],
+    "category": "Ovos",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 146,
+    "protein": 13.3,
+    "carbs": 0.6,
+    "fat": 9.5,
+    "fiber": null,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-492",
+    "sourceCode": "492",
+    "name": "Açúcar, cristal",
+    "aliases": [
+      "açúcar cristal",
+      "açúcar"
+    ],
+    "category": "Açúcares",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 387,
+    "protein": 0.3,
+    "carbs": 99.6,
+    "fat": 0,
+    "fiber": null,
+    "sodium": null,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  }
+]
