@@ -33,7 +33,7 @@
 <section id="s-alimentos" class="screen"><p class="eyebrow">BASE NUTRICIONAL</p><h1>Alimentos</h1>
 <article class="card"><label class="field" for="foodMealType">Registrar os alimentos como</label><select id="foodMealType"><option>Café da manhã</option><option>Almoço</option><option>Lanche</option><option>Jantar</option><option>Outra refeição</option></select><label class="field">Pesquisar na base TACO e nos seus alimentos</label><input id="search" placeholder="Ex.: leite, banana, arroz"><div id="results"></div><div id="foodSelection"></div></article>
 <article class="card"><h2>Buscar produto por marca ou nome</h2><p class="notice">Consulta colaborativa ao Open Food Facts. Confira o rótulo antes de registrar.</p><form id="offSearchForm"><label class="field">Produto ou marca</label><input name="query" placeholder="Ex.: Wickbold pão de forma" required><button class="primary">Buscar no Open Food Facts</button></form><div id="offResults"></div><div class="divider"></div><form id="barcodeForm"><label class="field">Ou consultar código de barras</label><input name="barcode" inputmode="numeric" placeholder="Digite o código de barras" required><button class="soft">Consultar produto</button></form></article>
-<article class="card"><h2>Cadastrar alimento manualmente</h2><form id="foodForm" class="formgrid"><label class="span">Nome<input name="name" required></label><label>Referência (g/ml)<input name="base" type="number" value="100" min="1"></label><label>Unidade<select name="unit"><option>g</option><option>ml</option></select></label><label>Calorias<input name="kcal" type="number" min="0" step=".1" required></label><label>Proteínas<input name="protein" type="number" min="0" step=".1" required></label><label>Carboidratos<input name="carbs" type="number" min="0" step=".1" required></label><label>Gorduras<input name="fat" type="number" min="0" step=".1" required></label><button class="primary span">Salvar alimento</button></form></article>
+<article class="card"><h2>Cadastrar alimento manualmente</h2><form id="foodForm" class="formgrid"><label class="span">Nome<input name="name" required></label><label>Referência (g/ml)<input name="base" type="number" value="100" min="1"></label><label>Unidade<select name="unit"><option>g</option><option>ml</option></select></label><label>Calorias<input name="kcal" type="number" min="0" step=".1" required></label><label>Proteínas<input name="protein" type="number" min="0" step=".1" required></label><label>Carboidratos<input name="carbs" type="number" min="0" step=".1" required></label><label>Gorduras<input name="fat" type="number" min="0" step=".1" required></label><label>Nome da unidade (opcional)<input name="portionName" placeholder="Ex.: ovo, castanha"></label><label>Quantidade por unidade (g/ml)<input name="portionAmount" type="number" min="0.1" step=".1" placeholder="Ex.: 50"></label><button class="primary span">Salvar alimento</button></form></article>
 <p class="notice">A base local inicial contém alimentos selecionados da TACO 4ª edição (NEPA/UNICAMP, 2011). Produtos industrializados vêm do Open Food Facts e podem conter dados incompletos ou informados por colaboradores.</p></section>
 <section id="s-evolucao" class="screen"><p class="eyebrow">ACOMPANHAMENTO</p><h1>Sua evolução</h1><article class="card"><h2>Registrar medidas</h2><form id="measureForm" class="formgrid"><label>Peso (kg)<input name="weight" type="number" step=".1" min="1" placeholder="75"></label><label>Cintura (cm)<input name="waist" type="number" step=".1" min="1"></label><button class="primary span">Salvar medida</button></form></article><article class="card"><h2>Histórico</h2><div id="measures"></div></article><article class="card"><h2>Metas</h2><form id="goalsForm" class="formgrid"><label>Calorias<input name="kcal" type="number" value="2250"></label><label>Proteínas<input name="protein" type="number" value="160"></label><label>Carboidratos<input name="carbs" type="number" value="265"></label><label>Gorduras<input name="fat" type="number" value="60"></label><label>Fibras<input name="fiber" type="number" value="30"></label><label>Água (ml)<input name="water" type="number" value="2700"></label><button class="primary span">Atualizar metas</button></form></article><article class="card"><h2>Dados e privacidade</h2><p class="notice">Os registros ficam neste navegador. Exporte cópias de segurança regularmente.</p><div class="row"><button class="soft" id="export">Exportar backup</button><label class="soft">Importar backup<input id="import" type="file" accept="application/json" hidden></label></div></article></section>
 </div>
@@ -58,7 +58,7 @@
 window.addEventListener('error',e=>{const t=document.getElementById('toast');if(t){t.textContent='Erro no NuTrick: '+(e.message||'falha inesperada');t.classList.add('show')}});
 const $=s=>document.querySelector(s), today=()=>new Date().toISOString().slice(0,10), fmt=n=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:1}), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const seed=[];
-let st=load();
+let st=load();st.portions=st.portions||{};
 function load(){try{return JSON.parse(localStorage.getItem('nutrick-v1'))||{goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[]}}catch(e){return {goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[]}}}
 function save(){localStorage.setItem('nutrick-v1',JSON.stringify(st))}
 let tacoReady=false;
@@ -134,10 +134,38 @@ function renderOFFResults(products){
 
 function toast(t){const x=$('#toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2300)}
 
-function calc(f,q){
-  const factor=q/(f.base||100);
+function portionFor(food){
+  const saved=st.portions&&st.portions[food.id];
+  if(saved&&Number(saved.amount)>0)return {amount:Number(saved.amount),name:saved.name||food.portionName||'unidade'};
+  if(Number(food.portionAmount)>0)return {amount:Number(food.portionAmount),name:food.portionName||'unidade'};
+  return null;
+}
+function pluralUnit(name,qty){
+  const n=String(name||'unidade').trim().toLowerCase();
+  if(Math.abs(Number(qty)-1)<0.0001)return n;
+  const irregular={ovo:'ovos',castanha:'castanhas',amendoim:'amendoins',unidade:'unidades',noz:'nozes',pao:'pães',pão:'pães'};
+  if(irregular[n])return irregular[n];
+  if(n.endsWith('m'))return n.slice(0,-1)+'ns';
+  if(n.endsWith('s'))return n;
+  return n+'s';
+}
+function formatQuantity(item){
+  if(item.unit==='un')return fmt(item.qty)+' '+pluralUnit(item.portionName,item.qty);
+  return fmt(item.qty)+' '+item.unit;
+}
+function calc(f,q,measureUnit,portionOverride){
+  const measure=measureUnit||f.unit;
+  let baseQuantity=Number(q);
+  let portion=null;
+  if(measure==='un'){
+    portion=portionOverride||portionFor(f);
+    const amount=Number(portion&&portion.amount);
+    if(!Number.isFinite(amount)||amount<=0)throw new Error('Informe quanto pesa ou mede uma unidade deste alimento.');
+    baseQuantity=Number(q)*amount;
+  }
+  const factor=baseQuantity/(f.base||100);
   const scaled=key=>f[key]===null||f[key]===undefined?null:Number(f[key])*factor;
-  return {foodId:f.id,name:f.name,qty:q,unit:f.unit,kcal:scaled('kcal'),protein:scaled('protein'),carbs:scaled('carbs'),fat:scaled('fat'),fiber:scaled('fiber'),sodium:scaled('sodium'),source:f.source||'Cadastro pessoal',sourceUrl:f.sourceUrl||null,sourceStatus:f.sourceStatus||'manual',brand:f.brand||'',code:f.code||''};
+  return {foodId:f.id,name:f.name,qty:Number(q),unit:measure==='un'?'un':f.unit,portionAmount:measure==='un'?Number(portion.amount):null,portionName:measure==='un'?(portion.name||'unidade'):null,baseUnit:f.unit,baseQuantity,kcal:scaled('kcal'),protein:scaled('protein'),carbs:scaled('carbs'),fat:scaled('fat'),fiber:scaled('fiber'),sodium:scaled('sodium'),source:f.source||'Cadastro pessoal',sourceUrl:f.sourceUrl||null,sourceStatus:f.sourceStatus||'manual',brand:f.brand||'',code:f.code||''};
 }
 function sum(items){
   const out={kcal:0,protein:0,carbs:0,fat:0,fiber:0,fiberUnknown:false};
@@ -150,23 +178,23 @@ function sum(items){
 }
 function todayMeals(){return st.meals.filter(m=>m.date===today())}
 function render(){let ms=todayMeals(),t=sum(ms.flatMap(m=>m.items)),g=st.goals,w=st.water.filter(x=>x.date===today()).reduce((a,x)=>a+x.ml,0);$('#date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'});$('#kcal').textContent=fmt(t.kcal);$('#goalKcal').textContent=fmt(g.kcal);$('#remaining').textContent=fmt(Math.max(0,g.kcal-t.kcal))+' kcal restantes';$('#kcalBar').style.width=Math.min(100,100*t.kcal/g.kcal)+'%';$('#water').textContent=fmt(w);$('#waterGoal').textContent=fmt(g.water);$('#macroBox').innerHTML=[['Proteínas',t.protein,g.protein,'#218356'],['Carboidratos',t.carbs,g.carbs,'#4b88bd'],['Gorduras',t.fat,g.fat,'#b57a24']].map(([n,v,goal,c])=>'<div class="macro"><div class="macroline"><b>'+n+'</b><span>'+fmt(v)+' / '+fmt(goal)+' g</span></div><div class="track"><div class="fill" style="width:'+Math.min(100,100*v/goal)+'%;background:'+c+'"></div></div></div>').join('');$('#mealCount').textContent=ms.length;$('#todayMeals').className=ms.length?'':'empty';$('#todayMeals').innerHTML=ms.length?ms.map(m=>mealHtml(m)).join(''):'Nenhuma refeição registrada.';$('#diaryKcal').textContent=fmt(t.kcal)+' kcal';$('#diaryProtein').textContent=fmt(t.protein)+' g';$('#diaryList').innerHTML=st.meals.slice().reverse().map(mealHtml).join('')||'<div class="empty">Sem registros.</div>';$('#measures').innerHTML=st.measures.slice().reverse().map(m=>'<div class="meal"><b>'+m.date+'</b><small>Peso: '+(m.weight||'--')+' kg · Cintura: '+(m.waist||'--')+' cm</small></div>').join('')||'<div class="empty">Sem medidas.</div>';suggest()}
-function mealHtml(m){let t=sum(m.items);return '<div class="meal"><b>'+esc(m.type)+'</b><span class="right">'+fmt(t.kcal)+' kcal</span><small>'+m.items.map(i=>esc(i.name)+' ('+fmt(i.qty)+' '+i.unit+')').join(' · ')+'</small><button class="smallbtn" data-edit-meal="'+esc(m.id)+'">Editar</button> <button class="smallbtn" data-delete="'+esc(m.id)+'">Excluir</button></div>'}
+function mealHtml(m){let t=sum(m.items);return '<div class="meal"><b>'+esc(m.type)+'</b><span class="right">'+fmt(t.kcal)+' kcal</span><small>'+m.items.map(i=>esc(i.name)+' ('+esc(formatQuantity(i))+')').join(' · ')+'</small><button class="smallbtn" data-edit-meal="'+esc(m.id)+'">Editar</button> <button class="smallbtn" data-delete="'+esc(m.id)+'">Excluir</button></div>'}
 function findFoodForMealItem(item){
   return st.foods.find(f=>f.id===item.foodId) || st.foods.find(f=>normalizeText(f.name)===normalizeText(item.name) && f.unit===item.unit) || null;
 }
 function renderMealEditorItems(){
-  $('#editMealItems').innerHTML=editDraft.length?editDraft.map((d,i)=>'<div class="result"><div style="flex:1;min-width:0"><b>'+esc(d.name)+'</b><small>'+esc(d.unit)+' · '+(d.food?esc(d.food.source||'Base nutricional'):'registro anterior')+'</small></div><input type="number" min="0.1" step="0.1" value="'+esc(d.qty)+'" data-edit-qty="'+i+'" aria-label="Quantidade de '+esc(d.name)+'" style="width:95px"><button class="smallbtn" data-edit-remove="'+i+'">Remover</button></div>').join(''):'<div class="empty">Nenhum alimento nesta refeição. Pesquise e adicione pelo menos um antes de salvar.</div>';
+  $('#editMealItems').innerHTML=editDraft.length?editDraft.map((d,i)=>'<div class="result"><div style="flex:1;min-width:0"><b>'+esc(d.name)+'</b><small>'+esc(formatQuantity(d))+' · '+(d.food?esc(d.food.source||'Base nutricional'):'registro anterior')+(d.unit==='un'?' · 1 '+esc(d.portionName||'unidade')+' = '+fmt(d.portionAmount)+' '+esc(d.baseUnit||'g'):'')+'</small></div><div><input type="number" min="0.1" step="0.1" value="'+esc(d.qty)+'" data-edit-qty="'+i+'" aria-label="Quantidade de '+esc(d.name)+'" style="width:88px">'+(d.unit==='un'?'<label class="notice">g/ml por unidade<input type="number" min="0.1" step="0.1" value="'+esc(d.portionAmount||'')+'" data-edit-portion="'+i+'" style="width:88px;padding:7px"></label>':'')+'</div><button class="smallbtn" data-edit-remove="'+i+'">Remover</button></div>').join(''):'<div class="empty">Nenhum alimento nesta refeição. Pesquise e adicione pelo menos um antes de salvar.</div>';
 }
 function renderMealEditorSearch(query){
   const q=normalizeText(query);
   editSearchResults=q?st.foods.filter(f=>normalizeText(f.name+' '+(f.brand||'')+' '+(f.aliases||[]).join(' ')).includes(q)).slice(0,12):[];
-  $('#editFoodResults').innerHTML=editSearchResults.map((f,i)=>'<div class="result"><div style="flex:1;min-width:0"><b>'+esc(f.name)+'</b><small>'+fmt(f.kcal)+' kcal · P '+fmt(f.protein)+' · C '+fmt(f.carbs)+' · G '+fmt(f.fat)+' / 100 '+esc(f.unit)+'</small></div><input type="number" min="0.1" step="0.1" value="100" aria-label="Quantidade de '+esc(f.name)+'" style="width:90px"><button class="smallbtn" data-edit-add="'+i+'">Adicionar</button></div>').join('') || (q?'<div class="empty">Nenhum alimento encontrado na sua base.</div>':'');
+  $('#editFoodResults').innerHTML=editSearchResults.map((f,i)=>'<div class="result"><div style="flex:1;min-width:0"><b>'+esc(f.name)+'</b><small>'+fmt(f.kcal)+' kcal · P '+fmt(f.protein)+' · C '+fmt(f.carbs)+' · G '+fmt(f.fat)+' / 100 '+esc(f.unit)+'</small></div><div><input type="number" min="0.1" step="0.1" value="100" data-edit-qty aria-label="Quantidade de '+esc(f.name)+'" style="width:78px"><select data-edit-measure style="width:88px;padding:7px"><option value="'+esc(f.unit)+'">'+esc(f.unit)+'</option><option value="un">unidade</option></select><div class="portionFields hidden"><label class="notice">Quantidade por unidade ('+esc(f.unit)+')<input type="number" min="0.1" step="0.1" data-edit-portion placeholder="Ex.: 50" value="'+esc((portionFor(f)||{}).amount||'')+'" style="width:90px;padding:7px"></label><label class="notice">Nome da unidade<input type="text" data-edit-portion-name placeholder="ex.: ovo" value="'+esc((portionFor(f)||{}).name||'')+'" style="width:100px;padding:7px"></label></div></div><button class="smallbtn" data-edit-add="'+i+'">Adicionar</button></div>').join('') || (q?'<div class="empty">Nenhum alimento encontrado na sua base.</div>':'');
 }
 function openMealEditor(id){
   const meal=st.meals.find(m=>String(m.id)===String(id));
   if(!meal)return;
   editingMealId=String(meal.id);
-  editDraft=meal.items.map(item=>({food:findFoodForMealItem(item),baseItem:{...item},name:item.name,qty:Number(item.qty)||0,unit:item.unit||'g'}));
+  editDraft=meal.items.map(item=>({food:findFoodForMealItem(item),baseItem:{...item},name:item.name,qty:Number(item.qty)||0,unit:item.unit||'g',portionAmount:item.portionAmount||null,portionName:item.portionName||'unidade',baseUnit:item.baseUnit||item.unit||'g'}));
   $('#editMealType').value=meal.type;
   $('#editFoodSearch').value='';
   renderMealEditorItems();
@@ -188,7 +216,12 @@ function saveMealEdits(){
     const field=$('#editMealItems').querySelector('[data-edit-qty="'+i+'"]');
     const qty=Number(field?field.value:draft.qty);
     if(!Number.isFinite(qty)||qty<=0){toast('Confira as quantidades. Use valores maiores que zero.');return}
-    if(draft.food){updated.push(calc(draft.food,qty));}
+    if(draft.food){
+      const portionField=$('#editMealItems').querySelector('[data-edit-portion="'+i+'"]');
+      const portionAmount=draft.unit==='un'?Number(portionField?portionField.value:draft.portionAmount):null;
+      if(draft.unit==='un'&&(!Number.isFinite(portionAmount)||portionAmount<=0)){toast('Informe o peso/volume de uma unidade.');return}
+      updated.push(calc(draft.food,qty,draft.unit,draft.unit==='un'?{amount:portionAmount,name:draft.portionName||'unidade'}:null));
+    }
     else{
       const old=draft.baseItem,ratio=qty/(Number(old.qty)||qty),scaled={...old,qty,unit:old.unit||draft.unit};
       ['kcal','protein','carbs','fat','fiber','sodium'].forEach(key=>{scaled[key]=old[key]===null||old[key]===undefined?null:Number(old[key])*ratio});
@@ -198,7 +231,7 @@ function saveMealEdits(){
   if(!updated.length){toast('Adicione pelo menos um alimento antes de salvar.');return}
   meal.items=updated;
   meal.type=$('#editMealType').value;
-  meal.raw=updated.map(i=>fmt(i.qty)+' '+i.unit+' de '+i.name).join(', ');
+  meal.raw=updated.map(i=>formatQuantity(i)+' de '+i.name).join(', ');
   save();render();closeMealEditor();toast('Refeição atualizada com os novos macros.');
 }
 function suggest(){let el=$('#recurring'),items=st.meals.filter(m=>m.date!==today());if(items.length<2){el.classList.add('hidden');return}let prev=items[items.length-1];if(prev.items.length){el.classList.remove('hidden');el.innerHTML='<b>Refeição recorrente detectada</b><p class="muted">Você registrou algo parecido recentemente.</p><button class="smallbtn" id="reuse">Preencher com a refeição anterior</button>';$('#reuse').onclick=()=>{$('#entry').value=prev.items.map(i=>fmt(i.qty)+' '+i.unit+' de '+i.name).join(', ');toast('Descrição preenchida. Revise antes de analisar.')}}
@@ -283,12 +316,92 @@ if(!pending||pending.saved||pending.questions.length||!pending.items.length||!pe
 st.meals.push({id:Date.now().toString(),date:today(),type:$('#mealType').value,items:pending.items,raw:pending.raw});
 pending.saved=true;save();render();showAnalysis();toast('Refeição salva no diário.');
 }
-document.addEventListener('click',e=>{let editMeal=e.target.closest('[data-edit-meal]');if(editMeal){openMealEditor(editMeal.dataset.editMeal)}let removeEditItem=e.target.closest('[data-edit-remove]');if(removeEditItem){editDraft.splice(Number(removeEditItem.dataset.editRemove),1);renderMealEditorItems()}let addEditItem=e.target.closest('[data-edit-add]');if(addEditItem){const food=editSearchResults[Number(addEditItem.dataset.editAdd)],qty=Number(addEditItem.parentElement.querySelector('input').value);if(food&&qty>0){const existing=editDraft.find(x=>x.food&&x.food.id===food.id);if(existing)existing.qty+=qty;else editDraft.push({food,baseItem:null,name:food.name,qty,unit:food.unit});renderMealEditorItems();toast('Alimento adicionado à edição.')}}let foodPick=e.target.closest('[data-food-pick]');if(foodPick){const matches=st.foods.filter(f=>normalizeText(f.name+' '+(f.brand||'')+' '+(f.aliases||[]).join(' ')).includes(normalizeText($('#search').value))),food=matches[Number(foodPick.dataset.foodPick)],qty=Number(foodPick.parentElement.querySelector('input').value);if(food&&qty>0){const existing=foodSelection.find(x=>x.food.id===food.id);if(existing)existing.qty+=qty;else foodSelection.push({food,qty});renderFoodSelection();toast('Alimento selecionado.')}}let removeFood=e.target.closest('[data-food-remove]');if(removeFood){foodSelection.splice(Number(removeFood.dataset.foodRemove),1);renderFoodSelection()}let logSelected=e.target.closest('#foodLogSelected');if(logSelected){if(!foodSelection.length)return;st.meals.push({id:Date.now().toString(),date:today(),type:$('#foodMealType').value,items:foodSelection.map(x=>calc(x.food,x.qty)),raw:foodSelection.map(x=>fmt(x.qty)+' '+x.food.unit+' de '+x.food.name).join(', ')});foodSelection=[];save();render();renderFoodSelection();toast('Alimentos registrados no diário.')}let offPick=e.target.closest('[data-off-pick]');if(offPick){const product=offCandidates[Number(offPick.dataset.offPick)];if(product&&product.complete){if(!st.foods.some(f=>f.id===product.id))st.foods.push(product);save();$('#search').value=product.name;$('#search').dispatchEvent(new Event('input'));toast('Produto adicionado à sua base. Confira o rótulo antes de usar.')}}let tab=e.target.closest('[data-tab]');if(tab){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('#s-'+tab.dataset.tab).classList.add('active');tab.classList.add('active')}let del=e.target.closest('[data-delete]');if(del&&confirm('Excluir esta refeição?')){st.meals=st.meals.filter(m=>m.id!==del.dataset.delete);save();render()}let w=e.target.closest('[data-water]');if(w){st.water.push({date:today(),ml:Number(w.dataset.water)});save();render()}});
-$('#analyze').onclick=analyze;$('#close').onclick=()=>closeAnalysis();$('#cancelMealEdits').onclick=closeMealEditor;$('#saveMealEdits').onclick=saveMealEdits;$('#editFoodSearch').oninput=e=>renderMealEditorSearch(e.target.value);
-function renderFoodSelection(){const box=$('#foodSelection');if(!foodSelection.length){box.innerHTML='';return}box.innerHTML='<div class="suggest"><b>Selecionados para registrar</b>'+foodSelection.map((x,i)=>'<div class="result"><div><b>'+esc(x.food.name)+'</b><small>'+fmt(x.qty)+' '+esc(x.food.unit)+' · '+fmt(calc(x.food,x.qty).kcal)+' kcal</small></div><button class="smallbtn" data-food-remove="'+i+'">Remover</button></div>').join('')+'<button class="primary" id="foodLogSelected">Registrar seleção no diário</button></div>';}
-function renderFoodResults(q){const matches=st.foods.filter(f=>normalizeText(f.name+' '+(f.brand||'')+' '+(f.aliases||[]).join(' ')).includes(normalizeText(q)));$('#results').innerHTML=matches.map((f,i)=>'<div class="result"><div><b>'+esc(f.name)+'</b><small>'+fmt(f.kcal)+' kcal · P '+fmt(f.protein)+' · C '+fmt(f.carbs)+' · G '+fmt(f.fat)+' / 100 '+esc(f.unit)+'</small><small>'+esc(f.brand||'')+' · '+esc(f.source||'')+'</small></div><div><input type="number" min="1" step="1" value="100" aria-label="Quantidade em gramas ou mililitros" style="width:90px;padding:7px;margin-bottom:4px"><button class="smallbtn" data-food-pick="'+i+'">Selecionar</button></div></div>').join('');}
+document.addEventListener('click',e=>{
+  const editMeal=e.target.closest('[data-edit-meal]');
+  if(editMeal)openMealEditor(editMeal.dataset.editMeal);
+  const removeEditItem=e.target.closest('[data-edit-remove]');
+  if(removeEditItem){editDraft.splice(Number(removeEditItem.dataset.editRemove),1);renderMealEditorItems()}
+  const addEditItem=e.target.closest('[data-edit-add]');
+  if(addEditItem){
+    const food=editSearchResults[Number(addEditItem.dataset.editAdd)],row=addEditItem.closest('.result');
+    const qty=Number(row.querySelector('[data-edit-qty]').value),measure=row.querySelector('[data-edit-measure]').value;
+    const portionAmount=Number(row.querySelector('[data-edit-portion]')?.value);
+    const portionName=(row.querySelector('[data-edit-portion-name]')?.value||'').trim()||(portionFor(food)||{}).name||'unidade';
+    if(!food||!Number.isFinite(qty)||qty<=0){toast('Informe uma quantidade válida.');return}
+    if(measure==='un'&&(!Number.isFinite(portionAmount)||portionAmount<=0)){toast('Informe quanto pesa ou mede uma unidade.');return}
+    if(measure==='un'){st.portions[food.id]={amount:portionAmount,name:portionName};save()}
+    const existing=editDraft.find(x=>x.food&&x.food.id===food.id&&x.unit===measure&&Number(x.portionAmount||0)===Number(measure==='un'?portionAmount:0));
+    if(existing)existing.qty+=qty;
+    else editDraft.push({food,baseItem:null,name:food.name,qty,unit:measure,portionAmount:measure==='un'?portionAmount:null,portionName:measure==='un'?portionName:null,baseUnit:food.unit});
+    renderMealEditorItems();toast('Alimento adicionado à edição.');
+  }
+  const foodPick=e.target.closest('[data-food-pick]');
+  if(foodPick){
+    const matches=st.foods.filter(f=>normalizeText(f.name+' '+(f.brand||'')+' '+(f.aliases||[]).join(' ')).includes(normalizeText($('#search').value)));
+    const food=matches[Number(foodPick.dataset.foodPick)],row=foodPick.closest('.result');
+    const qty=Number(row.querySelector('[data-food-qty]').value),measure=row.querySelector('[data-food-measure]').value;
+    const portionAmount=Number(row.querySelector('[data-food-portion]')?.value);
+    const portionName=(row.querySelector('[data-food-portion-name]')?.value||'').trim()||(portionFor(food)||{}).name||'unidade';
+    if(!food||!Number.isFinite(qty)||qty<=0){toast('Informe uma quantidade válida.');return}
+    if(measure==='un'&&(!Number.isFinite(portionAmount)||portionAmount<=0)){toast('Informe quanto pesa ou mede uma unidade.');return}
+    if(measure==='un'){st.portions[food.id]={amount:portionAmount,name:portionName};save()}
+    const existing=foodSelection.find(x=>x.food.id===food.id&&x.measureUnit===measure&&Number(x.portionAmount||0)===Number(measure==='un'?portionAmount:0));
+    if(existing)existing.qty+=qty;
+    else foodSelection.push({food,qty,measureUnit:measure,portionAmount:measure==='un'?portionAmount:null,portionName:measure==='un'?portionName:null});
+    renderFoodSelection();toast('Alimento selecionado.');
+  }
+  const removeFood=e.target.closest('[data-food-remove]');
+  if(removeFood){foodSelection.splice(Number(removeFood.dataset.foodRemove),1);renderFoodSelection()}
+  const logSelected=e.target.closest('#foodLogSelected');
+  if(logSelected){
+    if(!foodSelection.length)return;
+    const items=foodSelection.map(x=>calc(x.food,x.qty,x.measureUnit,x.measureUnit==='un'?{amount:x.portionAmount,name:x.portionName}:null));
+    st.meals.push({id:Date.now().toString(),date:today(),type:$('#foodMealType').value,items,raw:items.map(i=>formatQuantity(i)+' de '+i.name).join(', ')});
+    foodSelection=[];save();render();renderFoodSelection();toast('Alimentos registrados no diário.');
+  }
+  const offPick=e.target.closest('[data-off-pick]');
+  if(offPick){const product=offCandidates[Number(offPick.dataset.offPick)];if(product&&product.complete){if(!st.foods.some(f=>f.id===product.id))st.foods.push(product);save();$('#search').value=product.name;$('#search').dispatchEvent(new Event('input'));toast('Produto adicionado à sua base. Confira o rótulo antes de usar.')}}
+  const tab=e.target.closest('[data-tab]');
+  if(tab){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('#s-'+tab.dataset.tab).classList.add('active');tab.classList.add('active')}
+  const del=e.target.closest('[data-delete]');
+  if(del&&confirm('Excluir esta refeição?')){st.meals=st.meals.filter(m=>m.id!==del.dataset.delete);save();render()}
+  const w=e.target.closest('[data-water]');
+  if(w){st.water.push({date:today(),ml:Number(w.dataset.water)});save();render()}
+});
+document.addEventListener('change',e=>{
+  const selector=e.target.closest('[data-food-measure],[data-edit-measure]');
+  if(!selector)return;
+  const row=selector.closest('.result'),editing=selector.hasAttribute('data-edit-measure');
+  const qty=row.querySelector(editing?'[data-edit-qty]':'[data-food-qty]');
+  const fields=row.querySelector('.portionFields');
+  if(selector.value==='un'){if(qty)qty.value='1';fields?.classList.remove('hidden')}
+  else{if(qty)qty.value='100';fields?.classList.add('hidden')}
+});
+$('#close').onclick=()=>closeAnalysis();$('#cancelMealEdits').onclick=closeMealEditor;$('#saveMealEdits').onclick=saveMealEdits;$('#editFoodSearch').oninput=e=>renderMealEditorSearch(e.target.value);
+function renderFoodSelection(){
+  const box=$('#foodSelection');
+  if(!foodSelection.length){box.innerHTML='';return}
+  box.innerHTML='<div class="suggest"><b>Selecionados para registrar</b>'+foodSelection.map((x,i)=>{
+    const item=calc(x.food,x.qty,x.measureUnit,x.measureUnit==='un'?{amount:x.portionAmount,name:x.portionName}:null);
+    return '<div class="result"><div><b>'+esc(x.food.name)+'</b><small>'+esc(formatQuantity(item))+(x.measureUnit==='un'?' · '+fmt(x.portionAmount)+' '+esc(x.food.unit)+' por unidade':'')+' · '+fmt(item.kcal)+' kcal</small></div><button class="smallbtn" data-food-remove="'+i+'">Remover</button></div>';
+  }).join('')+'<button class="primary" id="foodLogSelected">Registrar seleção no diário</button></div>';
+}
+function renderFoodResults(q){
+  const matches=st.foods.filter(f=>normalizeText(f.name+' '+(f.brand||'')+' '+(f.aliases||[]).join(' ')).includes(normalizeText(q)));
+  $('#results').innerHTML=matches.map((f,i)=>{
+    const portion=portionFor(f);
+    return '<div class="result"><div style="flex:1;min-width:0"><b>'+esc(f.name)+'</b><small>'+fmt(f.kcal)+' kcal · P '+fmt(f.protein)+' · C '+fmt(f.carbs)+' · G '+fmt(f.fat)+' / 100 '+esc(f.unit)+'</small><small>'+esc(f.brand||'')+' · '+esc(f.source||'')+'</small>'+(portion?'<small>1 '+esc(portion.name)+' ≈ '+fmt(portion.amount)+' '+esc(f.unit)+' (editável)</small>':'')+'</div><div><input type="number" min="0.1" step="0.1" value="100" data-food-qty aria-label="Quantidade de '+esc(f.name)+'" style="width:78px;padding:7px;margin-bottom:4px"><select data-food-measure style="width:88px;padding:7px"><option value="'+esc(f.unit)+'">'+esc(f.unit)+'</option><option value="un">unidade</option></select><div class="portionFields hidden"><label class="notice">Quantidade por unidade ('+esc(f.unit)+')<input type="number" min="0.1" step="0.1" data-food-portion placeholder="Ex.: 50" value="'+esc(portion?portion.amount:'')+'" style="width:90px;padding:7px"></label><label class="notice">Nome da unidade<input type="text" data-food-portion-name placeholder="ex.: castanha" value="'+esc(portion?portion.name:'')+'" style="width:100px;padding:7px"></label></div><button class="smallbtn" data-food-pick="'+i+'">Selecionar</button></div></div>';
+  }).join('');
+}
 $('#search').oninput=e=>renderFoodResults(e.target.value);
-$('#foodForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);st.foods.push({id:'u'+Date.now(),name:f.get('name'),base:+f.get('base'),unit:f.get('unit'),kcal:+f.get('kcal'),protein:+f.get('protein'),carbs:+f.get('carbs'),fat:+f.get('fat'),source:'Cadastro manual',sourceStatus:'manual',fiber:null});save();e.target.reset();toast('Alimento cadastrado.');};
+$('#foodForm').onsubmit=e=>{
+  e.preventDefault();let f=new FormData(e.target);
+  const portionName=String(f.get('portionName')||'').trim(),portionAmount=String(f.get('portionAmount')||'').trim();
+  if(Boolean(portionName)!==Boolean(portionAmount)){toast('Preencha o nome e a quantidade por unidade, ou deixe os dois campos vazios.');return}
+  if(portionAmount&&Number(portionAmount)<=0){toast('A quantidade por unidade deve ser maior que zero.');return}
+  st.foods.push({id:'u'+Date.now(),name:f.get('name'),base:+f.get('base'),unit:f.get('unit'),kcal:+f.get('kcal'),protein:+f.get('protein'),carbs:+f.get('carbs'),fat:+f.get('fat'),portionName:portionName||null,portionAmount:portionAmount?Number(portionAmount):null,source:'Cadastro manual',sourceStatus:'manual',fiber:null});
+  save();e.target.reset();renderFoodResults($('#search').value);toast('Alimento cadastrado.');
+};
 
 $('#offSearchForm').onsubmit=async e=>{e.preventDefault();const term=String(new FormData(e.target).get('query')||'').trim();if(!term)return;$('#offResults').innerHTML='<div class="status">Buscando produtos no Open Food Facts…</div>';try{renderOFFResults(await searchOFFProducts(term))}catch(error){console.error(error);$('#offResults').innerHTML='<div class="status">Não foi possível consultar o Open Food Facts agora. Confira a conexão ou cadastre os dados do rótulo manualmente.</div>'}};
 $('#barcodeForm').onsubmit=async e=>{e.preventDefault();const code=String(new FormData(e.target).get('barcode')||'').trim();$('#offResults').innerHTML='<div class="status">Consultando código de barras…</div>';try{const product=await lookupOFFBarcode(code);renderOFFResults(product?[product]:[])}catch(error){$('#offResults').innerHTML='<div class="status">'+esc(error.message||'Não foi possível consultar o produto.')+'</div>'}};
