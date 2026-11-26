@@ -406,6 +406,7 @@ const userMutationSaveCalls = (html.match(/if\(!save\(\)\)/g) || []).length;
 if (userMutationSaveCalls < 10) throw new Error("Expected user-facing mutations to check save() success before confirming changes");
 if (!html.includes("if(!save()){render();return}") || !html.includes("if(!save()){renderFoodResults")) {
   throw new Error("A failed save must stop success-side effects and restore the visible UI");
+}
 
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
