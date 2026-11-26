@@ -36,9 +36,9 @@ const extract = (start, end) => {
   return script.slice(a, b);
 };
 const normalizeCode = extract("function normalizeText(value)", "async function loadTacoData()");
-const calcCode = extract("function calc(f,q)", "function todayMeals()");
+const portionCode = extract("function portionFor(food)", "function sum(items)");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script(normalizeCode + "\n" + calcCode + "\n" + parserCode + "\nthis.parseForTest = parse;").runInContext(testContext);
+new vm.Script(normalizeCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
@@ -69,7 +69,21 @@ assertFood("100 g de tapioca com manteiga", "taco-551", 348);
 assertNeedsClarification("300 ml de leite integral", "leite");
 assertNeedsClarification("duas fatias de pão de forma Wickbold", "pão");
 
+const eggFood = tacoFoods.find(food => food.id === "taco-488");
+const threeEggs = testContext.calcForTest(eggFood, 3, "un");
+if (threeEggs.unit !== "un" || threeEggs.qty !== 3 || threeEggs.baseQuantity !== 150 || Math.abs(threeEggs.kcal - 219) > 0.01) {
+  throw new Error("Three eggs should remain countable while calculating from an estimated 150 g edible portion");
+}
+if (testContext.formatQuantityForTest(threeEggs) !== "3 ovos") {
+  throw new Error("Counted foods should be displayed with a plural unit label");
+}
+const manualPeanut = { id: "test-peanut", name: "Amendoim", base: 100, unit: "g", kcal: 600, protein: 25, carbs: 20, fat: 50, portionAmount: 1, portionName: "amendoim" };
+const twelvePeanuts = testContext.calcForTest(manualPeanut, 12, "un");
+if (Math.abs(twelvePeanuts.kcal - 72) > 0.01 || twelvePeanuts.baseQuantity !== 12) {
+  throw new Error("Twelve counted peanuts should convert using the configured grams-per-unit value");
+}
+
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 9 parser behavior checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 9 parser behavior checks and 2 count-unit conversion checks passed.`);
