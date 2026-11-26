@@ -164,6 +164,10 @@ function parse(text){
   if(m){if(s.includes('cru'))questions.push('Feijão cru: informe se deseja registrar o peso cru ou cozido.');else add(s.includes('preto')?'taco-567':'taco-561',Number(m[1].replace(',','.')))}
   m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?(?:aveia|aveia em flocos)\b/);if(m)add('taco-007',Number(m[1].replace(',','.')));
   m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?farinha lactea\b/);if(m)add('taco-036',Number(m[1].replace(',','.')));
+  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?batata (?:inglesa )?frita\b/);if(m)add('taco-093',Number(m[1].replace(',','.')));
+  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?queijo minas(?: frescal)?\b/);if(m&&!items.some(i=>normalizeText(i.name).includes('queijo minas')))add('taco-461',Number(m[1].replace(',','.')));
+  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?cuscuz(?: de milho)?\b/);if(m){if(s.includes('milho'))add('taco-533',Number(m[1].replace(',','.')));else questions.push('Cuscuz: confirme se é cuscuz de milho cozido com sal.')}
+  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?tapioca\b/);if(m){if(s.includes('manteiga'))add('taco-551',Number(m[1].replace(',','.')));else questions.push('Tapioca: a referência TACO disponível é tapioca com manteiga. Informe se a preparação foi essa ou cadastre a composição específica.')}
   m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?banana\b/);if(m)add(s.includes('prata')?'taco-182':'taco-179',Number(m[1].replace(',','.')));
   m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?patinho\b/);if(m){if(s.includes('grelhado'))add('taco-377',Number(m[1].replace(',','.')));else questions.push('Patinho: informe se o peso é do alimento grelhado ou cru.')}
   m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?(?:miolo de )?alcatra\b/);if(m){if(s.includes('grelhad'))add('taco-370',Number(m[1].replace(',','.')));else questions.push('Alcatra: informe se o peso é do alimento grelhado ou cru.')}
