@@ -74,7 +74,7 @@ const portionCode = extract("function portionFor(food)", "function todayMeals()"
 const backupCode = extract("function isRecord(value)", "function load()");
 const loadCode = extract("function load()", "function save()");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage='';\n" + backupCode + "\n" + loadCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw;").runInContext(testContext);
+new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage='';\n" + backupCode + "\n" + loadCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
 const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
@@ -87,6 +87,7 @@ const commitImportForTest = testContext.commitImportForTest;
 const restorePreImportForTest = testContext.restorePreImportForTest;
 const loadStateForTest = testContext.loadStateForTest;
 const getRollbackRawForTest = testContext.getRollbackRawForTest;
+const getRecoveryRawForTest = testContext.getRecoveryRawForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
   const result = parseForTest(description);
@@ -223,8 +224,17 @@ fakeStorage.data = new Map([["nutrick-v1", "{corrupted json"]]);
 fakeStorage.failKey = null;
 const recoveredDefault = loadStateForTest();
 if (!Array.isArray(recoveredDefault.foods) || fakeStorage.getItem("nutrick-v1") !== "{corrupted json" ||
-    ![...fakeStorage.data.keys()].some(key => key.startsWith("nutrick-recovery-v1-"))) {
-  throw new Error("Malformed local data should be preserved before the app falls back to a default state");
+    ![...fakeStorage.data.keys()].some(key => key.startsWith("nutrick-recovery-v1-")) ||
+    fakeStorage.getItem("nutrick-recovery-latest-v1")===null) {
+  throw new Error("Malformed local data should be preserved and indexed before the app falls back to a default state");
+}
+fakeStorage.data.set("nutrick-v1", JSON.stringify({
+  goals: { kcal: 2250, protein: 160, carbs: 265, fat: 60, fiber: 30, water: 2700 },
+  foods: [], meals: [], measures: [], water: [], portions: {}
+}));
+loadStateForTest();
+if (getRecoveryRawForTest() !== "{corrupted json") {
+  throw new Error("A saved recovery copy should remain discoverable after an application reload");
 }
 function assertBackupRejected(payload, label) {
   let rejected = false;
@@ -361,4 +371,4 @@ if (mixedBasis.complete || mixedBasis.carbs !== null || !mixedBasis.missing.incl
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and corrupt-local-storage recovery; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and persistent corrupt-local-storage recovery; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
