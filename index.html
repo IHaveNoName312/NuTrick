@@ -80,7 +80,10 @@ const seed=[];
 let recoveryRaw=null;
 let storageRecoveryMessage='';
 let storageWriteBlocked=false;
+let tacoCatalog=[];
 let st=load();
+st.portions=st.portions||{};
+let lastSavedRaw=JSON.stringify(st);
 
 function isRecord(value){
   return value!==null&&typeof value==='object'&&!Array.isArray(value);
@@ -181,6 +184,7 @@ function commitImportedBackup(parsed){
     throw error;
   }
   st=prepared.state;
+  lastSavedRaw=JSON.stringify(st);
   if(currentRaw!==null){
     try{
       localStorage.setItem(PREIMPORT_KEY,currentRaw);
@@ -258,14 +262,34 @@ function load(){
     return createDefaultState();
   }
 }
-function save(){
-  if(storageWriteBlocked)throw new Error('Armazenamento em modo de proteção. Baixe a cópia de recuperação antes de continuar.');
+function rollbackUnsavedState(){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(st));
+    const previous=JSON.parse(lastSavedRaw);
+    if(!isRecord(previous))throw new Error('Snapshot anterior inválido');
+    const personalFoods=(previous.foods||[]).filter(food=>food.sourceStatus==='openfoodfacts'||food.source==='Cadastro manual'||food.sourceStatus==='manual');
+    st={...previous,foods:[...tacoCatalog,...personalFoods],portions:isRecord(previous.portions)?previous.portions:{}};
+  }catch(error){
+    storageWriteBlocked=true;
+    storageRecoveryMessage='O NuTrick não conseguiu restaurar o último estado salvo em memória. Não continue registrando dados até recuperar um backup.';
+  }
+}
+function save(){
+  if(storageWriteBlocked){
+    rollbackUnsavedState();
+    toast(storageRecoveryMessage||'Armazenamento em modo de proteção. Nenhuma alteração foi salva.');
+    return false;
+  }
+  let serialized;
+  try{
+    serialized=JSON.stringify(st);
+    if(typeof serialized!=='string')throw new Error('Não foi possível serializar os dados.');
+    localStorage.setItem(STORAGE_KEY,serialized);
+    lastSavedRaw=serialized;
     return true;
   }catch(error){
-    toast('Não foi possível salvar os dados neste navegador. Exporte um backup e confira o espaço disponível.');
-    throw error;
+    rollbackUnsavedState();
+    toast('Falha ao salvar. A alteração foi desfeita e os dados anteriores foram mantidos. Exporte um backup e confira o espaço do navegador.');
+    return false;
   }
 }
 let tacoReady=false;
@@ -281,9 +305,12 @@ async function loadTacoData(){
     if(!response.ok)throw new Error('HTTP '+response.status);
     const raw=await response.json();
     const tacoFoods=raw.map(f=>({...f,base:f.basis,sourceStatus:f.sourceStatus||'taco'}));
+    tacoCatalog=tacoFoods;
     const personalFoods=(st.foods||[]).filter(f=>f.sourceStatus==='openfoodfacts'||f.source==='Cadastro manual'||f.sourceStatus==='manual');
     st.foods=[...tacoFoods,...personalFoods];
-    tacoReady=true;if(!storageWriteBlocked)save();render();
+    tacoReady=true;
+    if(!storageWriteBlocked&&!save())st.foods=[...tacoFoods,...personalFoods];
+    render();
   }catch(error){
     console.error('Falha ao carregar TACO',error);
     tacoReady=false;
@@ -507,7 +534,8 @@ function saveMealEdits(){
   meal.items=updated;
   meal.type=$('#editMealType').value;
   meal.raw=updated.map(i=>formatQuantity(i)+' de '+i.name).join(', ');
-  save();render();closeMealEditor();toast('Refeição atualizada com os novos macros.');
+  if(!save()){render();return}
+  render();closeMealEditor();toast('Refeição atualizada com os novos macros.');
 }
 function suggest(){let el=$('#recurring'),items=st.meals.filter(m=>m.date!==today());if(items.length<2){el.classList.add('hidden');return}let prev=items[items.length-1];if(prev.items.length){el.classList.remove('hidden');el.innerHTML='<b>Refeição recorrente detectada</b><p class="muted">Você registrou algo parecido recentemente.</p><button class="smallbtn" id="reuse">Preencher com a refeição anterior</button>';$('#reuse').onclick=()=>{$('#entry').value=prev.items.map(i=>fmt(i.qty)+' '+i.unit+' de '+i.name).join(', ');toast('Descrição preenchida. Revise antes de analisar.')}}
 }
@@ -589,7 +617,8 @@ function showAnalysis(){
 function saveMeal(){
 if(!pending||pending.saved||pending.questions.length||!pending.items.length||!pending.estimatedAccepted)return;
 st.meals.push({id:Date.now().toString(),date:today(),type:$('#mealType').value,items:pending.items,raw:pending.raw});
-pending.saved=true;save();render();showAnalysis();toast('Refeição salva no diário.');
+if(!save()){render();return}
+pending.saved=true;render();showAnalysis();toast('Refeição salva no diário.');
 }
 document.addEventListener('click',e=>{
   const editMeal=e.target.closest('[data-edit-meal]');
@@ -604,7 +633,7 @@ document.addEventListener('click',e=>{
     const portionName=(row.querySelector('[data-edit-portion-name]')?.value||'').trim()||(portionFor(food)||{}).name||'unidade';
     if(!food||!Number.isFinite(qty)||qty<=0){toast('Informe uma quantidade válida.');return}
     if(measure==='un'&&(!Number.isFinite(portionAmount)||portionAmount<=0)){toast('Informe quanto pesa ou mede uma unidade.');return}
-    if(measure==='un'){st.portions[food.id]={amount:portionAmount,name:portionName};save()}
+    if(measure==='un'){st.portions[food.id]={amount:portionAmount,name:portionName};if(!save()){render();return}}
     const existing=editDraft.find(x=>x.food&&x.food.id===food.id&&x.unit===measure&&Number(x.portionAmount||0)===Number(measure==='un'?portionAmount:0));
     if(existing)existing.qty+=qty;
     else editDraft.push({food,baseItem:null,name:food.name,qty,unit:measure,portionAmount:measure==='un'?portionAmount:null,portionName:measure==='un'?portionName:null,baseUnit:food.unit});
@@ -619,7 +648,7 @@ document.addEventListener('click',e=>{
     const portionName=(row.querySelector('[data-food-portion-name]')?.value||'').trim()||(portionFor(food)||{}).name||'unidade';
     if(!food||!Number.isFinite(qty)||qty<=0){toast('Informe uma quantidade válida.');return}
     if(measure==='un'&&(!Number.isFinite(portionAmount)||portionAmount<=0)){toast('Informe quanto pesa ou mede uma unidade.');return}
-    if(measure==='un'){st.portions[food.id]={amount:portionAmount,name:portionName};save()}
+    if(measure==='un'){st.portions[food.id]={amount:portionAmount,name:portionName};if(!save()){render();return}}
     const existing=foodSelection.find(x=>x.food.id===food.id&&x.measureUnit===measure&&Number(x.portionAmount||0)===Number(measure==='un'?portionAmount:0));
     if(existing)existing.qty+=qty;
     else foodSelection.push({food,qty,measureUnit:measure,portionAmount:measure==='un'?portionAmount:null,portionName:measure==='un'?portionName:null});
@@ -632,16 +661,35 @@ document.addEventListener('click',e=>{
     if(!foodSelection.length)return;
     const items=foodSelection.map(x=>calc(x.food,x.qty,x.measureUnit,x.measureUnit==='un'?{amount:x.portionAmount,name:x.portionName}:null));
     st.meals.push({id:Date.now().toString(),date:today(),type:$('#foodMealType').value,items,raw:items.map(i=>formatQuantity(i)+' de '+i.name).join(', ')});
-    foodSelection=[];save();render();renderFoodSelection();toast('Alimentos registrados no diário.');
+    if(!save()){render();return}
+    foodSelection=[];render();renderFoodSelection();toast('Alimentos registrados no diário.');
   }
   const offPick=e.target.closest('[data-off-pick]');
-  if(offPick){const product=offCandidates[Number(offPick.dataset.offPick)];if(product&&product.complete){if(!st.foods.some(f=>f.id===product.id))st.foods.push(product);save();$('#search').value=product.name;$('#search').dispatchEvent(new Event('input'));toast('Produto adicionado à sua base. Confira o rótulo antes de usar.')}}
+  if(offPick){
+    const product=offCandidates[Number(offPick.dataset.offPick)];
+    if(product&&product.complete){
+      if(!st.foods.some(f=>f.id===product.id)){
+        st.foods.push(product);
+        if(!save()){render();return}
+      }
+      $('#search').value=product.name;$('#search').dispatchEvent(new Event('input'));
+      toast('Produto adicionado à sua base. Confira o rótulo antes de usar.');
+    }
+  }
   const tab=e.target.closest('[data-tab]');
   if(tab){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('#s-'+tab.dataset.tab).classList.add('active');tab.classList.add('active')}
   const del=e.target.closest('[data-delete]');
-  if(del&&confirm('Excluir esta refeição?')){st.meals=st.meals.filter(m=>m.id!==del.dataset.delete);save();render()}
+  if(del&&confirm('Excluir esta refeição?')){
+    st.meals=st.meals.filter(m=>m.id!==del.dataset.delete);
+    if(!save()){render();return}
+    render();
+  }
   const w=e.target.closest('[data-water]');
-  if(w){st.water.push({date:today(),ml:Number(w.dataset.water)});save();render()}
+  if(w){
+    st.water.push({date:today(),ml:Number(w.dataset.water)});
+    if(!save()){render();return}
+    render();
+  }
 });
 document.addEventListener('change',e=>{
   const selector=e.target.closest('[data-food-measure],[data-edit-measure]');
@@ -677,13 +725,30 @@ $('#foodForm').onsubmit=e=>{
   if(Boolean(portionName)!==Boolean(portionAmount)){toast('Preencha o nome e a quantidade por unidade, ou deixe os dois campos vazios.');return}
   if(portionAmount&&(!Number.isFinite(Number(portionAmount))||Number(portionAmount)<=0)){toast('A quantidade por unidade deve ser um número maior que zero.');return}
   st.foods.push({id:'u'+Date.now(),name,base,unit:f.get('unit'),kcal,protein,carbs,fat,portionName:portionName||null,portionAmount:portionAmount?Number(portionAmount):null,source:'Cadastro manual',sourceStatus:'manual',fiber:null});
-  save();e.target.reset();renderFoodResults($('#search').value);toast('Alimento cadastrado.');
+  if(!save()){renderFoodResults($('#search').value);return}
+  e.target.reset();renderFoodResults($('#search').value);toast('Alimento cadastrado.');
 };
 
 $('#offSearchForm').onsubmit=async e=>{e.preventDefault();const term=String(new FormData(e.target).get('query')||'').trim();if(!term)return;$('#offResults').innerHTML='<div class="status">Buscando produtos no Open Food Facts…</div>';try{renderOFFResults(await searchOFFProducts(term))}catch(error){console.error(error);$('#offResults').innerHTML='<div class="status">Não foi possível consultar o Open Food Facts agora. Confira a conexão ou cadastre os dados do rótulo manualmente.</div>'}};
 $('#barcodeForm').onsubmit=async e=>{e.preventDefault();const code=String(new FormData(e.target).get('barcode')||'').trim();$('#offResults').innerHTML='<div class="status">Consultando código de barras…</div>';try{const product=await lookupOFFBarcode(code);renderOFFResults(product?[product]:[])}catch(error){$('#offResults').innerHTML='<div class="status">'+esc(error.message||'Não foi possível consultar o produto.')+'</div>'}};
-$('#measureForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);st.measures.push({date:today(),weight:f.get('weight')?+f.get('weight'):null,waist:f.get('waist')?+f.get('waist'):null});save();render();e.target.reset();toast('Medida registrada.');};
-$('#goalsForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);st.goals={kcal:+f.get('kcal'),protein:+f.get('protein'),carbs:+f.get('carbs'),fat:+f.get('fat'),fiber:+f.get('fiber'),water:+f.get('water')};save();render();toast('Metas atualizadas.');};
+$('#measureForm').onsubmit=e=>{
+  e.preventDefault();
+  const f=new FormData(e.target),weightText=String(f.get('weight')||'').trim(),waistText=String(f.get('waist')||'').trim();
+  const weight=weightText===''?null:Number(weightText),waist=waistText===''?null:Number(waistText);
+  if(weight===null&&waist===null){toast('Informe o peso, a cintura ou ambos antes de salvar.');return}
+  if((weight!==null&&(!Number.isFinite(weight)||weight<=0))||(waist!==null&&(!Number.isFinite(waist)||waist<=0))){toast('Peso e cintura precisam ser números maiores que zero.');return}
+  st.measures.push({date:today(),weight,waist});
+  if(!save()){render();return}
+  render();e.target.reset();toast('Medida registrada.');
+};
+$('#goalsForm').onsubmit=e=>{
+  e.preventDefault();
+  const f=new FormData(e.target),goals={kcal:Number(f.get('kcal')),protein:Number(f.get('protein')),carbs:Number(f.get('carbs')),fat:Number(f.get('fat')),fiber:Number(f.get('fiber')),water:Number(f.get('water'))};
+  if(Object.values(goals).some(value=>!Number.isFinite(value)||value<=0)){toast('Todas as metas precisam ser números maiores que zero.');return}
+  st.goals=goals;
+  if(!save()){render();return}
+  render();toast('Metas atualizadas.');
+};
 function downloadText(content,filename,type){
   const url=URL.createObjectURL(new Blob([content],{type}));
   const link=document.createElement('a');
