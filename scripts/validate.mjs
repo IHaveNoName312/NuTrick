@@ -201,7 +201,7 @@ fakeStorage.failKey = null;
 if (!mainWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw || testContext.st !== beforeFailedImportState) {
   throw new Error("A failed main storage write must leave the current state unchanged");
 }
-fakeStorage.failKey = "nutrick-pre-import-v1";
+fakeStorage.failKey = "nutrick-pre-import-alt-v1";
 let snapshotWriteRejected = false;
 try { commitImportForTest(incomingEnvelope); } catch { snapshotWriteRejected = true; }
 if (!snapshotWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw) {
