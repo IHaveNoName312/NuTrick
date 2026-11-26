@@ -40,8 +40,25 @@ for (const [code, expected] of verifiedSodium) {
 }
 
 const tacoFoods = taco.map(food => ({ ...food, base: food.basis, sourceStatus: "taco" }));
+const fakeStorage = {
+  data: new Map(),
+  failKey: null,
+  getItem(key) {
+    if (this.failKey === key) throw new Error("Simulated storage read failure");
+    return this.data.has(key) ? this.data.get(key) : null;
+  },
+  setItem(key, value) {
+    if (this.failKey === key) throw new Error("Simulated storage write failure");
+    this.data.set(key, String(value));
+  },
+  removeItem(key) {
+    if (this.failKey === key) throw new Error("Simulated storage remove failure");
+    this.data.delete(key);
+  },
+};
 const testContext = vm.createContext({
   st: { foods: tacoFoods, portions: {} },
+  localStorage: fakeStorage,
   fmt: value => Number(value || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
 });
 const script = html.slice(scriptStart + "<script>".length, scriptEnd);
@@ -55,8 +72,9 @@ const normalizeCode = extract("function normalizeText(value)", "async function l
 const offCode = extract("function offNumber(value)", "async function searchOFFProducts(term)");
 const portionCode = extract("function portionFor(food)", "function todayMeals()");
 const backupCode = extract("function isRecord(value)", "function load()");
+const loadCode = extract("function load()", "function save()");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script("const BACKUP_FORMAT_VERSION=1;\n" + backupCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup;").runInContext(testContext);
+new vm.Script("const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage='';\n" + backupCode + "\n" + loadCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
 const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
@@ -65,6 +83,10 @@ const formatNutrientTotalForTest = testContext.formatNutrientTotalForTest;
 const formatGoalTotalForTest = testContext.formatGoalTotalForTest;
 const validateStateForTest = testContext.validateStateForTest;
 const unwrapBackupForTest = testContext.unwrapBackupForTest;
+const commitImportForTest = testContext.commitImportForTest;
+const restorePreImportForTest = testContext.restorePreImportForTest;
+const loadStateForTest = testContext.loadStateForTest;
+const getRollbackRawForTest = testContext.getRollbackRawForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
   const result = parseForTest(description);
@@ -140,6 +162,10 @@ if (validateStateForTest(validBackupState) !== null) {
 }
 const legacyBackup = { ...validBackupState };
 delete legacyBackup.portions;
+const numericLegacyMeal = { ...validBackupState, meals: [{ ...validBackupState.meals[0], id: 1790000000000 }] };
+if (validateStateForTest(numericLegacyMeal) !== null) {
+  throw new Error("Legacy numeric meal identifiers should remain importable");
+}
 const preparedLegacy = unwrapBackupForTest(legacyBackup);
 if (!preparedLegacy.legacy || !preparedLegacy.state.portions || Object.keys(preparedLegacy.state.portions).length !== 0) {
   throw new Error("Legacy backups without custom portions should be accepted and normalized");
@@ -152,6 +178,52 @@ const envelopeBackup = unwrapBackupForTest({
 });
 if (envelopeBackup.legacy || envelopeBackup.state.meals.length !== 1) {
   throw new Error("Versioned NuTrick backup envelopes should be accepted");
+}
+const currentRaw = JSON.stringify(legacyBackup);
+const incomingState = { ...validBackupState, measures: [{ date: "2026-11-26", weight: 76, waist: 80 }] };
+const incomingEnvelope = { app: "NuTrick", formatVersion: 1, exportedAt: "2026-11-26T20:00:00.000Z", data: incomingState };
+fakeStorage.data = new Map([["nutrick-v1", currentRaw]]);
+fakeStorage.failKey = null;
+const imported = commitImportForTest(incomingEnvelope);
+if (imported.legacy || fakeStorage.getItem("nutrick-pre-import-v1") !== currentRaw) {
+  throw new Error("Import should save the old state as a restore point before replacing it");
+}
+if (JSON.parse(fakeStorage.getItem("nutrick-v1")).measures[0].weight !== 76) {
+  throw new Error("Validated import should persist the new state");
+}
+const importedRaw = fakeStorage.getItem("nutrick-v1");
+const beforeFailedImportState = testContext.st;
+fakeStorage.failKey = "nutrick-v1";
+let mainWriteRejected = false;
+try { commitImportForTest(incomingEnvelope); } catch { mainWriteRejected = true; }
+if (!mainWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw || testContext.st !== beforeFailedImportState) {
+  throw new Error("A failed main storage write must leave the current state unchanged");
+}
+fakeStorage.failKey = "nutrick-pre-import-v1";
+let snapshotWriteRejected = false;
+try { commitImportForTest(incomingEnvelope); } catch { snapshotWriteRejected = true; }
+if (!snapshotWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw) {
+  throw new Error("A failed restore-point write must abort import before replacing current data");
+}
+fakeStorage.failKey = null;
+fakeStorage.data = new Map([
+  ["nutrick-v1", importedRaw],
+  ["nutrick-pre-import-v1", currentRaw]
+]);
+restorePreImportForTest();
+if (fakeStorage.getItem("nutrick-v1") !== currentRaw || fakeStorage.getItem("nutrick-pre-import-v1") !== importedRaw) {
+  throw new Error("Restoring a previous backup should preserve the replaced state as the next restore point");
+}
+restorePreImportForTest();
+if (fakeStorage.getItem("nutrick-v1") !== importedRaw) {
+  throw new Error("The restore point should be reversible without losing either state");
+}
+fakeStorage.data = new Map([["nutrick-v1", "{corrupted json"]]);
+fakeStorage.failKey = null;
+const recoveredDefault = loadStateForTest();
+if (!Array.isArray(recoveredDefault.foods) || fakeStorage.getItem("nutrick-v1") !== "{corrupted json" ||
+    ![...fakeStorage.data.keys()].some(key => key.startsWith("nutrick-recovery-v1-"))) {
+  throw new Error("Malformed local data should be preserved before the app falls back to a default state");
 }
 function assertBackupRejected(payload, label) {
   let rejected = false;
@@ -288,4 +360,4 @@ if (mixedBasis.complete || mixedBasis.carbs !== null || !mixedBasis.missing.incl
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; partial/zero nutrient totals; parser, count-unit, Open Food Facts mapping and v3/legacy barcode response checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and corrupt-local-storage recovery; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
