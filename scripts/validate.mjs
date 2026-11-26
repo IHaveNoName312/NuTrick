@@ -53,12 +53,15 @@ const extract = (start, end) => {
 };
 const normalizeCode = extract("function normalizeText(value)", "async function loadTacoData()");
 const offCode = extract("function offNumber(value)", "async function searchOFFProducts(term)");
-const portionCode = extract("function portionFor(food)", "function sum(items)");
+const portionCode = extract("function portionFor(food)", "function todayMeals()");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script(normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse;").runInContext(testContext);
+new vm.Script(normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
 const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
+const sumForTest = testContext.sumForTest;
+const formatNutrientTotalForTest = testContext.formatNutrientTotalForTest;
+const formatGoalTotalForTest = testContext.formatGoalTotalForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
   const result = parseForTest(description);
@@ -100,6 +103,38 @@ const manualPeanut = { id: "test-peanut", name: "Amendoim", base: 100, unit: "g"
 const twelvePeanuts = testContext.calcForTest(manualPeanut, 12, "un");
 if (Math.abs(twelvePeanuts.kcal - 72) > 0.01 || twelvePeanuts.baseQuantity !== 12) {
   throw new Error("Twelve counted peanuts should convert using the configured grams-per-unit value");
+}
+
+const partialTotals = sumForTest([
+  { kcal: 100, protein: 10, carbs: 20, fat: 4, fiber: null, sodium: null },
+  { kcal: null, protein: 5, carbs: 10, fat: 2, fiber: 3, sodium: 1 },
+]);
+if (partialTotals.kcal !== 100 || partialTotals.kcalMissing !== 1) {
+  throw new Error("A missing calorie value must not be treated as zero or hidden in the total");
+}
+if (partialTotals.protein !== 15 || partialTotals.proteinMissing !== 0) {
+  throw new Error("Complete protein values should still sum normally even when another nutrient is missing");
+}
+if (formatNutrientTotalForTest(partialTotals, "kcal", "kcal") !== "≥ 100 kcal (parcial)") {
+  throw new Error("Partial totals should be marked as a known subtotal");
+}
+if (formatGoalTotalForTest(partialTotals, "protein", 120) !== "15 / 120 g") {
+  throw new Error("Complete macro totals should retain their normal goal display");
+}
+if (formatNutrientTotalForTest(partialTotals, "fiber", "g") !== "≥ 3 g (parcial)") {
+  throw new Error("Fiber totals should track missing values independently");
+}
+const unknownTotals = sumForTest([{ kcal: null, protein: undefined, carbs: "", fat: "not-a-number", fiber: null, sodium: null }]);
+if (unknownTotals.kcal !== null || formatNutrientTotalForTest(unknownTotals, "kcal", "kcal") !== "Não informado") {
+  throw new Error("A nutrient with no known values should be displayed as not informed");
+}
+const genuineZero = sumForTest([{ kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sodium: 0 }]);
+if (genuineZero.kcal !== 0 || genuineZero.kcalMissing !== 0 || formatNutrientTotalForTest(genuineZero, "kcal", "kcal") !== "0 kcal") {
+  throw new Error("A genuine zero must remain distinct from an unknown value");
+}
+const emptyTotals = sumForTest([]);
+if (emptyTotals.kcal !== 0 || emptyTotals.kcalMissing !== 0) {
+  throw new Error("An empty diary should continue to show zero consumption");
 }
 
 const standardLiquid = mapOFFForTest({
@@ -190,4 +225,4 @@ if (mixedBasis.complete || mixedBasis.carbs !== null || !mixedBasis.missing.incl
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; parser, count-unit, Open Food Facts mapping and v3/legacy barcode response checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; partial/zero nutrient totals; parser, count-unit, Open Food Facts mapping and v3/legacy barcode response checks passed.`);
