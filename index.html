@@ -286,7 +286,10 @@ function save(){
   }
   let serialized;
   try{
-    serialized=JSON.stringify(persistedState(st));
+    const candidate=persistedState(st);
+    const validationError=validateStateShape(candidate);
+    if(validationError)throw new Error(validationError);
+    serialized=JSON.stringify(candidate);
     if(typeof serialized!=='string')throw new Error('Não foi possível serializar os dados.');
     localStorage.setItem(STORAGE_KEY,serialized);
     lastSavedRaw=serialized;
