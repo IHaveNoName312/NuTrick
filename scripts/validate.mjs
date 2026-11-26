@@ -196,6 +196,7 @@ const beforeFailedImportState = testContext.st;
 fakeStorage.failKey = "nutrick-v1";
 let mainWriteRejected = false;
 try { commitImportForTest(incomingEnvelope); } catch { mainWriteRejected = true; }
+fakeStorage.failKey = null;
 if (!mainWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw || testContext.st !== beforeFailedImportState) {
   throw new Error("A failed main storage write must leave the current state unchanged");
 }
