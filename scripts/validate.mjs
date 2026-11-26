@@ -38,7 +38,7 @@ const extract = (start, end) => {
 const normalizeCode = extract("function normalizeText(value)", "async function loadTacoData()");
 const calcCode = extract("function calc(f,q)", "function todayMeals()");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script(normalizeCode + "\\n" + calcCode + "\\n" + parserCode + "\\nthis.parseForTest = parse;").runInContext(testContext);
+new vm.Script(normalizeCode + "\n" + calcCode + "\n" + parserCode + "\nthis.parseForTest = parse;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
