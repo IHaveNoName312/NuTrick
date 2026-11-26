@@ -331,7 +331,10 @@
     "sodium": null,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "portionName": "ovo",
+    "portionAmount": 50,
+    "portionNote": "Estimativa inicial de 50 g por ovo; pode variar conforme o tamanho e deve ser ajustada ou pesada para maior precisão."
   },
   {
     "id": "taco-492",
