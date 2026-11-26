@@ -1,4 +1,4 @@
-const CACHE = "nutrick-v0.5.2-cache";
+const CACHE = "nutrick-v0.5.3-cache";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./apple-touch-icon.png", "./data/taco.json"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
