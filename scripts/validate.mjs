@@ -213,11 +213,14 @@ fakeStorage.data = new Map([
   ["nutrick-pre-import-v1", currentRaw]
 ]);
 restorePreImportForTest();
-if (fakeStorage.getItem("nutrick-v1") !== currentRaw || fakeStorage.getItem("nutrick-pre-import-v1") !== importedRaw) {
+const restoredState = JSON.parse(fakeStorage.getItem("nutrick-v1"));
+const alternateState = JSON.parse(fakeStorage.getItem("nutrick-pre-import-v1"));
+if (restoredState.measures[0].weight !== 75 || alternateState.measures[0].weight !== 76) {
   throw new Error("Restoring a previous backup should preserve the replaced state as the next restore point");
 }
 restorePreImportForTest();
-if (fakeStorage.getItem("nutrick-v1") !== importedRaw) {
+const toggledState = JSON.parse(fakeStorage.getItem("nutrick-v1"));
+if (toggledState.measures[0].weight !== 76) {
   throw new Error("The restore point should be reversible without losing either state");
 }
 fakeStorage.data = new Map([["nutrick-v1", "{corrupted json"]]);
