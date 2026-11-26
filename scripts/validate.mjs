@@ -40,9 +40,10 @@ const normalizeCode = extract("function normalizeText(value)", "async function l
 const offCode = extract("function offNumber(value)", "async function searchOFFProducts(term)");
 const portionCode = extract("function portionFor(food)", "function sum(items)");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script(normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct;").runInContext(testContext);
+new vm.Script(normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
+const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
 
 function assertFood(description, expectedId, expectedKcal) {
   const result = parseForTest(description);
@@ -118,6 +119,45 @@ const legacyLiquid = mapOFFForTest({
 if (!legacyLiquid.complete || legacyLiquid.unit !== "ml" || Math.abs(legacyLiquid.sodium - 80) > 0.01) {
   throw new Error("Legacy 100ml fields and salt-to-sodium conversion should be supported");
 }
+const v3BarcodeProduct = mapOFFResponseForTest({
+  status: "success",
+  product: {
+    code: "7890000000003",
+    product_name: "Produto com resposta v3",
+    nutriments: {
+      "energy-kcal_100g": 120,
+      "proteins_100g": 6,
+      "carbohydrates_100g": 15,
+      "fat_100g": 4
+    }
+  }
+}, "0000000000000");
+if (v3BarcodeProduct.code !== "7890000000003" || !v3BarcodeProduct.complete) {
+  throw new Error("Open Food Facts v3 string success status should accept barcode product responses");
+}
+const legacyBarcodeProduct = mapOFFResponseForTest({
+  status: 1,
+  product: {
+    product_name: "Produto com resposta legada",
+    nutriments: {
+      "energy-kcal_100g": 100,
+      "proteins_100g": 5,
+      "carbohydrates_100g": 10,
+      "fat_100g": 2
+    }
+  }
+}, "7890000000004");
+if (legacyBarcodeProduct.code !== "7890000000004" || !legacyBarcodeProduct.complete) {
+  throw new Error("Legacy numeric success status should remain supported");
+}
+let rejectedBarcodeStatus = false;
+try {
+  mapOFFResponseForTest({ status: "failure", product: { product_name: "Produto inválido", nutriments: {} } }, "7890000000005");
+} catch {
+  rejectedBarcodeStatus = true;
+}
+if (!rejectedBarcodeStatus) throw new Error("Failed Open Food Facts responses must be rejected");
+
 const mixedBasis = mapOFFForTest({
   code: "7890000000002",
   product_name: "Produto incompleto",
@@ -135,4 +175,4 @@ if (mixedBasis.complete || mixedBasis.carbs !== null || !mixedBasis.missing.incl
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; parser, count-unit and 3 Open Food Facts mapping checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; parser, count-unit, Open Food Facts mapping and v3/legacy barcode response checks passed.`);
