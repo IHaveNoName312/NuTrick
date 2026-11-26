@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f5f8f5">
-<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="NuTrick: registro alimentar e acompanhamento nutricional.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -156,7 +157,7 @@ function parse(text){
   let m=s.match(/(\d+(?:[,.]\d+)?)\s*ml\s*(?:de\s*)?cafe\b/);
   if(m)add('taco-471',Number(m[1].replace(',','.')));
   m=s.match(/(\d+(?:[,.]\d+)?)\s*ml\s*(?:de\s*)?leite\b/);
-  if(m&&!items.some(i=>i.sourceStatus==='openfoodfacts'&&normalizeText(i.name+' '+i.brand).includes('leite')))questions.push('Leite: a TACO não traz uma composição completa para este item. Busque a marca no Open Food Facts ou cadastre os dados do rótulo na aba Alimentos.');
+  if(m&&!items.some(i=>(i.sourceStatus==='openfoodfacts'||i.sourceStatus==='manual')&&normalizeText(i.name+' '+i.brand).includes('leite')))questions.push('Leite: a TACO não traz uma composição completa para este item. Busque a marca no Open Food Facts ou cadastre os dados do rótulo na aba Alimentos.');
   m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?arroz\b/);
   if(m){if(s.includes('cru'))questions.push('Arroz cru: esta seleção inicial contém entradas de arroz cozido.');else add(s.includes('integral')?'taco-001':'taco-003',Number(m[1].replace(',','.')))}
   m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?feij[aã]o\b/);
@@ -170,7 +171,7 @@ function parse(text){
   m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?ovo\b/);if(m){if(s.includes('cozid'))add('taco-488',Number(m[1].replace(',','.')));else questions.push('Ovo: informe o preparo (cozido, cru ou frito).')}
   m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?p[aã]o\b/);
   if(m){if(s.includes('integral'))add('taco-052',Number(m[1].replace(',','.')));else if(s.includes('frances')||s.includes('de sal'))add('taco-053',Number(m[1].replace(',','.')));else questions.push('Pão de forma: informe a marca e busque o produto no Open Food Facts, ou cadastre os valores do rótulo.')}
-  if(/\b(?:duas?|2|3)\s+fatias?\s+de\s+p[aã]o/.test(s)&&!items.some(i=>i.sourceStatus==='openfoodfacts'&&normalizeText(i.name).includes('pao')))questions.push('Pão em fatias: informe o peso total em gramas e selecione a marca/produto na aba Alimentos.');
+  if(/\b(?:duas?|2|3)\s+fatias?\s+de\s+p[aã]o/.test(s)&&!items.some(i=>(i.sourceStatus==='openfoodfacts'||i.sourceStatus==='manual')&&normalizeText(i.name).includes('pao')))questions.push('Pão em fatias: informe o peso total em gramas e selecione a marca/produto na aba Alimentos.');
   if(!items.length&&!questions.length)questions.push('Não identifiquei alimentos com quantidade e preparo suficientes. Informe quantidades em gramas ou ml e o estado de preparo.');
   return {items,questions:[...new Set(questions)],raw:text};
 }
