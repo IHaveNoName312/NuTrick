@@ -47,7 +47,7 @@
 <article class="card"><h2>Buscar produto por marca ou nome</h2><p class="notice">Consulta colaborativa ao Open Food Facts. Confira o rótulo antes de registrar.</p><form id="offSearchForm"><label class="field">Produto ou marca</label><input name="query" placeholder="Ex.: Wickbold pão de forma" required><button class="primary">Buscar no Open Food Facts</button></form><div id="offResults"></div><div class="divider"></div><form id="barcodeForm"><label class="field">Ou consultar código de barras</label><input name="barcode" inputmode="numeric" placeholder="Digite o código de barras" required><button class="soft">Consultar produto</button></form></article>
 <article class="card"><h2>Cadastrar alimento manualmente</h2><form id="foodForm" class="formgrid"><label class="span">Nome<input name="name" required></label><label>Referência (g/ml)<input name="base" type="number" value="100" min="0.1" step="0.1" required></label><label>Unidade<select name="unit"><option>g</option><option>ml</option></select></label><label>Calorias<input name="kcal" type="number" min="0" step=".1" required></label><label>Proteínas<input name="protein" type="number" min="0" step=".1" required></label><label>Carboidratos<input name="carbs" type="number" min="0" step=".1" required></label><label>Gorduras<input name="fat" type="number" min="0" step=".1" required></label><label>Nome da unidade (opcional)<input name="portionName" placeholder="Ex.: ovo, castanha"></label><label>Quantidade por unidade (g/ml)<input name="portionAmount" type="number" min="0.1" step=".1" placeholder="Ex.: 50"></label><button class="primary span">Salvar alimento</button></form></article>
 <p class="notice">A base local inicial contém alimentos selecionados da TACO 4ª edição (NEPA/UNICAMP, 2011). Produtos industrializados vêm do Open Food Facts e podem conter dados incompletos ou informados por colaboradores.</p></section>
-<section id="s-evolucao" class="screen"><p class="eyebrow">ACOMPANHAMENTO</p><h1>Sua evolução</h1><article class="card"><h2>Registrar medidas</h2><form id="measureForm" class="formgrid"><label>Peso (kg)<input name="weight" type="number" step=".1" min="1" placeholder="75"></label><label>Cintura (cm)<input name="waist" type="number" step=".1" min="1"></label><button class="primary span">Salvar medida</button></form></article><article class="card"><h2>Histórico</h2><div id="measures"></div></article><article class="card"><h2>Metas</h2><form id="goalsForm" class="formgrid"><label>Calorias<input name="kcal" type="number" value="2250"></label><label>Proteínas<input name="protein" type="number" value="160"></label><label>Carboidratos<input name="carbs" type="number" value="265"></label><label>Gorduras<input name="fat" type="number" value="60"></label><label>Fibras<input name="fiber" type="number" value="30"></label><label>Água (ml)<input name="water" type="number" value="2700"></label><button class="primary span">Atualizar metas</button></form></article><article class="card"><h2>Dados e privacidade</h2><p class="notice">Os registros ficam neste navegador. Exporte cópias de segurança regularmente.</p><div class="row"><button class="soft" id="export">Exportar backup</button><label class="soft">Importar backup<input id="import" type="file" accept="application/json" hidden></label></div></article></section>
+<section id="s-evolucao" class="screen"><p class="eyebrow">ACOMPANHAMENTO</p><h1>Sua evolução</h1><article class="card"><h2>Registrar medidas</h2><form id="measureForm" class="formgrid"><label>Peso (kg)<input name="weight" type="number" step=".1" min="1" placeholder="75"></label><label>Cintura (cm)<input name="waist" type="number" step=".1" min="1"></label><button class="primary span">Salvar medida</button></form></article><article class="card"><h2>Histórico</h2><div id="measures"></div></article><article class="card"><h2>Metas</h2><form id="goalsForm" class="formgrid"><label>Calorias<input name="kcal" type="number" value="2250"></label><label>Proteínas<input name="protein" type="number" value="160"></label><label>Carboidratos<input name="carbs" type="number" value="265"></label><label>Gorduras<input name="fat" type="number" value="60"></label><label>Fibras<input name="fiber" type="number" value="30"></label><label>Água (ml)<input name="water" type="number" value="2700"></label><button class="primary span">Atualizar metas</button></form></article><article class="card"><h2>Dados e privacidade</h2><p class="notice">Os registros ficam neste navegador. Exporte cópias de segurança regularmente.</p><div class="row"><button class="soft" id="export">Exportar backup</button><label class="soft">Importar backup<input id="import" type="file" accept="application/json,.json" hidden></label></div><div id="recoveryNotice" class="status hidden" role="status"></div><button class="soft hidden" id="downloadRecovery" type="button">Baixar arquivo original preservado</button></article></section>
 </div>
 <nav class="tabs"><button class="tab active" data-tab="hoje"><span>⌂</span>Hoje</button><button class="tab" data-tab="diario"><span>▤</span>Diário</button><button class="tab" data-tab="alimentos"><span>⌕</span>Alimentos</button><button class="tab" data-tab="evolucao"><span>↗</span>Evolução</button></nav>
 <div id="toast" class="toast"></div><div id="analysis" class="hidden" role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="analysisTitle" style="position:fixed;inset:0;z-index:30;background:#10251b88;padding:18px;overflow:auto"><div style="background:white;border-radius:18px;padding:18px;width:min(560px,100%);margin:7vh auto;max-height:85vh;overflow:auto"><div class="titleRow"><h2 id="analysisTitle">Análise da refeição</h2><button class="smallbtn" id="close" type="button">Fechar</button></div><div id="analysisBody"></div></div></div>
@@ -69,10 +69,136 @@
 (()=>{'use strict';
 window.addEventListener('error',e=>{const t=document.getElementById('toast');if(t){t.textContent='Erro no NuTrick: '+(e.message||'falha inesperada');t.classList.add('show')}});
 const $=s=>document.querySelector(s), today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}, fmt=n=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:1}), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const STORAGE_KEY='nutrick-v1';
+const RECOVERY_PREFIX='nutrick-recovery-v1-';
+const PREIMPORT_KEY='nutrick-pre-import-v1';
+const BACKUP_FORMAT_VERSION=1;
+const MAX_BACKUP_BYTES=10*1024*1024;
 const seed=[];
-let st=load();st.portions=st.portions||{};
-function load(){try{return JSON.parse(localStorage.getItem('nutrick-v1'))||{goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[]}}catch(e){return {goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[]}}}
-function save(){localStorage.setItem('nutrick-v1',JSON.stringify(st))}
+let recoveryRaw=null;
+let storageRecoveryMessage='';
+let storageWriteBlocked=false;
+let st=load();
+
+function isRecord(value){
+  return value!==null&&typeof value==='object'&&!Array.isArray(value);
+}
+function isFiniteNonNegative(value){
+  return typeof value==='number'&&Number.isFinite(value)&&value>=0;
+}
+function isValidDate(value){
+  if(typeof value!=='string'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(value))return false;
+  const date=new Date(value+'T00:00:00Z');
+  return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;
+}
+function createDefaultState(){
+  return {goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[],portions:{}};
+}
+function validateStateShape(value){
+  if(!isRecord(value))return 'O arquivo não contém um objeto de dados válido.';
+  if(!isRecord(value.goals))return 'As metas nutricionais estão ausentes ou inválidas.';
+  for(const key of ['kcal','protein','carbs','fat','fiber','water']){
+    if(!isFiniteNonNegative(value.goals[key]))return 'A meta "'+key+'" precisa ser um número válido e não negativo.';
+  }
+  for(const key of ['foods','meals','measures','water']){
+    if(!Array.isArray(value[key]))return 'A seção "'+key+'" está ausente ou não é uma lista.';
+    if(value[key].length>20000)return 'A seção "'+key+'" excede o limite de registros aceito.';
+  }
+  if(value.foods.length>5000)return 'O backup contém alimentos demais.';
+  const foodIds=new Set();
+  for(let i=0;i<value.foods.length;i++){
+    const food=value.foods[i];
+    if(!isRecord(food)||typeof food.id!=='string'||!food.id.trim()||typeof food.name!=='string'||!food.name.trim())return 'O alimento '+(i+1)+' está sem identificador ou nome válido.';
+    if(foodIds.has(food.id))return 'O alimento "'+food.name+'" aparece mais de uma vez com o mesmo identificador.';
+    foodIds.add(food.id);
+    const base=food.base!==undefined?food.base:food.basis;
+    if(typeof base!=='number'||!Number.isFinite(base)||base<=0)return 'A referência nutricional de "'+food.name+'" é inválida.';
+    if(!['g','ml'].includes(food.unit))return 'A unidade do alimento "'+food.name+'" precisa ser g ou ml.';
+    for(const key of ['kcal','protein','carbs','fat','fiber','sodium']){
+      if(food[key]!==undefined&&food[key]!==null&&!isFiniteNonNegative(food[key]))return 'O nutriente "'+key+'" de "'+food.name+'" contém um valor inválido.';
+    }
+    if(food.aliases!==undefined&&(!Array.isArray(food.aliases)||food.aliases.some(alias=>typeof alias!=='string')))return 'Os nomes alternativos de "'+food.name+'" são inválidos.';
+  }
+  const mealIds=new Set();
+  for(let i=0;i<value.meals.length;i++){
+    const meal=value.meals[i];
+    if(!isRecord(meal)||typeof meal.id!=='string'||!meal.id.trim()||typeof meal.type!=='string'||!meal.type.trim()||!isValidDate(meal.date)||!Array.isArray(meal.items))return 'A refeição '+(i+1)+' tem estrutura ou data inválida.';
+    if(mealIds.has(meal.id))return 'Há refeições duplicadas com o mesmo identificador.';
+    mealIds.add(meal.id);
+    if(meal.items.length>500)return 'Uma refeição contém itens demais.';
+    for(let j=0;j<meal.items.length;j++){
+      const item=meal.items[j];
+      if(!isRecord(item)||typeof item.name!=='string'||!item.name.trim()||typeof item.qty!=='number'||!Number.isFinite(item.qty)||item.qty<=0||!['g','ml','un'].includes(item.unit))return 'O item '+(j+1)+' da refeição '+(i+1)+' é inválido.';
+      for(const key of ['kcal','protein','carbs','fat','fiber','sodium']){
+        if(item[key]!==undefined&&item[key]!==null&&!isFiniteNonNegative(item[key]))return 'O nutriente "'+key+'" de um item do diário é inválido.';
+      }
+    }
+  }
+  for(let i=0;i<value.measures.length;i++){
+    const measure=value.measures[i];
+    if(!isRecord(measure)||!isValidDate(measure.date))return 'O registro de medidas '+(i+1)+' tem data ou estrutura inválida.';
+    for(const key of ['weight','waist']){
+      if(measure[key]!==undefined&&measure[key]!==null&&(!isFiniteNonNegative(measure[key])||measure[key]<=0))return 'O campo "'+key+'" do histórico de medidas é inválido.';
+    }
+  }
+  for(let i=0;i<value.water.length;i++){
+    const water=value.water[i];
+    if(!isRecord(water)||!isValidDate(water.date)||typeof water.ml!=='number'||!Number.isFinite(water.ml)||water.ml<=0)return 'O registro de água '+(i+1)+' é inválido.';
+  }
+  if(value.portions!==undefined&&!isRecord(value.portions))return 'As porções personalizadas estão em formato inválido.';
+  if(isRecord(value.portions)){
+    for(const [id,portion] of Object.entries(value.portions)){
+      if(!id||!isRecord(portion)||typeof portion.amount!=='number'||!Number.isFinite(portion.amount)||portion.amount<=0||(portion.name!==undefined&&typeof portion.name!=='string'))return 'Existe uma porção personalizada inválida.';
+    }
+  }
+  return null;
+}
+function unwrapAndValidateBackup(parsed){
+  let payload=parsed,legacy=true;
+  if(isRecord(parsed)&&parsed.app==='NuTrick'){
+    legacy=false;
+    if(parsed.formatVersion!==BACKUP_FORMAT_VERSION)throw new Error('Versão de backup não reconhecida. Atualize o NuTrick antes de importar este arquivo.');
+    payload=parsed.data;
+  }
+  const error=validateStateShape(payload);
+  if(error)throw new Error(error);
+  return {state:{...payload,portions:isRecord(payload.portions)?{...payload.portions}:{}},legacy};
+}
+function load(){
+  let raw;
+  try{raw=localStorage.getItem(STORAGE_KEY)}catch(error){
+    storageWriteBlocked=true;
+    storageRecoveryMessage='O navegador bloqueou o acesso aos dados locais. O NuTrick está em modo de proteção e não substituirá o armazenamento existente.';
+    return createDefaultState();
+  }
+  if(raw===null)return createDefaultState();
+  try{
+    const parsed=JSON.parse(raw);
+    const validated=unwrapAndValidateBackup(parsed);
+    return validated.state;
+  }catch(error){
+    recoveryRaw=raw;
+    try{
+      const recoveryKey=RECOVERY_PREFIX+Date.now();
+      localStorage.setItem(recoveryKey,raw);
+      storageRecoveryMessage='Os dados locais estavam inválidos. Uma cópia original foi preservada neste navegador para recuperação. Confira e baixe essa cópia antes de limpar os dados do Safari.';
+    }catch(recoveryError){
+      storageWriteBlocked=true;
+      storageRecoveryMessage='Os dados locais parecem inválidos e o navegador não conseguiu criar uma cópia de recuperação. Baixe o arquivo original pelo botão abaixo. O NuTrick não gravará por cima dos dados existentes.';
+    }
+    return createDefaultState();
+  }
+}
+function save(){
+  if(storageWriteBlocked)throw new Error('Armazenamento em modo de proteção. Baixe a cópia de recuperação antes de continuar.');
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(st));
+    return true;
+  }catch(error){
+    toast('Não foi possível salvar os dados neste navegador. Exporte um backup e confira o espaço disponível.');
+    throw error;
+  }
+}
 let tacoReady=false;
 let offCandidates=[];
 let foodSelection=[];
@@ -88,7 +214,7 @@ async function loadTacoData(){
     const tacoFoods=raw.map(f=>({...f,base:f.basis,sourceStatus:f.sourceStatus||'taco'}));
     const personalFoods=(st.foods||[]).filter(f=>f.sourceStatus==='openfoodfacts'||f.source==='Cadastro manual'||f.sourceStatus==='manual');
     st.foods=[...tacoFoods,...personalFoods];
-    tacoReady=true;save();render();
+    tacoReady=true;if(!storageWriteBlocked)save();render();
   }catch(error){
     console.error('Falha ao carregar TACO',error);
     tacoReady=false;
@@ -489,9 +615,53 @@ $('#offSearchForm').onsubmit=async e=>{e.preventDefault();const term=String(new 
 $('#barcodeForm').onsubmit=async e=>{e.preventDefault();const code=String(new FormData(e.target).get('barcode')||'').trim();$('#offResults').innerHTML='<div class="status">Consultando código de barras…</div>';try{const product=await lookupOFFBarcode(code);renderOFFResults(product?[product]:[])}catch(error){$('#offResults').innerHTML='<div class="status">'+esc(error.message||'Não foi possível consultar o produto.')+'</div>'}};
 $('#measureForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);st.measures.push({date:today(),weight:f.get('weight')?+f.get('weight'):null,waist:f.get('waist')?+f.get('waist'):null});save();render();e.target.reset();toast('Medida registrada.');};
 $('#goalsForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);st.goals={kcal:+f.get('kcal'),protein:+f.get('protein'),carbs:+f.get('carbs'),fat:+f.get('fat'),fiber:+f.get('fiber'),water:+f.get('water')};save();render();toast('Metas atualizadas.');};
-$('#export').onclick=()=>{let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(st)],{type:'application/json'}));a.href=u;a.download='nutrick-backup.json';a.click();URL.revokeObjectURL(u)};
-$('#import').onchange=async e=>{try{st=JSON.parse(await e.target.files[0].text());save();render();toast('Backup importado.')}catch{toast('Arquivo inválido.')}};
-render();loadTacoData();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+function downloadText(content,filename,type){
+  const url=URL.createObjectURL(new Blob([content],{type}));
+  const link=document.createElement('a');
+  link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function updateRecoveryNotice(){
+  const notice=$('#recoveryNotice'),button=$('#downloadRecovery');
+  if(!recoveryRaw){notice.classList.add('hidden');button.classList.add('hidden');return}
+  notice.textContent=storageRecoveryMessage||'Uma cópia original de recuperação está disponível.';
+  notice.classList.remove('hidden');
+  button.classList.remove('hidden');
+}
+$('#export').onclick=()=>{
+  try{
+    const backup={app:'NuTrick',formatVersion:BACKUP_FORMAT_VERSION,exportedAt:new Date().toISOString(),data:st};
+    downloadText(JSON.stringify(backup,null,2),'nutrick-backup.json','application/json');
+    toast('Backup exportado.');
+  }catch(error){toast('Não foi possível exportar o backup. Confira o espaço disponível e tente novamente.')}
+};
+$('#downloadRecovery').onclick=()=>{
+  if(recoveryRaw===null)return;
+  downloadText(recoveryRaw,'nutrick-recovery-original.txt','text/plain;charset=utf-8');
+  toast('Cópia original de recuperação baixada.');
+};
+$('#import').onchange=async e=>{
+  const input=e.target,file=input.files&&input.files[0];
+  try{
+    if(!file)throw new Error('Selecione um arquivo de backup.');
+    if(file.size<=0||file.size>MAX_BACKUP_BYTES)throw new Error('O arquivo está vazio ou ultrapassa o limite de 10 MB.');
+    const parsed=JSON.parse(await file.text());
+    const prepared=unwrapAndValidateBackup(parsed);
+    if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de tentar importar.');
+    const currentRaw=localStorage.getItem(STORAGE_KEY);
+    if(currentRaw!==null)localStorage.setItem(PREIMPORT_KEY,currentRaw);
+    const nextRaw=JSON.stringify(prepared.state);
+    localStorage.setItem(STORAGE_KEY,nextRaw);
+    st=prepared.state;
+    render();
+    toast(prepared.legacy?'Backup antigo validado e importado.':'Backup validado e importado com sucesso.');
+  }catch(error){
+    toast(error.message||'Não foi possível importar. Os dados atuais foram preservados.');
+  }finally{
+    input.value='';
+  }
+};
+render();updateRecoveryNotice();if(storageRecoveryMessage)toast(storageRecoveryMessage);loadTacoData();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();
 </script>
 </body></html>
