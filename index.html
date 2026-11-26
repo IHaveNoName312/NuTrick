@@ -43,7 +43,6 @@
 window.addEventListener('error',e=>{const t=document.getElementById('toast');if(t){t.textContent='Erro no NuTrick: '+(e.message||'falha inesperada');t.classList.add('show')}});
 const $=s=>document.querySelector(s), today=()=>new Date().toISOString().slice(0,10), fmt=n=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:1}), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const seed=[];
-let st=load();;
 let st=load();
 function load(){try{return JSON.parse(localStorage.getItem('nutrick-v1'))||{goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[]}}catch(e){return {goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[]}}}
 function save(){localStorage.setItem('nutrick-v1',JSON.stringify(st))}
