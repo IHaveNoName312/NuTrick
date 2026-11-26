@@ -377,7 +377,7 @@ document.addEventListener('change',e=>{
   if(selector.value==='un'){if(qty)qty.value='1';fields?.classList.remove('hidden')}
   else{if(qty)qty.value='100';fields?.classList.add('hidden')}
 });
-$('#close').onclick=()=>closeAnalysis();$('#cancelMealEdits').onclick=closeMealEditor;$('#saveMealEdits').onclick=saveMealEdits;$('#editFoodSearch').oninput=e=>renderMealEditorSearch(e.target.value);
+$('#analyze').onclick=analyze;$('#close').onclick=()=>closeAnalysis();$('#cancelMealEdits').onclick=closeMealEditor;$('#saveMealEdits').onclick=saveMealEdits;$('#editFoodSearch').oninput=e=>renderMealEditorSearch(e.target.value);
 function renderFoodSelection(){
   const box=$('#foodSelection');
   if(!foodSelection.length){box.innerHTML='';return}
