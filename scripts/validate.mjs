@@ -24,6 +24,21 @@ for (const food of taco) {
   }
 }
 
+const verifiedSodium = new Map([
+  ["1", 1],
+  ["3", 1],
+  ["370", 52],
+  ["410", 50],
+  ["461", 31],
+  ["551", 158],
+]);
+for (const [code, expected] of verifiedSodium) {
+  const food = taco.find(entry => entry.sourceCode === code);
+  if (!food || food.sodium !== expected) {
+    throw new Error(`Unexpected TACO sodium value for code ${code}: expected ${expected}, got ${food?.sodium}`);
+  }
+}
+
 const tacoFoods = taco.map(food => ({ ...food, base: food.basis, sourceStatus: "taco" }));
 const testContext = vm.createContext({
   st: { foods: tacoFoods, portions: {} },
@@ -175,4 +190,4 @@ if (mixedBasis.complete || mixedBasis.carbs !== null || !mixedBasis.missing.incl
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; parser, count-unit, Open Food Facts mapping and v3/legacy barcode response checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; parser, count-unit, Open Food Facts mapping and v3/legacy barcode response checks passed.`);
