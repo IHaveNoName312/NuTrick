@@ -71,6 +71,7 @@ window.addEventListener('error',e=>{const t=document.getElementById('toast');if(
 const $=s=>document.querySelector(s), today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}, fmt=n=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:1}), esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const STORAGE_KEY='nutrick-v1';
 const RECOVERY_PREFIX='nutrick-recovery-v1-';
+const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1';
 const PREIMPORT_KEY='nutrick-pre-import-v1';
 const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1';
 const BACKUP_FORMAT_VERSION=1;
@@ -203,6 +204,17 @@ function restorePreImportBackup(){
   }
   return prepared;
 }
+function loadRecoveryCopy(){
+  try{
+    const recoveryKey=localStorage.getItem(RECOVERY_POINTER_KEY);
+    if(!recoveryKey)return;
+    const savedRaw=localStorage.getItem(recoveryKey);
+    if(savedRaw!==null){
+      recoveryRaw=savedRaw;
+      storageRecoveryMessage='Uma cópia original de recuperação continua preservada neste navegador. Baixe-a antes de limpar os dados do Safari.';
+    }
+  }catch(error){}
+}
 function load(){
   let raw;
   try{raw=localStorage.getItem(STORAGE_KEY)}catch(error){
@@ -210,16 +222,19 @@ function load(){
     storageRecoveryMessage='O navegador bloqueou o acesso aos dados locais. O NuTrick está em modo de proteção e não substituirá o armazenamento existente.';
     return createDefaultState();
   }
-  if(raw===null)return createDefaultState();
+  if(raw===null){loadRecoveryCopy();return createDefaultState();}
   try{
     const parsed=JSON.parse(raw);
     const validated=unwrapAndValidateBackup(parsed);
+    loadRecoveryCopy();
     return validated.state;
   }catch(error){
     recoveryRaw=raw;
     try{
       const recoveryKey=RECOVERY_PREFIX+Date.now();
       localStorage.setItem(recoveryKey,raw);
+      recoveryRaw=raw;
+      localStorage.setItem(RECOVERY_POINTER_KEY,recoveryKey);
       storageRecoveryMessage='Os dados locais estavam inválidos. Uma cópia original foi preservada neste navegador para recuperação. Confira e baixe essa cópia antes de limpar os dados do Safari.';
     }catch(recoveryError){
       storageWriteBlocked=true;
