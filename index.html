@@ -55,7 +55,7 @@ async function loadTacoData(){
     const response=await fetch('./data/taco.json');
     if(!response.ok)throw new Error('HTTP '+response.status);
     const raw=await response.json();
-    const tacoFoods=raw.map(f=>({...f,base:f.basis,sourceStatus:f.sourceStatus||'taco'}));
+    const tacoFoods=raw.map(f=>({...f,base:f.basis,sourceStatus:'taco'}));
     const personalFoods=(st.foods||[]).filter(f=>f.sourceStatus==='openfoodfacts'||f.source==='Cadastro manual'||f.sourceStatus==='manual');
     st.foods=[...tacoFoods,...personalFoods];
     tacoReady=true;save();render();
