@@ -174,7 +174,7 @@ const mixedLunch = parseForTest("150 g de arroz branco, 100 g de frango grelhado
 if (mixedLunch.questions.length ||
     mixedLunch.items.map(item => item.foodId).join(",") !== "taco-003,taco-410" ||
     mixedLunch.items[0].qty !== 150 || mixedLunch.items[1].qty !== 100) {
-  throw new Error("A meal with rice and grilled chicken must identify both foods independently");
+  throw new Error("A meal with rice and grilled chicken must identify both foods independently: " + JSON.stringify(mixedLunch));
 }
 const adjacentIngredients = parseForTest("150 g arroz branco 100 g frango grelhado");
 if (adjacentIngredients.questions.length ||
