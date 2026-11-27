@@ -409,10 +409,10 @@ async function loadTacoData(){
   }
 }
 function offNumber(value){
-  if(typeof value==='number')return Number.isFinite(value)?value:null;
+  if(typeof value==='number')return Number.isFinite(value)&&value>=0?value:null;
   if(typeof value==='string'&&value.trim()!==''){
     const parsed=Number(value.replace(',','.'));
-    return Number.isFinite(parsed)?parsed:null;
+    return Number.isFinite(parsed)&&parsed>=0?parsed:null;
   }
   return null;
 }
@@ -443,8 +443,9 @@ function mapOFFProduct(product){
   if(chosen.protein===null)missing.push('proteínas');
   if(chosen.carbs===null)missing.push('carboidratos');
   if(chosen.fat===null)missing.push('gorduras');
-  const explicitUnit=String(product.product_quantity_unit||product.serving_quantity_unit||'').trim().toLowerCase();
-  const unit=chosen.suffix==='100ml'?'ml':(explicitUnit==='ml'?'ml':'g');
+  // The package quantity unit is not the nutrient reference unit.
+  // Always follow the exact basis of the selected OFF nutrient fields.
+  const unit=chosen.suffix==='100ml'?'ml':'g';
   const name=product.product_name_pt||product.product_name||product.generic_name||'Produto sem nome';
   const brand=product.brands||'';
   return {id:'off-'+String(product.code||Date.now()),code:String(product.code||''),name:String(name),brand:String(brand),unit,base:100,kcal:chosen.kcal,protein:chosen.protein,carbs:chosen.carbs,fat:chosen.fat,fiber:chosen.fiber,sodium:chosen.sodium,source:'Open Food Facts (dados colaborativos)',sourceStatus:'openfoodfacts',sourceUrl:product.code?'https://world.openfoodfacts.org/product/'+encodeURIComponent(product.code):'https://world.openfoodfacts.org/',quantity:product.quantity||'',servingSize:product.serving_size||'',missing,complete:missing.length===0};
@@ -503,18 +504,32 @@ function formatQuantity(item){
   return fmt(item.qty)+' '+item.unit;
 }
 function calc(f,q,measureUnit,portionOverride){
+  if(!f||typeof f!=='object')throw new Error('Alimento inválido para cálculo.');
+  const quantity=Number(q);
+  if(!Number.isFinite(quantity)||quantity<=0)throw new Error('A quantidade precisa ser um número maior que zero.');
+  if(!['g','ml'].includes(f.unit))throw new Error('A unidade de referência do alimento precisa ser g ou ml.');
+  const reference=Number(f.base??f.basis??100);
+  if(!Number.isFinite(reference)||reference<=0)throw new Error('A referência nutricional do alimento é inválida.');
   const measure=measureUnit||f.unit;
-  let baseQuantity=Number(q);
+  if(measure!=='un'&&measure!==f.unit)throw new Error('A unidade informada não corresponde à referência nutricional do alimento.');
+  let baseQuantity=quantity;
   let portion=null;
   if(measure==='un'){
     portion=portionOverride||portionFor(f);
     const amount=Number(portion&&portion.amount);
     if(!Number.isFinite(amount)||amount<=0)throw new Error('Informe quanto pesa ou mede uma unidade deste alimento.');
-    baseQuantity=Number(q)*amount;
+    baseQuantity=quantity*amount;
   }
-  const factor=baseQuantity/(f.base||100);
-  const scaled=key=>f[key]===null||f[key]===undefined?null:Number(f[key])*factor;
-  return {foodId:f.id,name:f.name,qty:Number(q),unit:measure==='un'?'un':f.unit,portionAmount:measure==='un'?Number(portion.amount):null,portionName:measure==='un'?(portion.name||'unidade'):null,baseUnit:f.unit,baseQuantity,kcal:scaled('kcal'),protein:scaled('protein'),carbs:scaled('carbs'),fat:scaled('fat'),fiber:scaled('fiber'),sodium:scaled('sodium'),source:f.source||'Cadastro pessoal',sourceUrl:f.sourceUrl||null,sourceStatus:f.sourceStatus||'manual',brand:f.brand||'',code:f.code||''};
+  if(!Number.isFinite(baseQuantity)||baseQuantity<=0)throw new Error('A quantidade convertida está fora do intervalo válido.');
+  const factor=baseQuantity/reference;
+  const scaled=key=>{
+    const raw=f[key];
+    if(raw===null||raw===undefined)return null;
+    const value=Number(raw);
+    if(!Number.isFinite(value)||value<0)throw new Error('O nutriente "'+key+'" do alimento contém um valor inválido.');
+    return value*factor;
+  };
+  return {foodId:f.id,name:f.name,qty:quantity,unit:measure==='un'?'un':f.unit,portionAmount:measure==='un'?Number(portion.amount):null,portionName:measure==='un'?(portion.name||'unidade'):null,baseUnit:f.unit,baseQuantity,kcal:scaled('kcal'),protein:scaled('protein'),carbs:scaled('carbs'),fat:scaled('fat'),fiber:scaled('fiber'),sodium:scaled('sodium'),source:f.source||'Cadastro pessoal',sourceUrl:f.sourceUrl||null,sourceStatus:f.sourceStatus||'manual',brand:f.brand||'',code:f.code||''};
 }
 function sum(items){
   const keys=['kcal','protein','carbs','fat','fiber','sodium'];
