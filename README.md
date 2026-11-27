@@ -39,6 +39,11 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - A tabela TACO fica no arquivo do aplicativo e não ocupa espaço duplicado no armazenamento local; somente alimentos pessoais, produtos e registros do usuário são persistidos.
 - Limite de 10 MB por arquivo de backup; se não for possível guardar o ponto de restauração, a importação é cancelada sem substituir os dados atuais.
 - Armazenamento no navegador e cache offline após a primeira visita em HTTPS.
+- Service worker com precache explícito da interface, manifesto, ícones e catálogo TACO; respostas de rede bem-sucedidas são armazenadas para uso posterior sem internet.
+- Navegação offline com fallback para a interface principal; recursos nunca armazenados retornam indisponibilidade explícita em vez de uma página vazia.
+- Limpeza de cache limitada a versões antigas do próprio NuTrick, sem apagar caches de outros aplicativos no mesmo domínio.
+- Verificação de atualizações ao retornar o app ao primeiro plano, com atualização do script do service worker sem depender do cache HTTP intermediário.
+- Avisos de conexão quando o dispositivo fica offline ou volta a ficar online. Consultas a serviços externos continuam dependendo de internet.
 
 ## Fontes e limitações dos dados
 
