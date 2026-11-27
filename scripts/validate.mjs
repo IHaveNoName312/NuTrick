@@ -77,7 +77,7 @@ const backupCode = extract("function isRecord(value)", "function load()");
 const loadCode = extract("function load()", "function rollbackUnsavedState()");
 const saveCode = extract("function rollbackUnsavedState()", "let tacoReady=false;");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st);\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
+new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const CURRENT_SCHEMA_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; const PREMIGRATION_KEY='nutrick-pre-migration-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let migrationBackupRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st);\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.getMigrationBackupForTest = () => migrationBackupRaw; this.isStorageBlockedForTest = () => storageWriteBlocked; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
 const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
@@ -96,6 +96,8 @@ const setStorageProtectionForTest = testContext.setStorageProtectionForTest;
 const refreshSavedSnapshotForTest = testContext.refreshSavedSnapshotForTest;
 const setTacoCatalogForTest = testContext.setTacoCatalogForTest;
 const persistedStateForTest = testContext.persistedStateForTest;
+const getMigrationBackupForTest = testContext.getMigrationBackupForTest;
+const isStorageBlockedForTest = testContext.isStorageBlockedForTest;
 const groupMealsByDateForTest = testContext.groupMealsByDateForTest;
 const sortRecordsByDateNewestFirstForTest = testContext.sortRecordsByDateNewestFirstForTest;
 const removeMealByIdForTest = testContext.removeMealByIdForTest;
@@ -210,7 +212,7 @@ if (validateStateForTest(numericLegacyMeal) !== null) {
   throw new Error("Legacy numeric meal identifiers should remain importable");
 }
 const preparedLegacy = unwrapBackupForTest(legacyBackup);
-if (!preparedLegacy.legacy || !preparedLegacy.state.portions || Object.keys(preparedLegacy.state.portions).length !== 0) {
+if (!preparedLegacy.legacy || !preparedLegacy.state.portions || Object.keys(preparedLegacy.state.portions).length !== 0 || preparedLegacy.state.schemaVersion !== 1) {
   throw new Error("Legacy backups without custom portions should be accepted and normalized");
 }
 const envelopeBackup = unwrapBackupForTest({
@@ -219,7 +221,7 @@ const envelopeBackup = unwrapBackupForTest({
   exportedAt: "2026-11-26T20:00:00.000Z",
   data: validBackupState
 });
-if (envelopeBackup.legacy || envelopeBackup.state.meals.length !== 1) {
+if (envelopeBackup.legacy || envelopeBackup.state.meals.length !== 1 || envelopeBackup.state.schemaVersion !== 1) {
   throw new Error("Versioned NuTrick backup envelopes should be accepted");
 }
 const currentRaw = JSON.stringify(legacyBackup);
@@ -231,7 +233,7 @@ const imported = commitImportForTest(incomingEnvelope);
 if (imported.legacy || fakeStorage.getItem("nutrick-pre-import-v1") !== currentRaw) {
   throw new Error("Import should save the old state as a restore point before replacing it");
 }
-if (JSON.parse(fakeStorage.getItem("nutrick-v1")).measures[0].weight !== 76) {
+if (JSON.parse(fakeStorage.getItem("nutrick-v1")).measures[0].weight !== 76 || JSON.parse(fakeStorage.getItem("nutrick-v1")).schemaVersion !== 1) {
   throw new Error("Validated import should persist the new state");
 }
 const importedRaw = fakeStorage.getItem("nutrick-v1");
@@ -359,6 +361,7 @@ assertBackupRejected({ ...validBackupState, measures: [{ date: "26/11/2026", wei
 assertBackupRejected({ ...validBackupState, meals: [{ ...validBackupState.meals[0], items: [{ ...validBackupState.meals[0].items[0], qty: -100 }] }] }, "negative consumed quantity");
 assertBackupRejected({ ...validBackupState, meals: [{ ...validBackupState.meals[0], items: [{ ...validBackupState.meals[0].items[0], unit: "kg" }] }] }, "unsupported meal item unit");
 assertBackupRejected({ app: "NuTrick", formatVersion: 99, data: validBackupState }, "unknown future backup version");
+assertBackupRejected({ ...validBackupState, schemaVersion: 99 }, "unknown future data schema version");
 assertBackupRejected({ ...validBackupState, foods: [tacoFoods[0], tacoFoods[0]] }, "duplicate food id");
 
 const partialTotals = sumForTest([
@@ -481,6 +484,48 @@ if (reloadedMultiDayState.meals.length !== 2 ||
     reloadedMultiDayState.water.length !== 2) {
   throw new Error("Reloading local storage must preserve every meal, measure and water entry across historical dates");
 }
+const migratedStoredState = JSON.parse(fakeStorage.getItem("nutrick-v1"));
+const originalMultiDayRaw = JSON.stringify(multiDayState);
+if (migratedStoredState.schemaVersion !== 1 ||
+    fakeStorage.getItem("nutrick-pre-migration-v1") !== originalMultiDayRaw ||
+    getMigrationBackupForTest() !== originalMultiDayRaw ||
+    migratedStoredState.meals.length !== 2 || migratedStoredState.measures.length !== 2 ||
+    migratedStoredState.water.length !== 2) {
+  throw new Error("Legacy local state should migrate only after preserving its exact original JSON");
+}
+const currentSchemaRaw = fakeStorage.getItem("nutrick-v1");
+loadStateForTest();
+if (fakeStorage.getItem("nutrick-v1") !== currentSchemaRaw) {
+  throw new Error("Loading current schema data must not trigger another migration or rewrite");
+}
+fakeStorage.data = new Map([["nutrick-v1", originalMultiDayRaw]]);
+fakeStorage.failKey = "nutrick-pre-migration-v1";
+const blockedSnapshotMigration = loadStateForTest();
+fakeStorage.failKey = null;
+if (fakeStorage.getItem("nutrick-v1") !== originalMultiDayRaw ||
+    !isStorageBlockedForTest() || blockedSnapshotMigration.meals.length !== 2) {
+  throw new Error("Migration must abort without touching source data when the safety snapshot cannot be written");
+}
+setStorageProtectionForTest(false);
+fakeStorage.data = new Map([["nutrick-v1", originalMultiDayRaw]]);
+fakeStorage.failKey = "nutrick-v1";
+const blockedMainMigration = loadStateForTest();
+fakeStorage.failKey = null;
+if (fakeStorage.getItem("nutrick-v1") !== originalMultiDayRaw ||
+    fakeStorage.getItem("nutrick-pre-migration-v1") !== originalMultiDayRaw ||
+    !isStorageBlockedForTest() || blockedMainMigration.meals.length !== 2) {
+  throw new Error("A failed migrated-state write must leave source data intact and retain the staged snapshot");
+}
+setStorageProtectionForTest(false);
+const futureSchemaRaw = JSON.stringify({ ...multiDayState, schemaVersion: 99 });
+fakeStorage.data = new Map([["nutrick-v1", futureSchemaRaw]]);
+fakeStorage.failKey = null;
+loadStateForTest();
+if (fakeStorage.getItem("nutrick-v1") !== futureSchemaRaw || !isStorageBlockedForTest() ||
+    getRecoveryRawForTest() !== futureSchemaRaw) {
+  throw new Error("A newer schema must be preserved and place an older application in read-only protection mode");
+}
+setStorageProtectionForTest(false);
 
 let rejectedBarcodeStatus = false;
 try {
@@ -518,4 +563,4 @@ if (!html.includes("groupMealsByDate(st.meals)") ||
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; backup compatibility and local-storage rollback; date-grouped multi-day history, chronological measurement sorting, legacy numeric-ID deletion, collision-safe identifiers and reload preservation; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; schema v0-to-v1 migration, original snapshot preservation, migration failure rollback, future-schema protection, legacy/versioned backup migration; date-grouped history and multi-day reload; parser, count-unit and Open Food Facts checks passed.`);
