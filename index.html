@@ -794,6 +794,26 @@ function parse(text){
       continue;
     }
 
+    // New catalog entries use explicit aliases so each preparation is matched independently.
+    const supportedNewTacoIds=new Set(['taco-088','taco-091','taco-109','taco-110','taco-078','taco-161','taco-222','taco-225','taco-448','taco-408','taco-376','taco-369','taco-577']);
+    const tacoMatches=st.foods.filter(food=>supportedNewTacoIds.has(food.id)&&Array.isArray(food.aliases))
+      .flatMap(food=>food.aliases.map(alias=>({food,alias:normalizeText(alias)})))
+      .filter(match=>match.alias&&(' '+part+' ').includes(' '+match.alias+' '))
+      .sort((a,b)=>b.alias.length-a.alias.length);
+    if(tacoMatches.length){
+      const best=tacoMatches[0];
+      const bestFoodIds=[...new Set(tacoMatches.filter(match=>match.alias.length===best.alias.length).map(match=>match.food.id))];
+      if(bestFoodIds.length>1){
+        ask('Encontrei mais de uma referência para "'+part+'". Informe o tipo ou preparo com mais detalhes.');
+      }else if(quantity===null||!quantityUnit){
+        ask(best.food.name+': informe a quantidade em '+best.food.unit+'.');
+      }else{
+        try{items.push(calc(best.food,quantity,quantityUnit))}
+        catch(error){ask(error.message||('Não foi possível calcular '+best.food.name+'.'))}
+      }
+      continue;
+    }
+
     if(/\bcafe\b/.test(part)){
       if(quantity!==null&&quantityUnit==='ml'){add('taco-471',quantity,'ml');handled=true}
       else ask('Café: informe a quantidade em ml.');
