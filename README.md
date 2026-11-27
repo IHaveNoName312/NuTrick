@@ -61,7 +61,9 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 
 ## Fontes e limitações dos dados
 
-- O catálogo inicial contém 21 registros associados à **TACO, 4ª edição revisada e ampliada, NEPA/UNICAMP (2011)**. Cada registro conserva o código do alimento e o endereço da fonte. A base ainda é parcial e não cobre todas as marcas, receitas ou métodos de preparo.
+- O catálogo contém 34 registros associados à **TACO, 4ª edição revisada e ampliada, NEPA/UNICAMP (2011)**. A ampliação incluiu vegetais, tubérculos, frutas, iogurte natural, frango cozido, cortes bovinos crus e lentilha. Cada registro conserva o código do alimento e o endereço da fonte. A base ainda é parcial e não cobre todas as marcas, receitas ou métodos de preparo.
+- A TACO marca algumas medições como traço (Tr), que não significa necessariamente ausência absoluta do nutriente. Nos campos numéricos do aplicativo, esses traços são representados por zero para permitir os cálculos; trate esses valores como limite/traço, não como comprovação de ausência.
+- A TACO não informa valores completos de energia e macronutrientes para algumas formas de leite, incluindo leite integral. Por isso, o NuTrick não inventa esses valores: use a busca de marca no Open Food Facts ou cadastre os números do rótulo.
 - O café aparece em ml por uma aproximação de densidade de 1 g/ml; a TACO apresenta a composição por 100 g. Porções caseiras também podem variar, então pese o alimento quando precisar de mais precisão.
 - Produtos pesquisados no **Open Food Facts** vêm de uma base colaborativa. Confira os dados com o rótulo da embalagem; produtos sem calorias, proteínas, carboidratos ou gorduras identificados não podem ser adicionados ao diário.
 - Cadastros manuais dependem das informações digitadas pelo usuário.
