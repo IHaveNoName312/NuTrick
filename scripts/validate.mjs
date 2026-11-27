@@ -61,6 +61,7 @@ const testContext = vm.createContext({
   st: { foods: tacoFoods, portions: {} },
   localStorage: fakeStorage,
   toast: () => {},
+  updateRecoveryNotice: () => {},
   fmt: value => Number(value || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 }),
 });
 const script = html.slice(scriptStart + "<script>".length, scriptEnd);
