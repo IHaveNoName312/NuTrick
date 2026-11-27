@@ -716,7 +716,11 @@ function parse(text){
     return true;
   };
   const ask=message=>questions.push(message);
-  const parts=String(text).split(/[,;+]|\s+e\s+/i).map(part=>normalizeText(part)).filter(Boolean);
+  const parts=String(text).split(/[,;+]|\s+e\s+/i).flatMap(rawPart=>{
+    const quantities=[...rawPart.matchAll(/\\d+(?:[,.]\\d+)?\\s*(?:g|ml)\\b/gi)];
+    if(quantities.length<=1)return [rawPart];
+    return quantities.map((match,index)=>rawPart.slice(match.index,quantities[index+1]?.index??rawPart.length));
+  }).map(part=>normalizeText(part)).filter(Boolean);
   for(const part of parts){
     let handled=false;
     const quantityMatch=part.match(/(\d+(?:[,.]\d+)?)\s*(g|ml)\b/i);
