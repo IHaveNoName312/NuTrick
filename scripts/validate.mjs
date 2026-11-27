@@ -576,8 +576,8 @@ const standardLiquid = mapOFFForTest({
     "sodium_100g": 0.04
   }
 });
-if (!standardLiquid.complete || standardLiquid.unit !== "ml" || Math.abs(standardLiquid.kcal - 100) > 0.01 || Math.abs(standardLiquid.sodium - 40) > 0.01) {
-  throw new Error("Open Food Facts normalized fields should keep the liquid unit, convert kJ to kcal and sodium grams to mg");
+if (!standardLiquid.complete || standardLiquid.unit !== "g" || Math.abs(standardLiquid.kcal - 100) > 0.01 || Math.abs(standardLiquid.sodium - 40) > 0.01) {
+  throw new Error("Open Food Facts nutrient values expressed per 100g must remain per gram even when the package is sold in ml");
 }
 const legacyLiquid = mapOFFForTest({
   code: "7890000000001",
@@ -594,6 +594,82 @@ const legacyLiquid = mapOFFForTest({
 if (!legacyLiquid.complete || legacyLiquid.unit !== "ml" || Math.abs(legacyLiquid.sodium - 80) > 0.01) {
   throw new Error("Legacy 100ml fields and salt-to-sodium conversion should be supported");
 }
+
+const milliliterBasisProduct = mapOFFForTest({
+  code: "7890000000006",
+  product_name: "Produto com base por 100 ml",
+  quantity: "500 g",
+  product_quantity_unit: "g",
+  nutriments: {
+    "energy-kcal_100ml": 42,
+    "proteins_100ml": 1.2,
+    "carbohydrates_100ml": 5.5,
+    "fat_100ml": 1.1,
+    "sodium_100ml": 0.08,
+    "salt_100ml": 0.2
+  }
+});
+if (!milliliterBasisProduct.complete || milliliterBasisProduct.unit !== "ml" ||
+    Math.abs(milliliterBasisProduct.kcal - 42) > 0.001 ||
+    Math.abs(milliliterBasisProduct.sodium - 80) > 0.001) {
+  throw new Error("Open Food Facts values expressed per 100ml must stay in ml even when the package quantity is expressed in grams");
+}
+const directSodiumWins = mapOFFForTest({
+  code: "7890000000007",
+  product_name: "Produto com sódio e sal",
+  nutriments: {
+    "energy-kcal_100g": 100,
+    "proteins_100g": 4,
+    "carbohydrates_100g": 10,
+    "fat_100g": 2,
+    "sodium_100g": 0.12,
+    "salt_100g": 0.9
+  }
+});
+if (Math.abs(directSodiumWins.sodium - 120) > 0.001) {
+  throw new Error("Explicit Open Food Facts sodium values must take precedence over salt-derived sodium");
+}
+const negativeOFFValue = mapOFFForTest({
+  code: "7890000000008",
+  product_name: "Produto com valor negativo inválido",
+  nutriments: {
+    "energy-kcal_100g": -10,
+    "proteins_100g": 4,
+    "carbohydrates_100g": 10,
+    "fat_100g": 2
+  }
+});
+if (negativeOFFValue.kcal !== null || negativeOFFValue.complete || !negativeOFFValue.missing.includes("calorias")) {
+  throw new Error("Negative Open Food Facts nutrients must be treated as missing, not as valid nutrition data");
+}
+const oatmeal = tacoFoods.find(food => food.id === "taco-007");
+const fiftyGramsOatmeal = testContext.calcForTest(oatmeal, 50, "g");
+if (Math.abs(fiftyGramsOatmeal.kcal - 197) > 0.001 ||
+    Math.abs(fiftyGramsOatmeal.protein - 6.95) > 0.001 ||
+    Math.abs(fiftyGramsOatmeal.carbs - 33.3) > 0.001 ||
+    Math.abs(fiftyGramsOatmeal.fat - 4.25) > 0.001 ||
+    Math.abs(fiftyGramsOatmeal.fiber - 4.55) > 0.001) {
+  throw new Error("Gram-based nutrient scaling must preserve fractional precision for every nutrient");
+}
+const combinedMealTotals = sumForTest([fiftyGramsOatmeal, threeEggs]);
+if (Math.abs(combinedMealTotals.kcal - 416) > 0.001 ||
+    Math.abs(combinedMealTotals.protein - 27.85) > 0.001 ||
+    Math.abs(combinedMealTotals.carbs - 35.5) > 0.001 ||
+    Math.abs(combinedMealTotals.fat - 18.45) > 0.001) {
+  throw new Error("Multi-food meal totals must add the calculated portions without rounding intermediate values");
+}
+function assertCalculationRejected(food, quantity, unit, label) {
+  let rejected = false;
+  try { testContext.calcForTest(food, quantity, unit); } catch { rejected = true; }
+  if (!rejected) throw new Error("Food calculation should reject " + label);
+}
+assertCalculationRejected(oatmeal, 0, "g", "zero quantity");
+assertCalculationRejected(oatmeal, -10, "g", "negative quantity");
+assertCalculationRejected(oatmeal, Number.NaN, "g", "not-a-number quantity");
+assertCalculationRejected(oatmeal, 10, "ml", "a unit that does not match the food basis");
+assertCalculationRejected({ ...oatmeal, base: 0 }, 10, "g", "a zero nutrition reference");
+assertCalculationRejected({ ...oatmeal, protein: -2 }, 10, "g", "a negative nutrient value");
+assertCalculationRejected({ ...oatmeal, unit: "kg" }, 10, "kg", "an unsupported reference unit");
 const v3BarcodeProduct = mapOFFResponseForTest({
   status: "success",
   product: {
