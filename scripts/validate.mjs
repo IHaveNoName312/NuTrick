@@ -72,11 +72,12 @@ const extract = (start, end) => {
 const normalizeCode = extract("function normalizeText(value)", "async function loadTacoData()");
 const offCode = extract("function offNumber(value)", "async function searchOFFProducts(term)");
 const portionCode = extract("function portionFor(food)", "function todayMeals()");
+const diaryCode = extract("function formatDiaryDate", "function todayMeals()");
 const backupCode = extract("function isRecord(value)", "function load()");
 const loadCode = extract("function load()", "function rollbackUnsavedState()");
 const saveCode = extract("function rollbackUnsavedState()", "let tacoReady=false;");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st);\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState;").runInContext(testContext);
+new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st);\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
 const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
@@ -95,6 +96,40 @@ const setStorageProtectionForTest = testContext.setStorageProtectionForTest;
 const refreshSavedSnapshotForTest = testContext.refreshSavedSnapshotForTest;
 const setTacoCatalogForTest = testContext.setTacoCatalogForTest;
 const persistedStateForTest = testContext.persistedStateForTest;
+const groupMealsByDateForTest = testContext.groupMealsByDateForTest;
+const sortRecordsByDateNewestFirstForTest = testContext.sortRecordsByDateNewestFirstForTest;
+const removeMealByIdForTest = testContext.removeMealByIdForTest;
+const formatDiaryDateForTest = testContext.formatDiaryDateForTest;
+const createRecordIdForTest = testContext.createRecordIdForTest;
+
+const groupedHistory = groupMealsByDateForTest([
+  { id: "older-lunch", date: "2026-11-25", items: [] },
+  { id: "newer-breakfast", date: "2026-11-26", items: [] },
+  { id: "newer-lunch", date: "2026-11-26", items: [] }
+]);
+if (groupedHistory.length !== 2 || groupedHistory[0].date !== "2026-11-26" ||
+    groupedHistory[0].meals.length !== 2 || groupedHistory[1].date !== "2026-11-25") {
+  throw new Error("Diary history should group meals by date and order days newest first");
+}
+const sortedMeasures = sortRecordsByDateNewestFirstForTest([
+  { date: "2026-11-24" }, { date: "2026-11-26" }, { date: "2026-11-25" }
+]);
+if (sortedMeasures.map(record => record.date).join(",") !== "2026-11-26,2026-11-25,2026-11-24") {
+  throw new Error("Measurement history should be sorted by date, not by import order");
+}
+const remainingAfterLegacyDelete = removeMealByIdForTest([
+  { id: 1790000000000, date: "2026-11-25" }, { id: "meal-current", date: "2026-11-26" }
+], "1790000000000");
+if (remainingAfterLegacyDelete.length !== 1 || remainingAfterLegacyDelete[0].id !== "meal-current") {
+  throw new Error("Deleting a legacy numeric meal ID should work when the UI supplies a string ID");
+}
+const formattedHistoryDate = formatDiaryDateForTest("2026-11-26");
+if (!formattedHistoryDate.includes("26") || !formattedHistoryDate.includes("2026")) {
+  throw new Error("Diary date labels should preserve the intended calendar date");
+}
+if (createRecordIdForTest("meal", [{ id: "meal-123" }], 123) !== "meal-123-1") {
+  throw new Error("New records should avoid ID collisions when timestamps repeat");
+}
 
 function assertFood(description, expectedId, expectedKcal) {
   const result = parseForTest(description);
@@ -421,6 +456,32 @@ const legacyBarcodeProduct = mapOFFResponseForTest({
 if (legacyBarcodeProduct.code !== "7890000000004" || !legacyBarcodeProduct.complete) {
   throw new Error("Legacy numeric success status should remain supported");
 }
+const multiDayState = {
+  ...validBackupState,
+  meals: [
+    { ...validBackupState.meals[0], id: "older-day-meal", date: "2026-11-24" },
+    { ...validBackupState.meals[0], id: "newer-day-meal", date: "2026-11-26" }
+  ],
+  measures: [
+    { date: "2026-11-24", weight: 75, waist: 82 },
+    { date: "2026-11-26", weight: 74.8, waist: 81 }
+  ],
+  water: [
+    { date: "2026-11-24", ml: 1500 },
+    { date: "2026-11-26", ml: 2000 }
+  ]
+};
+fakeStorage.failKey = null;
+fakeStorage.data = new Map([["nutrick-v1", JSON.stringify(multiDayState)]]);
+const reloadedMultiDayState = loadStateForTest();
+if (reloadedMultiDayState.meals.length !== 2 ||
+    reloadedMultiDayState.meals[0].date !== "2026-11-24" ||
+    reloadedMultiDayState.meals[1].date !== "2026-11-26" ||
+    reloadedMultiDayState.measures.length !== 2 ||
+    reloadedMultiDayState.water.length !== 2) {
+  throw new Error("Reloading local storage must preserve every meal, measure and water entry across historical dates");
+}
+
 let rejectedBarcodeStatus = false;
 try {
   mapOFFResponseForTest({ status: "failure", product: { product_name: "Produto inválido", nutriments: {} } }, "7890000000005");
@@ -449,7 +510,12 @@ if (!html.includes("if(!save()){render();return}") || !html.includes("if(!save()
   throw new Error("A failed save must stop success-side effects and restore the visible UI");
 }
 
+if (!html.includes("groupMealsByDate(st.meals)") ||
+    !html.includes("id:createRecordId('meal',st.meals)") ||
+    !html.includes("st.meals=removeMealById(st.meals,del.dataset.delete)")) {
+  throw new Error("Date-grouped history, collision-safe meal IDs and legacy-compatible deletion must remain wired into the app");
+}
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
-console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; 6 verified TACO sodium values; validated versioned and legacy backups; invalid backup rejection; transactional import/restore and persistent corrupt-local-storage recovery; save-failure rollback, invalid-state rejection and storage protection; static catalog excluded from local storage; failed import atomicity; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
+console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; backup compatibility and local-storage rollback; date-grouped multi-day history, chronological measurement sorting, legacy numeric-ID deletion, collision-safe identifiers and reload preservation; partial/zero nutrient totals; parser, count-unit and Open Food Facts regression checks passed.`);
