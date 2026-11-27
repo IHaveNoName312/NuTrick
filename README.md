@@ -44,6 +44,7 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Limpeza de cache limitada a versões antigas do próprio NuTrick, sem apagar caches de outros aplicativos no mesmo domínio.
 - Verificação de atualizações ao retornar o app ao primeiro plano, com atualização do script do service worker sem depender do cache HTTP intermediário.
 - Avisos de conexão quando o dispositivo fica offline ou volta a ficar online. Consultas a serviços externos continuam dependendo de internet.
+- Indicador persistente de ausência de conexão, inclusive quando o NuTrick é aberto já em modo avião; ele desaparece quando a conexão retorna.
 
 ## Fontes e limitações dos dados
 
