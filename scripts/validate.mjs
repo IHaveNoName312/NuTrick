@@ -304,7 +304,7 @@ if (persistedCatalogCheck.foods.some(food => food.id.startsWith("taco-")) ||
     !persistedCatalogCheck.foods.some(food => food.id === userFood.id)) {
   throw new Error("Static TACO foods must stay out of localStorage while personal foods remain persisted");
 }
-const durableRaw = JSON.stringify(testContext.st);
+const durableRaw = JSON.stringify(persistedStateForTest(testContext.st));
 fakeStorage.data = new Map([["nutrick-v1", durableRaw]]);
 fakeStorage.failKey = "nutrick-v1";
 testContext.st.goals.protein = 999;
