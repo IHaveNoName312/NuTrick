@@ -14,7 +14,9 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 
 - Painel de calorias e macronutrientes.
 - Metas editáveis e registro de água.
-- Diário alimentar com histórico local.
+- Diário alimentar com histórico local organizado por dia, subtotais diários de calorias e proteínas e contagem de refeições/dias registrados.
+- Histórico de medidas ordenado pela data do registro, inclusive após importar backups fora de ordem.
+- Identificadores de novas refeições protegidos contra colisões no mesmo milissegundo e exclusão compatível com identificadores numéricos de backups antigos.
 - Cadastro manual e pesquisa de alimentos.
 - Registro por texto e botão **Analisar macros**.
 - Perguntas de esclarecimento e confirmação antes de salvar estimativas.
