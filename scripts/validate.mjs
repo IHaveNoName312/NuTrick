@@ -315,7 +315,7 @@ fakeStorage.failKey = null;
 const externalTabRaw = JSON.stringify({ ...testContext.st, goals: { ...testContext.st.goals, protein: 145 } });
 fakeStorage.data.set("nutrick-v1", externalTabRaw);
 testContext.st.goals.protein = 149;
-if (saveForTest() !== false || testContext.st.goals.protein !== 150 || fakeStorage.data.get("nutrick-v1") !== externalTabRaw || !isStorageBlockedForTest()) {
+if (saveForTest() !== false || testContext.st.goals.protein !== 160 || fakeStorage.data.get("nutrick-v1") !== externalTabRaw || !isStorageBlockedForTest()) {
   throw new Error("A stale tab must detect a newer external storage state, block saving and preserve the newer data");
 }
 setStorageProtectionForTest(false);
