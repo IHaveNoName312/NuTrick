@@ -18,7 +18,20 @@
     "sodium": 1,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de sopa",
+        "amount": 31.25,
+        "aliases": [
+          "colher de sopa",
+          "colheres de sopa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "125 g correspondem a 4 colheres de sopa de arroz branco cozido."
+      }
+    ]
   },
   {
     "id": "taco-001",
@@ -38,7 +51,20 @@
     "sodium": 1,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de sopa",
+        "amount": 35,
+        "aliases": [
+          "colher de sopa",
+          "colheres de sopa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "140 g correspondem a 4 colheres de sopa de arroz integral cozido."
+      }
+    ]
   },
   {
     "id": "taco-007",
@@ -59,7 +85,20 @@
     "sodium": 5,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "porção de aveia",
+        "amount": 30,
+        "aliases": [
+          "porção de aveia",
+          "porções de aveia"
+        ],
+        "source": "Anvisa, Instrução Normativa IN nº 75/2020, Anexo V",
+        "sourceUrl": "https://anvisalegis.datalegis.net/action/ActionDatalegis.php?acao=abrirTextoAto&cod_menu=9431&cod_modulo=310&link=S&numeroAto=00000075&orgao=DC%2FANVISA%2FMS&seqAto=000&tipo=INM&valorAno=2020",
+        "sourceNote": "Porção de referência de 30 g para aveia em flocos sem ingredientes adicionados; não equivale a uma quantidade universal de colheres."
+      }
+    ]
   },
   {
     "id": "taco-048",
@@ -122,7 +161,22 @@
     "sodium": null,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "pão francês",
+        "amount": 50,
+        "aliases": [
+          "pão francês",
+          "pães franceses",
+          "unidade de pão francês",
+          "unidades de pão francês"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "1 unidade de pão francês corresponde a 50 g na tabela de porções."
+      }
+    ]
   },
   {
     "id": "taco-036",
@@ -163,7 +217,23 @@
     "sodium": null,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "banana",
+        "amount": 86,
+        "aliases": [
+          "banana",
+          "bananas",
+          "banana nanica",
+          "unidade de banana",
+          "unidades de banana"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 86 g por unidade de banana nanica."
+      }
+    ]
   },
   {
     "id": "taco-182",
@@ -183,7 +253,22 @@
     "sodium": null,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "banana prata",
+        "amount": 86,
+        "aliases": [
+          "banana prata",
+          "bananas prata",
+          "unidade de banana prata",
+          "unidades de banana prata"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 86 g por unidade de banana-prata."
+      }
+    ]
   },
   {
     "id": "taco-471",
@@ -247,7 +332,22 @@
     "sodium": null,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "concha média rasa",
+        "amount": 80,
+        "aliases": [
+          "concha média rasa",
+          "conchas médias rasas",
+          "concha rasa de feijão preto",
+          "conchas rasas de feijão preto"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "80 g de feijão preto cozido correspondem a 1 concha média rasa."
+      }
+    ]
   },
   {
     "id": "taco-410",
@@ -268,7 +368,22 @@
     "sodium": 50,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "filé de frango",
+        "amount": 100,
+        "aliases": [
+          "filé de frango",
+          "filés de frango",
+          "unidade de filé de frango",
+          "unidades de filé de frango"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 100 g para 1 filé de frango grelhado."
+      }
+    ]
   },
   {
     "id": "taco-377",
@@ -357,7 +472,20 @@
     "sodium": null,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de chá",
+        "amount": 5,
+        "aliases": [
+          "colher de chá",
+          "colheres de chá"
+        ],
+        "source": "Anvisa, Instrução Normativa IN nº 75/2020, Anexo V",
+        "sourceUrl": "https://anvisalegis.datalegis.net/action/ActionDatalegis.php?acao=abrirTextoAto&cod_menu=9431&cod_modulo=310&link=S&numeroAto=00000075&orgao=DC%2FANVISA%2FMS&seqAto=000&tipo=INM&valorAno=2020",
+        "sourceNote": "Porção de referência de 5 g para açúcar; a medida caseira indicada é colher de chá."
+      }
+    ]
   },
   {
     "id": "taco-093",
@@ -379,7 +507,20 @@
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference",
-    "sourceNote": "Referência TACO para batata inglesa frita, preparada conforme o procedimento descrito na tabela. Receitas e absorção de óleo variam."
+    "sourceNote": "Referência TACO para batata inglesa frita, preparada conforme o procedimento descrito na tabela. Receitas e absorção de óleo variam.",
+    "householdPortions": [
+      {
+        "name": "colher de servir",
+        "amount": 43.5,
+        "aliases": [
+          "colher de servir",
+          "colheres de servir"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "58 g de batata frita em palito correspondem a 1⅓ colher de servir; estimativa proporcional para a referência frita da base."
+      }
+    ]
   },
   {
     "id": "taco-461",
@@ -400,7 +541,22 @@
     "sodium": 31,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "fatia grande",
+        "amount": 40,
+        "aliases": [
+          "fatia grande",
+          "fatias grandes",
+          "fatia de queijo minas",
+          "fatias de queijo minas"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 40 g por fatia grande de queijo tipo minas frescal."
+      }
+    ]
   },
   {
     "id": "taco-533",
@@ -463,7 +619,20 @@
     "sodium": 3,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de servir",
+        "amount": 100,
+        "aliases": [
+          "colher de servir",
+          "colheres de servir"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "150 g de batata-doce cozida correspondem a 1½ colher de servir."
+      }
+    ]
   },
   {
     "id": "taco-091",
@@ -483,7 +652,22 @@
     "sodium": 2,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "unidade média",
+        "amount": 116.6667,
+        "aliases": [
+          "unidade média",
+          "unidades médias",
+          "batata cozida",
+          "batatas cozidas"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "175 g de batata inglesa cozida correspondem a 1½ unidade; valor por unidade calculado proporcionalmente."
+      }
+    ]
   },
   {
     "id": "taco-109",
@@ -503,7 +687,35 @@
     "sodium": 8,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de servir",
+        "amount": 36,
+        "aliases": [
+          "colher de servir",
+          "colheres de servir",
+          "colher de servir de cenoura",
+          "colheres de servir de cenoura"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "36 g de cenoura cozida picada correspondem a 1 colher de servir."
+      },
+      {
+        "name": "fatia",
+        "amount": 5,
+        "aliases": [
+          "fatia",
+          "fatias",
+          "fatia de cenoura",
+          "fatias de cenoura"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "35 g de cenoura cozida em fatias correspondem a 7 fatias."
+      }
+    ]
   },
   {
     "id": "taco-110",
@@ -523,7 +735,22 @@
     "sodium": 3,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de servir",
+        "amount": 36,
+        "aliases": [
+          "colher de servir",
+          "colheres de servir",
+          "colher de servir de cenoura",
+          "colheres de servir de cenoura"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "36 g de cenoura crua picada correspondem a 1 colher de servir."
+      }
+    ]
   },
   {
     "id": "taco-078",
@@ -544,7 +771,22 @@
     "sodium": 3,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "folha",
+        "amount": 8,
+        "aliases": [
+          "folha",
+          "folhas",
+          "folha de alface",
+          "folhas de alface"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 120 g de alface por 15 folhas; a variedade e o tamanho da folha podem variar."
+      }
+    ]
   },
   {
     "id": "taco-161",
@@ -565,7 +807,22 @@
     "sodium": 5,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "fatia",
+        "amount": 20,
+        "aliases": [
+          "fatia",
+          "fatias",
+          "fatia de tomate",
+          "fatias de tomate"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "80 g de tomate comum correspondem a 4 fatias; é uma aproximação para o tomate da base."
+      }
+    ]
   },
   {
     "id": "taco-222",
@@ -586,7 +843,22 @@
     "sodium": 0,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "maçã",
+        "amount": 130,
+        "aliases": [
+          "maçã",
+          "maçãs",
+          "unidade de maçã",
+          "unidades de maçã"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 130 g por unidade de maçã; o peso varia com o tamanho."
+      }
+    ]
   },
   {
     "id": "taco-225",
@@ -607,7 +879,22 @@
     "sodium": 3,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "fatia de mamão",
+        "amount": 160,
+        "aliases": [
+          "fatia de mamão",
+          "fatias de mamão",
+          "fatia de mamão formosa",
+          "fatias de mamão formosa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 160 g por fatia de mamão Formosa."
+      }
+    ]
   },
   {
     "id": "taco-448",
@@ -628,7 +915,22 @@
     "sodium": 52,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "copo de requeijão",
+        "amount": 200,
+        "aliases": [
+          "copo de requeijão",
+          "copos de requeijão",
+          "copo de iogurte natural",
+          "copos de iogurte natural"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 200 g para iogurte integral natural, em 1 copo de requeijão."
+      }
+    ]
   },
   {
     "id": "taco-408",
@@ -714,7 +1016,20 @@
     "sodium": 1,
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de sopa",
+        "amount": 24,
+        "aliases": [
+          "colher de sopa",
+          "colheres de sopa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "48 g de lentilha cozida correspondem a 2 colheres de sopa."
+      }
+    ]
   },
   {
     "id": "taco-064",
@@ -735,7 +1050,20 @@
     "unit": "g",
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de sopa",
+        "amount": 35.3333,
+        "aliases": [
+          "colher de sopa",
+          "colheres de sopa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "53 g de abóbora cozida correspondem a 1½ colher de sopa; valor por colher calculado proporcionalmente."
+      }
+    ]
   },
   {
     "id": "taco-070",
@@ -756,7 +1084,20 @@
     "unit": "g",
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de sopa",
+        "amount": 27,
+        "aliases": [
+          "colher de sopa",
+          "colheres de sopa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "81 g de abobrinha cozida correspondem a 3 colheres de sopa."
+      }
+    ]
   },
   {
     "id": "taco-097",
@@ -776,7 +1117,22 @@
     "unit": "g",
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "fatia",
+        "amount": 10,
+        "aliases": [
+          "fatia",
+          "fatias",
+          "fatia de beterraba",
+          "fatias de beterraba"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "30 g de beterraba cozida correspondem a 3 fatias."
+      }
+    ]
   },
   {
     "id": "taco-098",
@@ -796,7 +1152,20 @@
     "unit": "g",
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de sopa",
+        "amount": 21,
+        "aliases": [
+          "colher de sopa",
+          "colheres de sopa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "42 g de beterraba crua ralada correspondem a 2 colheres de sopa."
+      }
+    ]
   },
   {
     "id": "taco-100",
@@ -816,7 +1185,20 @@
     "unit": "g",
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de sopa",
+        "amount": 13.3333,
+        "aliases": [
+          "colher de sopa",
+          "colheres de sopa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "60 g de brócolis cozido correspondem a 4½ colheres de sopa; valor por colher calculado proporcionalmente."
+      }
+    ]
   },
   {
     "id": "taco-107",
@@ -856,7 +1238,20 @@
     "unit": "g",
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de sopa",
+        "amount": 22.8,
+        "aliases": [
+          "colher de sopa",
+          "colheres de sopa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "57 g de chuchu cozido correspondem a 2½ colheres de sopa; valor por colher calculado proporcionalmente."
+      }
+    ]
   },
   {
     "id": "taco-115",
@@ -898,7 +1293,20 @@
     "unit": "g",
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "colher de sopa",
+        "amount": 32,
+        "aliases": [
+          "colher de sopa",
+          "colheres de sopa"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "32 g de abacate correspondem a 1 colher de sopa."
+      }
+    ]
   },
   {
     "id": "taco-164",
@@ -919,7 +1327,21 @@
     "unit": "g",
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "fatia de abacaxi",
+        "amount": 130,
+        "aliases": [
+          "fatia de abacaxi",
+          "fatias de abacaxi",
+          "fatia"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 130 g por fatia de abacaxi."
+      }
+    ]
   },
   {
     "id": "taco-326",
@@ -1003,7 +1425,22 @@
     "unit": "g",
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
-    "sourceStatus": "reference"
+    "sourceStatus": "reference",
+    "householdPortions": [
+      {
+        "name": "copo de requeijão",
+        "amount": 200,
+        "aliases": [
+          "copo de requeijão",
+          "copos de requeijão",
+          "copo de iogurte desnatado",
+          "copos de iogurte desnatado"
+        ],
+        "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
+        "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
+        "sourceNote": "A tabela indica 200 g para iogurte desnatado natural, em 1 copo de requeijão."
+      }
+    ]
   },
   {
     "id": "taco-490",
