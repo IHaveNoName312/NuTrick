@@ -164,7 +164,7 @@
     "sourceStatus": "reference",
     "householdPortions": [
       {
-        "name": "pão francês",
+        "name": "unidade de pão francês",
         "amount": 50,
         "aliases": [
           "pão francês",
@@ -220,14 +220,16 @@
     "sourceStatus": "reference",
     "householdPortions": [
       {
-        "name": "banana",
+        "name": "unidade de banana nanica",
         "amount": 86,
         "aliases": [
           "banana",
           "bananas",
           "banana nanica",
           "unidade de banana",
-          "unidades de banana"
+          "unidades de banana",
+          "unidade de banana nanica",
+          "unidades de banana nanica"
         ],
         "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
         "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
@@ -256,7 +258,7 @@
     "sourceStatus": "reference",
     "householdPortions": [
       {
-        "name": "banana prata",
+        "name": "unidade de banana prata",
         "amount": 86,
         "aliases": [
           "banana prata",
@@ -377,7 +379,10 @@
           "filé de frango",
           "filés de frango",
           "unidade de filé de frango",
-          "unidades de filé de frango"
+          "unidades de filé de frango",
+          "filé de frango grelhado",
+          "filés de frango grelhados",
+          "unidade de filé de frango grelhado"
         ],
         "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
         "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
@@ -661,7 +666,10 @@
           "unidade média",
           "unidades médias",
           "batata cozida",
-          "batatas cozidas"
+          "batatas cozidas",
+          "batata inglesa cozida",
+          "unidade de batata inglesa cozida",
+          "unidades de batata inglesa cozida"
         ],
         "source": "Ministério da Saúde, Guia Alimentar para a População Brasileira (2005), Anexo C",
         "sourceUrl": "https://bvsms.saude.gov.br/bvs/publicacoes/guia_alimentar_pop_bras.pdf",
@@ -846,7 +854,7 @@
     "sourceStatus": "reference",
     "householdPortions": [
       {
-        "name": "maçã",
+        "name": "unidade de maçã",
         "amount": 130,
         "aliases": [
           "maçã",
