@@ -562,7 +562,7 @@ if (testContext.formatQuantityForTest(threeEggs) !== "3 ovos") {
 }
 
 const persistentCatalogOnly = testContext.persistedStateForTest({
-  ...validBackupState,
+  goals: {}, meals: [], measures: [], water: [], portions: {},
   foods: [
     { id: "taco-526", name: "Arroz carreteiro", base: 100, unit: "g", kcal: 154, protein: 10.8, carbs: 11.6, fat: 7.1 },
     { id: "tbca-BRC0395A", name: "Lasanha à bolonhesa", base: 100, unit: "g", kcal: 178, protein: 11.3, carbs: 15.2, fat: 8.23 },
