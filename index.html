@@ -717,9 +717,13 @@ function parse(text){
   };
   const ask=message=>questions.push(message);
   const parts=String(text).split(/;|\+|\s+e\s+|(?<!\d),(?=\s*\d+(?:[,.]\d+)?\s*(?:g|ml)\b)/i).flatMap(rawPart=>{
-    const quantities=[...rawPart.matchAll(/\d+(?:[,.]\d+)?\s*(?:g|ml)\b/gi)];
-    if(quantities.length<=1)return [rawPart];
-    return quantities.map((match,index)=>rawPart.slice(match.index,quantities[index+1]?.index??rawPart.length));
+    const normalizedPart=normalizeText(rawPart);
+    const componentParts=normalizedPart.includes('tapioca com manteiga')?[rawPart]:rawPart.split(/\s+com\s+/i);
+    return componentParts.flatMap(component=>{
+      const quantities=[...component.matchAll(/\d+(?:[,.]\d+)?\s*(?:g|ml)\b/gi)];
+      if(quantities.length<=1)return [component];
+      return quantities.map((match,index)=>component.slice(match.index,quantities[index+1]?.index??component.length));
+    });
   }).map(part=>normalizeText(part.replace(/(\d),(\d)/g,'$1.$2'))).filter(Boolean);
   for(const part of parts){
     let handled=false;
