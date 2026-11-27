@@ -35,6 +35,7 @@
 <body>
 <div class="wrap">
 <header class="top"><div class="brand"><span class="mark">N</span><span>NuTrick<small class="sub">nutrição em foco</small></span></div><span class="date" id="date"></span></header>
+<div id="connectionStatus" class="status hidden" role="status" aria-live="polite"></div>
 <section id="s-hoje" class="screen active">
 <p class="eyebrow">SEU RESUMO</p><h1>Seu dia em foco</h1>
 <div class="grid">
@@ -940,8 +941,23 @@ $('#import').onchange=async e=>{
   }
 };
 render();updateRecoveryNotice();if(storageRecoveryMessage)toast(storageRecoveryMessage);loadTacoData();
-window.addEventListener('offline',()=>toast('Você está sem internet. Os registros locais continuam disponíveis; pesquisas externas podem ficar indisponíveis.'));
-window.addEventListener('online',()=>toast('Conexão restabelecida.'));
+function updateConnectionStatus(){
+  const status=$('#connectionStatus');
+  const offline=!navigator.onLine;
+  status.classList.toggle('hidden',!offline);
+  status.textContent=offline
+    ?'Sem conexão com a internet. Seus registros locais continuam disponíveis. Pesquisas externas precisam de conexão.'
+    :'';
+}
+window.addEventListener('offline',()=>{
+  updateConnectionStatus();
+  toast('Você está sem internet. Seus registros locais continuam disponíveis.');
+});
+window.addEventListener('online',()=>{
+  updateConnectionStatus();
+  toast('Conexão restabelecida.');
+});
+updateConnectionStatus();
 if('serviceWorker'in navigator&&location.protocol.startsWith('http')){
   navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{
     document.addEventListener('visibilitychange',()=>{
