@@ -79,7 +79,7 @@ const backupCode = extract("function isRecord(value)", "function load()");
 const loadCode = extract("function load()", "function rollbackUnsavedState()");
 const saveCode = extract("function rollbackUnsavedState()", "let tacoReady=false;");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const CURRENT_SCHEMA_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; const PREMIGRATION_KEY='nutrick-pre-migration-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let migrationBackupRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st);\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.getMigrationBackupForTest = () => migrationBackupRaw; this.isStorageBlockedForTest = () => storageWriteBlocked; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
+new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const CURRENT_SCHEMA_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; const PREMIGRATION_KEY='nutrick-pre-migration-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let migrationBackupRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st); let lastStorageRaw=null;\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setStorageSnapshotForTest = value => { lastStorageRaw=value; }; this.createDefaultStateForTest = createDefaultState; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.getMigrationBackupForTest = () => migrationBackupRaw; this.isStorageBlockedForTest = () => storageWriteBlocked; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
 const mapOFFResponseForTest = testContext.mapOFFResponseForTest;
@@ -95,6 +95,8 @@ const getRollbackRawForTest = testContext.getRollbackRawForTest;
 const getRecoveryRawForTest = testContext.getRecoveryRawForTest;
 const saveForTest = testContext.saveForTest;
 const setStorageProtectionForTest = testContext.setStorageProtectionForTest;
+const setStorageSnapshotForTest = testContext.setStorageSnapshotForTest;
+const createDefaultStateForTest = testContext.createDefaultStateForTest;
 const refreshSavedSnapshotForTest = testContext.refreshSavedSnapshotForTest;
 const setTacoCatalogForTest = testContext.setTacoCatalogForTest;
 const persistedStateForTest = testContext.persistedStateForTest;
@@ -231,6 +233,7 @@ const incomingState = { ...validBackupState, measures: [{ date: "2026-11-26", we
 const incomingEnvelope = { app: "NuTrick", formatVersion: 1, exportedAt: "2026-11-26T20:00:00.000Z", data: incomingState };
 fakeStorage.data = new Map([["nutrick-v1", currentRaw]]);
 fakeStorage.failKey = null;
+setStorageSnapshotForTest(currentRaw);
 const imported = commitImportForTest(incomingEnvelope);
 if (imported.legacy || fakeStorage.getItem("nutrick-pre-import-v1") !== currentRaw) {
   throw new Error("Import should save the old state as a restore point before replacing it");
@@ -306,6 +309,7 @@ if (persistedCatalogCheck.foods.some(food => food.id.startsWith("taco-")) ||
 }
 const durableRaw = JSON.stringify(persistedStateForTest(testContext.st));
 fakeStorage.data = new Map([["nutrick-v1", durableRaw]]);
+setStorageSnapshotForTest(durableRaw);
 fakeStorage.failKey = "nutrick-v1";
 testContext.st.goals.protein = 999;
 if (saveForTest() !== false || testContext.st.goals.protein !== 160 || fakeStorage.data.get("nutrick-v1") !== durableRaw) {
