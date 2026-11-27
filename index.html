@@ -708,46 +708,122 @@ function suggest(){let el=$('#recurring'),items=st.meals.filter(m=>m.date!==toda
 }
 
 function parse(text){
-  const s=normalizeText(text),items=[],questions=[],recognized=[];
-  const add=(id,qty)=>{const food=st.foods.find(f=>f.id===id);if(food){items.push(calc(food,qty));recognized.push(food.id);return true}return false};
-  const originalParts=String(text).split(/[,;]|\be\b/i);
-  st.foods.filter(f=>f.sourceStatus==='openfoodfacts'||f.sourceStatus==='manual').forEach(food=>{
-    const name=normalizeText(food.name),brand=normalizeText(food.brand);
-    const part=originalParts.find(p=>{
-      const pn=normalizeText(p);
-      const brandMatches=!brand||pn.includes(brand);
-      const nameMatches=pn.includes(name)||(brand&&name.includes('pao')&&pn.includes('pao'))||(brand&&name.includes('leite')&&pn.includes('leite'));
-      return brandMatches&&nameMatches;
-    });
-    if(part){
-      const q=part.match(/(\d+(?:[,.]\d+)?)\s*(g|ml)\b/i);
-      if(q){items.push(calc(food,Number(q[1].replace(',','.'))));recognized.push(food.id)}
-      else questions.push('Informe a quantidade em gramas ou ml para '+food.name+'.');
+  const items=[],questions=[];
+  const add=(foodId,qty,unit)=>{
+    const food=st.foods.find(entry=>entry.id===foodId);
+    if(!food)return false;
+    items.push(calc(food,qty,unit||food.unit));
+    return true;
+  };
+  const ask=message=>questions.push(message);
+  const parts=String(text).split(/[,;+]|\\s+e\\s+/i).map(part=>normalizeText(part)).filter(Boolean);
+  for(const part of parts){
+    let handled=false;
+    const quantityMatch=part.match(/(\\d+(?:[,.]\\d+)?)\\s*(g|ml)\\b/i);
+    const quantity=quantityMatch?Number(quantityMatch[1].replace(',','.')):null;
+    const quantityUnit=quantityMatch?quantityMatch[2].toLowerCase():null;
+
+    // Prefer an explicitly saved product and its brand over generic TACO patterns.
+    const customMatches=st.foods.filter(food=>food.sourceStatus==='openfoodfacts'||food.sourceStatus==='manual'||food.source==='Cadastro manual').filter(food=>{
+      const brand=normalizeText(food.brand||'');
+      if(brand&&!(' '+part+' ').includes(' '+brand+' '))return false;
+      const names=[food.name,...(Array.isArray(food.aliases)?food.aliases:[])].map(normalizeText).filter(Boolean);
+      return names.some(name=>(' '+part+' ').includes(' '+name+' '));
+    }).map(food=>({
+      food,
+      specificity:Math.max(food.name,...[food.name,...(Array.isArray(food.aliases)?food.aliases:[])].map(value=>normalizeText(value).length))
+    })).sort((a,b)=>b.specificity-a.specificity);
+
+    if(customMatches.length){
+      const food=customMatches[0].food;
+      try{
+        if(quantityMatch){
+          items.push(calc(food,quantity,quantityUnit));
+        }else{
+          const countMatch=part.match(/^(\\d+(?:[,.]\\d+)?)\\s+/);
+          const portion=portionFor(food);
+          if(countMatch&&portion){
+            items.push(calc(food,Number(countMatch[1].replace(',','.')),'un',portion));
+          }else{
+            ask('Informe a quantidade em '+food.unit+' para '+food.name+', ou cadastre uma porção por unidade antes de usar unidades.');
+          }
+        }
+      }catch(error){ask(error.message||('Não foi possível calcular '+food.name+'.'))}
+      continue;
     }
-  });
-  let m=s.match(/(\d+(?:[,.]\d+)?)\s*ml\s*(?:de\s*)?cafe\b/);
-  if(m)add('taco-471',Number(m[1].replace(',','.')));
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*ml\s*(?:de\s*)?leite\b/);
-  if(m&&!items.some(i=>(i.sourceStatus==='openfoodfacts'||i.sourceStatus==='manual')&&normalizeText(i.name+' '+i.brand).includes('leite')))questions.push('Leite: a TACO não traz uma composição completa para este item. Busque a marca no Open Food Facts ou cadastre os dados do rótulo na aba Alimentos.');
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?arroz\b/);
-  if(m){if(s.includes('cru'))questions.push('Arroz cru: esta seleção inicial contém entradas de arroz cozido.');else add(s.includes('integral')?'taco-001':'taco-003',Number(m[1].replace(',','.')))}
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?feij[aã]o\b/);
-  if(m){if(s.includes('cru'))questions.push('Feijão cru: informe se deseja registrar o peso cru ou cozido.');else add(s.includes('preto')?'taco-567':'taco-561',Number(m[1].replace(',','.')))}
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?(?:aveia|aveia em flocos)\b/);if(m)add('taco-007',Number(m[1].replace(',','.')));
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?farinha lactea\b/);if(m)add('taco-036',Number(m[1].replace(',','.')));
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?batata (?:inglesa )?frita\b/);if(m)add('taco-093',Number(m[1].replace(',','.')));
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?queijo minas(?: frescal)?\b/);if(m&&!items.some(i=>normalizeText(i.name).includes('queijo minas')))add('taco-461',Number(m[1].replace(',','.')));
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?cuscuz(?: de milho)?\b/);if(m){if(s.includes('milho'))add('taco-533',Number(m[1].replace(',','.')));else questions.push('Cuscuz: confirme se é cuscuz de milho cozido com sal.')}
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?tapioca\b/);if(m){if(s.includes('manteiga'))add('taco-551',Number(m[1].replace(',','.')));else questions.push('Tapioca: a referência TACO disponível é tapioca com manteiga. Informe se a preparação foi essa ou cadastre a composição específica.')}
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?banana\b/);if(m)add(s.includes('prata')?'taco-182':'taco-179',Number(m[1].replace(',','.')));
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?patinho\b/);if(m){if(s.includes('grelhado'))add('taco-377',Number(m[1].replace(',','.')));else questions.push('Patinho: informe se o peso é do alimento grelhado ou cru.')}
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?(?:miolo de )?alcatra\b/);if(m){if(s.includes('grelhad'))add('taco-370',Number(m[1].replace(',','.')));else questions.push('Alcatra: informe se o peso é do alimento grelhado ou cru.')}
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?(?:peito de frango|frango)\b/);if(m){if(s.includes('grelhad'))add('taco-410',Number(m[1].replace(',','.')));else questions.push('Frango: informe se o peso é do alimento grelhado. A entrada TACO corresponde ao peito sem pele grelhado.')}
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?ovo\b/);if(m){if(s.includes('cozid'))add('taco-488',Number(m[1].replace(',','.')));else questions.push('Ovo: informe o preparo (cozido, cru ou frito).')}
-  m=s.match(/(\d+(?:[,.]\d+)?)\s*g\s*(?:de\s*)?p[aã]o\b/);
-  if(m){if(s.includes('integral'))add('taco-052',Number(m[1].replace(',','.')));else if(s.includes('frances')||s.includes('de sal'))add('taco-053',Number(m[1].replace(',','.')));else questions.push('Pão de forma: informe a marca e busque o produto no Open Food Facts, ou cadastre os valores do rótulo.')}
-  if(/\b(?:duas?|2|3)\s+fatias?\s+de\s+p[aã]o/.test(s)&&!items.some(i=>(i.sourceStatus==='openfoodfacts'||i.sourceStatus==='manual')&&normalizeText(i.name).includes('pao')))questions.push('Pão em fatias: informe o peso total em gramas e selecione a marca/produto na aba Alimentos.');
-  if(!items.length&&!questions.length)questions.push('Não identifiquei alimentos com quantidade e preparo suficientes. Informe quantidades em gramas ou ml e o estado de preparo.');
+
+    if(/\\bcafe\\b/.test(part)){
+      if(quantity!==null&&quantityUnit==='ml'){add('taco-471',quantity,'ml');handled=true}
+      else ask('Café: informe a quantidade em ml.');
+    }else if(/\\bleite\\b/.test(part)){
+      ask('Leite: a TACO disponível não traz uma composição completa para este item. Busque a marca no Open Food Facts ou cadastre os dados do rótulo na aba Alimentos.');
+    }else if(/\\barroz\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Arroz: informe a quantidade em gramas.');
+      else if(/\\bcru\\b/.test(part))ask('Arroz cru: a referência inicial disponível é de arroz cozido. Informe o alimento já cozido ou cadastre a referência do arroz cru.');
+      else{add(/\\bintegral\\b/.test(part)?'taco-001':'taco-003',quantity,'g');handled=true}
+    }else if(/\\bfeijao\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Feijão: informe a quantidade em gramas.');
+      else if(/\\bcru\\b/.test(part))ask('Feijão cru: a referência inicial disponível é de feijão cozido.');
+      else{add(/\\bpreto\\b/.test(part)?'taco-567':'taco-561',quantity,'g');handled=true}
+    }else if(/\\baveia\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Aveia: informe a quantidade em gramas.');
+      else{add('taco-007',quantity,'g');handled=true}
+    }else if(/\\bfarinha lactea\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Farinha láctea: informe a quantidade em gramas.');
+      else{add('taco-036',quantity,'g');handled=true}
+    }else if(/\\bbatata\\b/.test(part)&&/\\bfrita\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Batata frita: informe a quantidade em gramas.');
+      else{add('taco-093',quantity,'g');handled=true}
+    }else if(/\\bqueijo minas\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Queijo minas: informe a quantidade em gramas.');
+      else{add('taco-461',quantity,'g');handled=true}
+    }else if(/\\bcuscuz\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Cuscuz: informe a quantidade em gramas.');
+      else if(/\\bmilho\\b|\\bnordestino\\b/.test(part)){add('taco-533',quantity,'g');handled=true}
+      else ask('Cuscuz: confirme se é cuscuz de milho cozido com sal.');
+    }else if(/\\btapioca\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Tapioca: informe a quantidade em gramas.');
+      else if(/\\bmanteiga\\b/.test(part)){add('taco-551',quantity,'g');handled=true}
+      else ask('Tapioca: a referência TACO disponível é tapioca com manteiga. Confirme o preparo ou cadastre a composição específica.');
+    }else if(/\\bbanana\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Banana: informe a quantidade em gramas.');
+      else{add(/\\bprata\\b/.test(part)?'taco-182':'taco-179',quantity,'g');handled=true}
+    }else if(/\\bpatinho\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Patinho: informe a quantidade em gramas.');
+      else if(/\\bcru\\b/.test(part))ask('Patinho: a referência disponível é grelhada. Informe o peso após grelhar ou cadastre o alimento cru.');
+      else if(/\\bgrelhad\\b/.test(part)){add('taco-377',quantity,'g');handled=true}
+      else ask('Patinho: informe se o peso é do alimento grelhado ou cru.');
+    }else if(/\\balcatra\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Alcatra: informe a quantidade em gramas.');
+      else if(/\\bcru\\b/.test(part))ask('Alcatra: a referência disponível é grelhada. Informe o peso após grelhar ou cadastre o alimento cru.');
+      else if(/\\bgrelhad\\b/.test(part)){add('taco-370',quantity,'g');handled=true}
+      else ask('Alcatra: informe se o peso é do alimento grelhado ou cru.');
+    }else if(/\\b(?:peito de frango|frango)\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Frango: informe a quantidade em gramas.');
+      else if(/\\bcru\\b/.test(part))ask('Frango: a referência disponível é peito sem pele grelhado. Informe o peso após grelhar ou cadastre o alimento cru.');
+      else if(/\\bgrelhad\\b/.test(part)){add('taco-410',quantity,'g');handled=true}
+      else ask('Frango: informe o preparo. A referência TACO disponível corresponde ao peito sem pele grelhado.');
+    }else if(/\\bovos?\\b/.test(part)){
+      const eggCount=part.match(/(\\d+(?:[,.]\\d+)?)\\s*(?:unidades?\\s+de\\s+)?ovos?\\b/);
+      if(/\\bcozid\\b/.test(part)){
+        if(eggCount){add('taco-488',Number(eggCount[1].replace(',','.')),'un');handled=true}
+        else if(quantity!==null&&quantityUnit==='g'){add('taco-488',quantity,'g');handled=true}
+        else ask('Ovo cozido: informe a quantidade em unidades ou gramas.');
+      }else ask('Ovo: informe o preparo (cozido, frito ou outro). A referência TACO disponível corresponde ao ovo cozido.');
+    }else if(/\\bpao\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Pão: informe o peso total em gramas e selecione a marca/produto, ou cadastre os valores do rótulo.');
+      else if(/\\bintegral\\b/.test(part)){add('taco-052',quantity,'g');handled=true}
+      else if(/\\bfrances\\b|\\bde sal\\b/.test(part)){add('taco-053',quantity,'g');handled=true}
+      else ask('Pão: informe o tipo ou a marca. Para pão de forma, selecione o produto na aba Alimentos.');
+    }else if(/\\bacucar\\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Açúcar: informe a quantidade em gramas.');
+      else{add('taco-492',quantity,'g');handled=true}
+    }else{
+      ask('Não identifiquei com segurança: "'+String(part).slice(0,90)+'". Informe a quantidade e o preparo, ou cadastre o alimento na aba Alimentos.');
+    }
+    if(!handled&&quantity!==null&&quantity<=0)ask('A quantidade precisa ser maior que zero.');
+  }
+  if(!items.length&&!questions.length)questions.push('Não identifiquei alimentos com quantidade e preparo suficientes. Informe quantidades em gramas, ml ou unidades.');
   return {items,questions:[...new Set(questions)],raw:text};
 }
 let pending=null;
