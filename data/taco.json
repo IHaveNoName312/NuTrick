@@ -276,7 +276,8 @@
     "name": "Carne bovina, patinho, sem gordura, grelhado",
     "aliases": [
       "patinho grelhado",
-      "patinho"
+      "patinho sem gordura grelhado",
+      "carne de patinho grelhada"
     ],
     "category": "Carnes",
     "basis": 100,
@@ -297,7 +298,8 @@
     "name": "Carne bovina, miolo de alcatra, sem gordura, grelhado",
     "aliases": [
       "alcatra grelhada",
-      "miolo de alcatra"
+      "miolo de alcatra grelhado",
+      "miolo de alcatra sem gordura grelhado"
     ],
     "category": "Carnes",
     "basis": 100,
@@ -441,5 +443,278 @@
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference",
     "sourceNote": "Esta referência é para tapioca preparada com manteiga, não para goma de tapioca hidratada pura."
+  },
+  {
+    "id": "taco-088",
+    "sourceCode": "88",
+    "name": "Batata, doce, cozida",
+    "aliases": [
+      "batata doce cozida",
+      "batata-doce cozida"
+    ],
+    "category": "Tubérculos",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 77,
+    "protein": 0.6,
+    "carbs": 18.4,
+    "fat": 0.1,
+    "fiber": 2.2,
+    "sodium": 3,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-091",
+    "sourceCode": "91",
+    "name": "Batata, inglesa, cozida",
+    "aliases": [
+      "batata inglesa cozida"
+    ],
+    "category": "Tubérculos",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 52,
+    "protein": 1.2,
+    "carbs": 11.9,
+    "fat": 0,
+    "fiber": 1.3,
+    "sodium": 2,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-109",
+    "sourceCode": "109",
+    "name": "Cenoura, cozida",
+    "aliases": [
+      "cenoura cozida"
+    ],
+    "category": "Verduras e hortaliças",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 30,
+    "protein": 0.8,
+    "carbs": 6.7,
+    "fat": 0.2,
+    "fiber": 2.6,
+    "sodium": 8,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-110",
+    "sourceCode": "110",
+    "name": "Cenoura, crua",
+    "aliases": [
+      "cenoura crua"
+    ],
+    "category": "Verduras e hortaliças",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 34,
+    "protein": 1.3,
+    "carbs": 7.7,
+    "fat": 0.2,
+    "fiber": 3.2,
+    "sodium": 3,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-078",
+    "sourceCode": "78",
+    "name": "Alface, crespa, crua",
+    "aliases": [
+      "alface crespa",
+      "alface crespa crua"
+    ],
+    "category": "Verduras e hortaliças",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 11,
+    "protein": 1.3,
+    "carbs": 1.7,
+    "fat": 0.2,
+    "fiber": 1.8,
+    "sodium": 3,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-161",
+    "sourceCode": "161",
+    "name": "Tomate, salada",
+    "aliases": [
+      "tomate",
+      "tomate cru",
+      "tomate salada"
+    ],
+    "category": "Verduras e hortaliças",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 21,
+    "protein": 0.8,
+    "carbs": 5.1,
+    "fat": 0,
+    "fiber": 2.3,
+    "sodium": 5,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-222",
+    "sourceCode": "222",
+    "name": "Maçã, Fuji, com casca, crua",
+    "aliases": [
+      "maçã fuji",
+      "maçã fuji com casca"
+    ],
+    "category": "Frutas",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 56,
+    "protein": 0.3,
+    "carbs": 15.2,
+    "fat": 0,
+    "fiber": 1.3,
+    "sodium": 0,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-225",
+    "sourceCode": "225",
+    "name": "Mamão, Formosa, cru",
+    "aliases": [
+      "mamão formosa",
+      "mamão formosa cru"
+    ],
+    "category": "Frutas",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 45,
+    "protein": 0.8,
+    "carbs": 11.6,
+    "fat": 0.1,
+    "fiber": 1.8,
+    "sodium": 3,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-448",
+    "sourceCode": "448",
+    "name": "Iogurte, natural",
+    "aliases": [
+      "iogurte natural",
+      "iogurte sem sabor"
+    ],
+    "category": "Laticínios",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 51,
+    "protein": 4.1,
+    "carbs": 1.9,
+    "fat": 3,
+    "fiber": null,
+    "sodium": 52,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-408",
+    "sourceCode": "408",
+    "name": "Frango, peito, sem pele, cozido",
+    "aliases": [
+      "frango cozido",
+      "peito de frango cozido",
+      "peito de frango sem pele cozido"
+    ],
+    "category": "Carnes",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 163,
+    "protein": 31.5,
+    "carbs": 0,
+    "fat": 3.2,
+    "fiber": null,
+    "sodium": 36,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-376",
+    "sourceCode": "376",
+    "name": "Carne bovina, patinho, sem gordura, cru",
+    "aliases": [
+      "patinho cru",
+      "patinho sem gordura cru",
+      "carne de patinho crua"
+    ],
+    "category": "Carnes",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 133,
+    "protein": 21.7,
+    "carbs": 0,
+    "fat": 4.5,
+    "fiber": null,
+    "sodium": 49,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-369",
+    "sourceCode": "369",
+    "name": "Carne bovina, miolo de alcatra, sem gordura, cru",
+    "aliases": [
+      "miolo de alcatra cru",
+      "alcatra crua",
+      "alcatra sem gordura crua"
+    ],
+    "category": "Carnes",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 163,
+    "protein": 21.6,
+    "carbs": 0,
+    "fat": 7.8,
+    "fiber": null,
+    "sodium": 43,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-577",
+    "sourceCode": "577",
+    "name": "Lentilha, cozida",
+    "aliases": [
+      "lentilha cozida"
+    ],
+    "category": "Leguminosas",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 93,
+    "protein": 6.3,
+    "carbs": 16.3,
+    "fat": 0.5,
+    "fiber": 7.9,
+    "sodium": 1,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
   }
 ]
