@@ -305,6 +305,78 @@ if (toggledState.measures.length !== 2 || toggledState.measures[1].weight !== 76
     toggledState.meals.find(meal => meal.id === "meal-2026-11-24")?.items[0]?.foodId !== "taco-retired-999") {
   throw new Error("The restore point should be reversible without losing either state");
 }
+
+const beforeRestoreFailureRaw = fakeStorage.getItem("nutrick-v1");
+const restorePointBeforeFailure = getRollbackRawForTest();
+fakeStorage.failKey = "nutrick-v1";
+let restoreMainWriteRejected = false;
+try { restorePreImportForTest(); } catch { restoreMainWriteRejected = true; }
+fakeStorage.failKey = null;
+if (!restoreMainWriteRejected || fakeStorage.getItem("nutrick-v1") !== beforeRestoreFailureRaw ||
+    getRollbackRawForTest() !== restorePointBeforeFailure) {
+  throw new Error("A failed restore write must preserve both the active data and its previous restore point");
+}
+fakeStorage.failKey = "nutrick-pre-import-v1";
+restorePreImportForTest();
+fakeStorage.failKey = null;
+if (JSON.parse(fakeStorage.getItem("nutrick-v1")).measures[0].weight !== 75 ||
+    getRollbackRawForTest() !== beforeRestoreFailureRaw) {
+  throw new Error("If the canonical restore-point write fails, the staged alternate must remain recoverable");
+}
+restorePreImportForTest();
+if (JSON.parse(fakeStorage.getItem("nutrick-v1")).measures.length !== 2 ||
+    JSON.parse(fakeStorage.getItem("nutrick-v1")).meals.length !== 2 ||
+    JSON.parse(fakeStorage.getItem("nutrick-v1")).water.length !== 2) {
+  throw new Error("A restore must remain reversible after a failure while finalizing its restore point");
+}
+
+const stableStorageRaw = fakeStorage.getItem("nutrick-v1");
+const externalState = JSON.parse(stableStorageRaw);
+externalState.goals = { ...externalState.goals, protein: externalState.goals.protein + 1 };
+const externalStorageRaw = JSON.stringify(externalState);
+fakeStorage.data.set("nutrick-v1", externalStorageRaw);
+let staleImportRejected = false;
+try { commitImportForTest(incomingEnvelope); } catch { staleImportRejected = true; }
+if (!staleImportRejected || fakeStorage.getItem("nutrick-v1") !== externalStorageRaw || !isStorageBlockedForTest()) {
+  throw new Error("An import from a stale tab must not overwrite a newer external state");
+}
+setStorageProtectionForTest(false);
+let staleRestoreRejected = false;
+try { restorePreImportForTest(); } catch { staleRestoreRejected = true; }
+if (!staleRestoreRejected || fakeStorage.getItem("nutrick-v1") !== externalStorageRaw || !isStorageBlockedForTest()) {
+  throw new Error("A restore from a stale tab must not overwrite a newer external state");
+}
+setStorageProtectionForTest(false);
+fakeStorage.data.set("nutrick-v1", stableStorageRaw);
+setStorageSnapshotForTest(stableStorageRaw);
+
+const beforeInvalidImportRaw = fakeStorage.getItem("nutrick-v1");
+const beforeInvalidImportState = testContext.st;
+let incompleteBackupRejected = false;
+try {
+  commitImportForTest({ app: "NuTrick", formatVersion: 1, data: { ...incomingState, water: undefined } });
+} catch { incompleteBackupRejected = true; }
+if (!incompleteBackupRejected || fakeStorage.getItem("nutrick-v1") !== beforeInvalidImportRaw || testContext.st !== beforeInvalidImportState) {
+  throw new Error("An incomplete backup must be rejected without changing current data or memory state");
+}
+let corruptItemBackupRejected = false;
+try {
+  const corruptState = { ...incomingState, meals: [{ ...incomingState.meals[0], items: [{ ...incomingState.meals[0].items[0], qty: -1 }] }] };
+  commitImportForTest({ app: "NuTrick", formatVersion: 1, data: corruptState });
+} catch { corruptItemBackupRejected = true; }
+if (!corruptItemBackupRejected || fakeStorage.getItem("nutrick-v1") !== beforeInvalidImportRaw) {
+  throw new Error("A backup with a corrupt nested meal item must not replace valid user data");
+}
+
+fakeStorage.data = new Map();
+testContext.st = createDefaultStateForTest();
+setTacoCatalogForTest([]);
+refreshSavedSnapshotForTest();
+setStorageSnapshotForTest(null);
+testContext.st.goals.kcal = 2300;
+if (saveForTest() !== true || JSON.parse(fakeStorage.getItem("nutrick-v1")).goals.kcal !== 2300) {
+  throw new Error("A fresh installation with no existing storage key must allow its first successful save");
+}
 const userFood = {
   id: "u-personal-food",
   name: "Alimento pessoal",
