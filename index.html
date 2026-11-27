@@ -347,6 +347,15 @@ function save(){
     if(validationError)throw new Error(validationError);
     serialized=JSON.stringify(candidate);
     if(typeof serialized!=='string')throw new Error('Não foi possível serializar os dados.');
+    const currentRaw=localStorage.getItem(STORAGE_KEY);
+    if(currentRaw!==lastSavedRaw){
+      storageWriteBlocked=true;
+      storageRecoveryMessage='Conflito entre abas detectado. Esta aba está desatualizada e foi bloqueada para evitar sobrescrever registros. Feche esta aba e reabra o NuTrick para carregar os dados mais recentes.';
+      rollbackUnsavedState();
+      updateRecoveryNotice();
+      toast('Conflito entre abas: salvamento bloqueado. Reabra o NuTrick para carregar os dados recentes.');
+      return false;
+    }
     localStorage.setItem(STORAGE_KEY,serialized);
     lastSavedRaw=serialized;
     return true;
@@ -862,6 +871,14 @@ function updateRecoveryNotice(){
   try{restore.classList.toggle('hidden',getPreImportBackupRaw()===null)}
   catch(error){restore.classList.add('hidden')}
 }
+window.addEventListener('storage',event=>{
+  if(event.key!==STORAGE_KEY||event.newValue===lastSavedRaw||storageWriteBlocked)return;
+  storageWriteBlocked=true;
+  storageRecoveryMessage='Outra aba do NuTrick alterou os dados salvos. Esta aba foi bloqueada para evitar sobrescrever os registros mais recentes. Feche esta aba e reabra o aplicativo para continuar com os dados atualizados.';
+  rollbackUnsavedState();
+  updateRecoveryNotice();
+  toast('Outra aba atualizou os dados. Reabra o NuTrick para evitar conflito.');
+});
 $('#export').onclick=()=>{
   try{
     const backup={app:'NuTrick',formatVersion:BACKUP_FORMAT_VERSION,exportedAt:new Date().toISOString(),data:st};
