@@ -22,6 +22,8 @@
 #results .result>div:last-child>input,#results .result>div:last-child>select,#editFoodResults .result>div:nth-child(2)>input,#editFoodResults .result>div:nth-child(2)>select{width:100%!important;min-width:0}
 #results .portionFields:not(.hidden),#editFoodResults .portionFields:not(.hidden){grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;width:100%;min-width:0}
 #results .portionFields label,#editFoodResults .portionFields label{display:block;min-width:0;overflow-wrap:anywhere}
+#results .portionFields label:first-child,#editFoodResults .portionFields label:first-child{grid-column:1/-1}
+#results .portionFields select,#editFoodResults .portionFields select{display:block;width:100%!important;min-width:0;margin-top:4px}
 #results .portionFields input,#editFoodResults .portionFields input{display:block;width:100%!important;min-width:0;margin-top:4px}
 #results [data-food-pick]{grid-column:1/-1;justify-self:start}
 #editFoodResults .result>[data-edit-add]{align-self:flex-start}
@@ -524,11 +526,74 @@ function portionFor(food){
   if(Number(food.portionAmount)>0)return {amount:Number(food.portionAmount),name:food.portionName||'unidade'};
   return null;
 }
+function householdPortionsFor(food){
+  if(!food||!Array.isArray(food.householdPortions))return [];
+  return food.householdPortions.filter(portion=>
+    portion&&typeof portion.name==='string'&&portion.name.trim()&&
+    Number.isFinite(Number(portion.amount))&&Number(portion.amount)>0
+  ).map(portion=>({
+    ...portion,
+    name:portion.name.trim(),
+    amount:Number(portion.amount),
+    aliases:Array.isArray(portion.aliases)?portion.aliases.filter(alias=>typeof alias==='string'&&alias.trim()):[]
+  }));
+}
+function matchHouseholdMeasure(part){
+  const match=String(part||'').match(/^(\\d+(?:[,.]\\d+)?)\\s+(.+)$/);
+  if(!match)return {quantity:null,matches:[]};
+  const quantity=Number(match[1].replace(',','.'));
+  if(!Number.isFinite(quantity)||quantity<=0)return {quantity,matches:[]};
+  const phrase=normalizeText(match[2]);
+  const candidates=[];
+  for(const food of st.foods){
+    const foodAliases=[food.name,...(Array.isArray(food.aliases)?food.aliases:[])]
+      .map(normalizeText).filter(Boolean);
+    const portions=householdPortionsFor(food);
+    const existing=portionFor(food);
+    if(existing&&!portions.some(portion=>portion.amount===Number(existing.amount)&&normalizeText(portion.name)===normalizeText(existing.name))){
+      portions.push({name:existing.name||'unidade',amount:Number(existing.amount),aliases:[existing.name||'unidade',pluralUnit(existing.name||'unidade',2)]});
+    }
+    for(const portion of portions){
+      const measureAliases=[...new Set([...(portion.aliases||[]),portion.name,pluralUnit(portion.name,2)].map(normalizeText).filter(Boolean))];
+      for(const measureAlias of measureAliases){
+        for(const foodAlias of foodAliases){
+          const directMeasureHasFood=measureAlias===foodAlias||
+            measureAlias.includes(foodAlias)||foodAlias.includes(measureAlias);
+          const patterns=new Set();
+          if(directMeasureHasFood)patterns.add(measureAlias);
+          patterns.add(measureAlias+' de '+foodAlias);
+          patterns.add(measureAlias+' '+foodAlias);
+          if(foodAlias.startsWith(measureAlias+' '))patterns.add(foodAlias);
+          if(patterns.has(phrase)){
+            candidates.push({food,portion:{name:portion.name,amount:portion.amount},quantity});
+          }
+        }
+      }
+    }
+  }
+  const unique=new Map();
+  for(const candidate of candidates){
+    const key=[candidate.food.id,candidate.portion.amount,normalizeText(candidate.portion.name)].join('|');
+    if(!unique.has(key))unique.set(key,candidate);
+  }
+  return {quantity,matches:[...unique.values()]};
+}
 function pluralUnit(name,qty){
   const n=String(name||'unidade').trim().toLowerCase();
   if(Math.abs(Number(qty)-1)<0.0001)return n;
-  const irregular={ovo:'ovos',castanha:'castanhas',amendoim:'amendoins',unidade:'unidades',noz:'nozes',pao:'pães',pão:'pães'};
+  const irregular={
+    ovo:'ovos',castanha:'castanhas',amendoim:'amendoins',unidade:'unidades',
+    'unidade média':'unidades médias','unidade de banana':'unidades de banana',
+    'unidade de banana nanica':'unidades de banana nanica','unidade de banana prata':'unidades de banana prata',
+    'unidade de maçã':'unidades de maçã','unidade de pão francês':'unidades de pão francês',
+    'pão francês':'pães franceses','banana prata':'bananas-prata','noz':'nozes',
+    'fatia grande':'fatias grandes','concha média rasa':'conchas médias rasas',
+    'filé de frango':'filés de frango','copo de requeijão':'copos de requeijão',
+    'porção de aveia':'porções de aveia','folha':'folhas','fatia':'fatias'
+  };
   if(irregular[n])return irregular[n];
+  if(n.startsWith('colher de '))return n.replace(/^colher/,'colheres');
+  if(n.startsWith('fatia de '))return n.replace(/^fatia/,'fatias');
   if(n.endsWith('m'))return n.slice(0,-1)+'ns';
   if(n.endsWith('s'))return n;
   return n+'s';
@@ -661,7 +726,7 @@ function renderMealEditorItems(){
 function renderMealEditorSearch(query){
   const q=normalizeText(query);
   editSearchResults=q?st.foods.filter(f=>normalizeText(f.name+' '+(f.brand||'')+' '+(f.aliases||[]).join(' ')).includes(q)).slice(0,12):[];
-  $('#editFoodResults').innerHTML=editSearchResults.map((f,i)=>'<div class="result"><div style="flex:1;min-width:0"><b>'+esc(f.name)+'</b><small>'+fmt(f.kcal)+' kcal · P '+fmt(f.protein)+' · C '+fmt(f.carbs)+' · G '+fmt(f.fat)+' / '+fmt(f.base||100)+' '+esc(f.unit)+'</small></div><div><input type="number" min="0.1" step="0.1" value="100" data-edit-qty aria-label="Quantidade de '+esc(f.name)+'" style="width:78px"><select data-edit-measure style="width:88px;padding:7px"><option value="'+esc(f.unit)+'">'+esc(f.unit)+'</option><option value="un">unidade</option></select><div class="portionFields hidden"><label class="notice">Quantidade por unidade ('+esc(f.unit)+')<input type="number" min="0.1" step="0.1" data-edit-portion placeholder="Ex.: 50" value="'+esc((portionFor(f)||{}).amount||'')+'" style="width:90px;padding:7px"></label><label class="notice">Nome da unidade<input type="text" data-edit-portion-name placeholder="ex.: ovo" value="'+esc((portionFor(f)||{}).name||'')+'" style="width:100px;padding:7px"></label></div></div><button class="smallbtn" data-edit-add="'+i+'">Adicionar</button></div>').join('') || (q?'<div class="empty">Nenhum alimento encontrado na sua base.</div>':'');
+  $('#editFoodResults').innerHTML=editSearchResults.map((f,i)=>'<div class="result"><div style="flex:1;min-width:0"><b>'+esc(f.name)+'</b><small>'+fmt(f.kcal)+' kcal · P '+fmt(f.protein)+' · C '+fmt(f.carbs)+' · G '+fmt(f.fat)+' / '+fmt(f.base||100)+' '+esc(f.unit)+'</small></div><div><input type="number" min="0.1" step="0.1" value="100" data-edit-qty aria-label="Quantidade de '+esc(f.name)+'" style="width:78px"><select data-edit-measure style="width:100%;padding:7px"><option value="'+esc(f.unit)+'">'+esc(f.unit)+'</option><option value="un">unidade ou medida caseira</option></select>'+renderPortionFields(f,'edit')+'</div><button class="smallbtn" data-edit-add="'+i+'">Adicionar</button></div>').join('') || (q?'<div class="empty">Nenhum alimento encontrado na sua base.</div>':'');
 }
 function openMealEditor(id){
   const meal=st.meals.find(m=>String(m.id)===String(id));
@@ -738,7 +803,7 @@ function saveMealEdits(){
   if(!save()){render();return}
   render();closeMealEditor();toast('Refeição atualizada com os novos macros.');
 }
-function suggest(){let el=$('#recurring'),items=st.meals.filter(m=>m.date!==today()).sort((a,b)=>b.date.localeCompare(a.date));if(items.length<2){el.classList.add('hidden');return}let prev=items[0];if(prev.items.length){el.classList.remove('hidden');el.innerHTML='<b>Refeição recorrente detectada</b><p class="muted">Você registrou algo parecido recentemente.</p><button class="smallbtn" id="reuse">Preencher com a refeição anterior</button>';$('#reuse').onclick=()=>{$('#entry').value=prev.items.map(i=>fmt(i.qty)+' '+i.unit+' de '+i.name).join(', ');toast('Descrição preenchida. Revise antes de analisar.')}}
+function suggest(){let el=$('#recurring'),items=st.meals.filter(m=>m.date!==today()).sort((a,b)=>b.date.localeCompare(a.date));if(items.length<2){el.classList.add('hidden');return}let prev=items[0];if(prev.items.length){el.classList.remove('hidden');el.innerHTML='<b>Refeição recorrente detectada</b><p class="muted">Você registrou algo parecido recentemente.</p><button class="smallbtn" id="reuse">Preencher com a refeição anterior</button>';$('#reuse').onclick=()=>{$('#entry').value=prev.items.map(i=>formatQuantity(i)+' de '+i.name).join(', ');toast('Descrição preenchida. Revise antes de analisar.')}}
 }
 
 function parse(text){
@@ -764,6 +829,20 @@ function parse(text){
     const quantityMatch=part.match(/(\d+(?:[,.]\d+)?)\s*(g|ml)\b/i);
     const quantity=quantityMatch?Number(quantityMatch[1].replace(',','.')):null;
     const quantityUnit=quantityMatch?quantityMatch[2].toLowerCase():null;
+
+    if(!quantityMatch){
+      const householdMatch=matchHouseholdMeasure(part);
+      if(householdMatch.matches.length===1){
+        const selected=householdMatch.matches[0];
+        try{items.push(calc(selected.food,householdMatch.quantity,'un',selected.portion))}
+        catch(error){ask(error.message||('Não foi possível calcular a medida caseira de '+selected.food.name+'.'))}
+        continue;
+      }
+      if(householdMatch.matches.length>1){
+        ask('A medida caseira de "'+part+'" corresponde a mais de um alimento. Especifique o alimento ou o preparo.');
+        continue;
+      }
+    }
 
     // Prefer an explicitly saved product and its brand over generic TACO patterns.
     const customMatches=st.foods.filter(food=>food.sourceStatus==='openfoodfacts'||food.sourceStatus==='manual'||food.source==='Cadastro manual').filter(food=>{
@@ -918,7 +997,7 @@ function showAnalysis(){
   let out='<div class="status '+(pending.questions.length?'':'ok')+'">'+(pending.questions.length?'Há informações pendentes. Nada será salvo ainda.':'Itens localizados na base nutricional. Confira os alimentos e quantidades antes de registrar.')+'</div>';
   out+=pending.items.map(i=>{
     const fiber=i.fiber===null||i.fiber===undefined?'Fibra não informada':'Fibra '+fmt(i.fiber)+' g';
-    return '<div class="result"><div><b>'+esc(i.name)+'</b><small>'+fmt(i.qty)+' '+esc(i.unit)+' · '+esc(i.source)+'</small></div><b>'+fmt(i.kcal)+' kcal<small>P '+fmt(i.protein)+' · C '+fmt(i.carbs)+' · G '+fmt(i.fat)+' g</small><small>'+fiber+'</small></b></div>';
+    return '<div class="result"><div><b>'+esc(i.name)+'</b><small>'+esc(formatQuantity(i))+' · '+esc(i.source)+'</small></div><b>'+fmt(i.kcal)+' kcal<small>P '+fmt(i.protein)+' · C '+fmt(i.carbs)+' · G '+fmt(i.fat)+' g</small><small>'+fiber+'</small></b></div>';
   }).join('');
   out+='<div class="pillrow"><span class="pill">'+fmt(t.kcal)+' kcal</span><span class="pill">P '+fmt(t.protein)+' g</span><span class="pill">C '+fmt(t.carbs)+' g</span><span class="pill">G '+fmt(t.fat)+' g</span><span class="pill">'+(t.fiberUnknown?'Fibras parciais':'Fibras '+fmt(t.fiber)+' g')+'</span></div>';
   if(pending.questions.length){out+=pending.questions.map(q=>'<div class="status">'+esc(q)+'</div>').join('');out+='<button class="soft" id="editDescription">Voltar e corrigir descrição</button><p class="notice">Busque produtos industrializados na aba Alimentos e confira os valores no rótulo antes de utilizá-los.</p>'}
@@ -1008,6 +1087,18 @@ document.addEventListener('click',e=>{
   }
 });
 document.addEventListener('change',e=>{
+  const preset=e.target.closest('[data-food-portion-preset],[data-edit-portion-preset]');
+  if(preset){
+    const row=preset.closest('.result'),editing=preset.hasAttribute('data-edit-portion-preset');
+    const selected=preset.options[preset.selectedIndex];
+    if(preset.value!=='custom'&&selected&&selected.dataset.amount){
+      const amount=row.querySelector(editing?'[data-edit-portion]':'[data-food-portion]');
+      const name=row.querySelector(editing?'[data-edit-portion-name]':'[data-food-portion-name]');
+      if(amount)amount.value=selected.dataset.amount;
+      if(name)name.value=selected.dataset.name||'unidade';
+    }
+    return;
+  }
   const selector=e.target.closest('[data-food-measure],[data-edit-measure]');
   if(!selector)return;
   const row=selector.closest('.result'),editing=selector.hasAttribute('data-edit-measure');
@@ -1025,11 +1116,40 @@ function renderFoodSelection(){
     return '<div class="result"><div><b>'+esc(x.food.name)+'</b><small>'+esc(formatQuantity(item))+(x.measureUnit==='un'?' · '+fmt(x.portionAmount)+' '+esc(x.food.unit)+' por unidade':'')+' · '+fmt(item.kcal)+' kcal</small></div><button class="smallbtn" data-food-remove="'+i+'">Remover</button></div>';
   }).join('')+'<button class="primary" id="foodLogSelected">Registrar seleção no diário</button></div>';
 }
+function renderPortionFields(food,kind){
+  const editing=kind==='edit';
+  const amountAttr=editing?'data-edit-portion':'data-food-portion';
+  const nameAttr=editing?'data-edit-portion-name':'data-food-portion-name';
+  const presetAttr=editing?'data-edit-portion-preset':'data-food-portion-preset';
+  const choices=householdPortionsFor(food);
+  const saved=portionFor(food);
+  const savedIndex=saved?choices.findIndex(portion=>
+    portion.amount===Number(saved.amount)&&normalizeText(portion.name)===normalizeText(saved.name)
+  ):-1;
+  const selectedIndex=savedIndex>=0?savedIndex:(saved?'custom':(choices.length?0:'custom'));
+  const selected=savedIndex>=0?choices[savedIndex]:(saved||choices[0]||{amount:'',name:''});
+  const options=choices.map((portion,index)=>
+    '<option value="'+index+'" data-amount="'+String(portion.amount)+'" data-name="'+esc(portion.name)+'" '+(selectedIndex===index?'selected':'')+'>1 '+esc(portion.name)+' · '+fmt(portion.amount)+' '+esc(food.unit)+'</option>'
+  ).join('');
+  const presetSelect=choices.length
+    ?'<label class="notice">Medida caseira<select '+presetAttr+'>'+options+'<option value="custom" '+(selectedIndex==='custom'?'selected':'')+'>Personalizada</option></select></label>'
+    :'';
+  return '<div class="portionFields hidden">'+presetSelect+
+    '<label class="notice">Quantidade por unidade ('+esc(food.unit)+')<input type="number" min="0.1" step="0.1" '+amountAttr+' placeholder="Ex.: 50" value="'+(selected.amount!==''?String(selected.amount):'')+'" style="width:100%;padding:7px"></label>'+
+    '<label class="notice">Nome da unidade<input type="text" '+nameAttr+' placeholder="ex.: ovo, colher de sopa" value="'+esc(selected.name||'')+'" style="width:100%;padding:7px"></label>'+
+    (choices.length?'<small class="notice">Equivalências aproximadas; o peso varia conforme o tamanho e o preparo.</small>':'')+
+    '</div>';
+}
 function renderFoodResults(q){
   const matches=st.foods.filter(f=>normalizeText(f.name+' '+(f.brand||'')+' '+(f.aliases||[]).join(' ')).includes(normalizeText(q)));
   $('#results').innerHTML=matches.map((f,i)=>{
-    const portion=portionFor(f);
-    return '<div class="result"><div style="flex:1;min-width:0"><b>'+esc(f.name)+'</b><small>'+fmt(f.kcal)+' kcal · P '+fmt(f.protein)+' · C '+fmt(f.carbs)+' · G '+fmt(f.fat)+' / '+fmt(f.base||f.basis||100)+' '+esc(f.unit)+'</small><small>'+esc(f.brand||'')+' · '+esc(f.source||'')+'</small>'+(portion?'<small>1 '+esc(portion.name)+' ≈ '+fmt(portion.amount)+' '+esc(f.unit)+' (editável)</small>':'')+'</div><div><input type="number" min="0.1" step="0.1" value="100" data-food-qty aria-label="Quantidade de '+esc(f.name)+'" style="width:78px;padding:7px;margin-bottom:4px"><select data-food-measure style="width:88px;padding:7px"><option value="'+esc(f.unit)+'">'+esc(f.unit)+'</option><option value="un">unidade</option></select><div class="portionFields hidden"><label class="notice">Quantidade por unidade ('+esc(f.unit)+')<input type="number" min="0.1" step="0.1" data-food-portion placeholder="Ex.: 50" value="'+esc(portion?portion.amount:'')+'" style="width:90px;padding:7px"></label><label class="notice">Nome da unidade<input type="text" data-food-portion-name placeholder="ex.: castanha" value="'+esc(portion?portion.name:'')+'" style="width:100px;padding:7px"></label></div><button class="smallbtn" data-food-pick="'+i+'">Selecionar</button></div></div>';
+    const portion=portionFor(f),household=householdPortionsFor(f);
+    return '<div class="result"><div style="flex:1;min-width:0"><b>'+esc(f.name)+'</b><small>'+fmt(f.kcal)+' kcal · P '+fmt(f.protein)+' · C '+fmt(f.carbs)+' · G '+fmt(f.fat)+' / '+fmt(f.base||f.basis||100)+' '+esc(f.unit)+'</small><small>'+esc(f.brand||'')+' · '+esc(f.source||'')+'</small>'+
+      (portion?'<small>1 '+esc(portion.name)+' ≈ '+fmt(portion.amount)+' '+esc(f.unit)+'</small>':'')+
+      (household.length?'<small>'+household.length+' medida(s) caseira(s) disponível(is)</small>':'')+
+      '</div><div><input type="number" min="0.1" step="0.1" value="100" data-food-qty aria-label="Quantidade de '+esc(f.name)+'" style="width:78px;padding:7px;margin-bottom:4px"><select data-food-measure style="width:100%;padding:7px"><option value="'+esc(f.unit)+'">'+esc(f.unit)+'</option><option value="un">unidade ou medida caseira</option></select>'+
+      renderPortionFields(f,'food')+
+      '<button class="smallbtn" data-food-pick="'+i+'">Selecionar</button></div></div>';
   }).join('');
 }
 $('#search').oninput=e=>renderFoodResults(e.target.value);
