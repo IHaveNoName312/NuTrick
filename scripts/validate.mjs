@@ -266,6 +266,23 @@ if (missingAmount.items.length !== 0 || missingAmount.questions.length < 2) {
   throw new Error("Ingredients without quantities must be individually clarified instead of silently ignored");
 }
 
+const oatmealWithBanana = parseForTest("30 g de aveia com banana");
+if (!oatmealWithBanana.items.some(item => item.foodId === "taco-007") ||
+    !oatmealWithBanana.questions.some(question => question.toLowerCase().includes("banana"))) {
+  throw new Error("Ingredients joined by 'com' must be separated so an unquantified banana is not silently omitted");
+}
+const tapiocaWithButter = parseForTest("50 g de tapioca com manteiga");
+if (tapiocaWithButter.questions.length || tapiocaWithButter.items.length !== 1 ||
+    tapiocaWithButter.items[0].foodId !== "taco-551") {
+  throw new Error("The composite TACO preparation tapioca com manteiga must remain a single food");
+}
+const coffeeWithSugar = parseForTest("150 ml de café com 5 g de açúcar");
+if (coffeeWithSugar.questions.length ||
+    coffeeWithSugar.items.map(item => item.foodId).join(",") !== "taco-471,taco-492" ||
+    coffeeWithSugar.items[1].qty !== 5) {
+  throw new Error("Coffee and added sugar must be interpreted as two separate ingredients with independent quantities");
+}
+
 
 const eggFood = tacoFoods.find(food => food.id === "taco-488");
 const threeEggs = testContext.calcForTest(eggFood, 3, "un");
