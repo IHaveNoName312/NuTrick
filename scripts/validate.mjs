@@ -35,7 +35,7 @@ if (!html.includes('[data-theme="dark"]') ||
 }
 
 
-if (!Array.isArray(taco) || taco.length !== 111) throw new Error("TACO dataset must contain the expected 111 validated foods");
+if (!Array.isArray(taco) || taco.length !== 168) throw new Error("TACO dataset must contain the expected 168 validated foods");
 const ids = new Set();
 for (const food of taco) {
   if (!food.id || ids.has(food.id)) throw new Error(`Missing or duplicate food id: ${food.id}`);
@@ -85,6 +85,13 @@ const verifiedSodium = new Map([
   ["577", 1],
   ["449", 60],
   ["490", 166],
+  ["273",334],["274",189],["275",79],["276",305],["277",362],["278",30],
+  ["311",81],["312",43],["313",53],["314",67],["315",85],["316",64],["317",96],["318",74],["319",666],["320",60],["321",60],["322",57],
+  ["341",39],["343",44],["344",57],["345",53],["346",58],["353",72],["354",47],["367",37],["368",58],
+  ["438",1021],["439",1039],["443",1574],["453",94],["455",72],["456",432],["459",323],
+  ["462",501],["463",581],["464",1844],["466",412],["467",580],["468",558],["469",283],
+  ["484",216],["485",129],["486",181],["487",45],["489",168],
+  ["557",0],["581",6],["582",57],["583",83],["584",1],["585",3],["586",1809],["588",125],["589",1],["593",3],["594",9],
 ]);
 for (const [code, expected] of verifiedSodium) {
   const food = taco.find(entry => entry.sourceCode === code);
@@ -367,6 +374,46 @@ if (mixedNewPreparations.questions.length ||
 const ambiguousFraldinha = parseForTest("100 g de fraldinha");
 if (ambiguousFraldinha.items.length || !ambiguousFraldinha.questions.some(question => question.toLowerCase().includes("fraldinha"))) {
   throw new Error("Fraldinha without preparation must ask for clarification rather than selecting raw or cooked arbitrarily");
+}
+const newProteinCases = [
+  ["100 g de atum em conserva", "taco-277", 166],
+  ["100 g de sardinha assada", "taco-318", 164],
+  ["100 g de salmao grelhado sem pele", "taco-317", 243],
+  ["100 g de abadejo cozido", "taco-274", 91],
+  ["100 g de contra file sem gordura grelhado", "taco-346", 194],
+  ["100 g de cupim assado", "taco-353", 330],
+  ["100 g de maminha crua", "taco-367", 153],
+  ["100 g de presunto sem capa de gordura", "taco-439", 94],
+  ["100 g de salame", "taco-443", 398],
+  ["100 g de queijo mozarela", "taco-463", 330],
+  ["100 g de queijo parmesao", "taco-464", 453],
+  ["100 g de leite em po integral", "taco-459", 497],
+  ["100 g de clara de ovo cozida", "taco-486", 59],
+  ["100 g de gema de ovo cozida", "taco-487", 353],
+  ["100 g de tofu", "taco-584", 64],
+  ["100 g de tremoco em conserva", "taco-586", 121],
+  ["100 g de castanha de caju", "taco-588", 570],
+  ["100 g de linhaca", "taco-594", 495]
+];
+for (const [description, foodId, expectedKcal] of newProteinCases) {
+  const result = parseForTest(description);
+  if (result.questions.length || result.items.length !== 1 ||
+      result.items[0].foodId !== foodId ||
+      Math.abs(result.items[0].kcal - expectedKcal) > 0.01) {
+    throw new Error(`New protein catalog parsing failed for "${description}": ${JSON.stringify(result)}`);
+  }
+}
+const mixedFishMeal = parseForTest("100 g de sardinha assada e 100 g de atum fresco cru");
+if (mixedFishMeal.questions.length || mixedFishMeal.items.map(item => item.foodId).join(",") !== "taco-318,taco-278") {
+  throw new Error("Fish species and preparations must stay distinct in mixed meals");
+}
+const unspecifiedBeefPreparation = parseForTest("100 g de contra file");
+if (unspecifiedBeefPreparation.items.length || !unspecifiedBeefPreparation.questions.length) {
+  throw new Error("Beef cuts without preparation must not be classified by guessing");
+}
+const completePowderedMilk = tacoFoods.find(food => food.id === "taco-459");
+if (!completePowderedMilk || completePowderedMilk.kcal !== 497 || tacoFoods.some(food => food.id === "taco-458")) {
+  throw new Error("The catalogue must include complete powdered milk values but must not invent missing liquid whole-milk macros");
 }
 const testOFFFood = {
   id: "off-parser-test",
@@ -1140,16 +1187,16 @@ const workerContext = vm.createContext({
   fetch: request => workerFetch(request)
 });
 new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
-if (!serviceWorker.includes('nutrick-v0.6.15-cache')) {
+if (!serviceWorker.includes('nutrick-v0.6.16-cache')) {
   throw new Error("Service worker cache version must be bumped when the app shell changes");
 }
 let installWait = null;
 workerListeners.get("install")({ waitUntil(promise) { installWait = promise; } });
 await installWait;
-if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.15-cache")) {
+if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.16-cache")) {
   throw new Error("Service worker install must precache the app shell before activation");
 }
-const installedEntries = workerCacheData.get("nutrick-v0.6.15-cache");
+const installedEntries = workerCacheData.get("nutrick-v0.6.16-cache");
 for (const path of ["index.html", "manifest.webmanifest", "data/taco.json"]) {
   if (![...installedEntries.keys()].some(key => key.endsWith("/" + path))) {
     throw new Error("Offline app shell is missing a required asset: " + path);
@@ -1175,7 +1222,7 @@ async function dispatchWorkerFetch(request) {
 const appRequest = { method: "GET", url: appScope + "index.html", mode: "navigate" };
 const onlineResponse = await dispatchWorkerFetch(appRequest);
 if (!onlineResponse || onlineResponse.body !== "network response" ||
-    (await workerCaches.open("nutrick-v0.6.15-cache")).match(appRequest) === null) {
+    (await workerCaches.open("nutrick-v0.6.16-cache")).match(appRequest) === null) {
   throw new Error("Successful online responses must be cached for later offline use");
 }
 workerFetch = async () => { throw new Error("Simulated offline network"); };
