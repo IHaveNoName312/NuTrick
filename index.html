@@ -92,6 +92,10 @@ let tacoCatalog=[];
 let st=load();
 st.portions=st.portions||{};
 let lastSavedRaw=JSON.stringify(persistedState(st));
+// Keep the exact storage baseline separate from the in-memory rollback snapshot.
+// A fresh installation has no key yet, but its first valid save must still be allowed.
+let lastStorageRaw=null;
+try{lastStorageRaw=localStorage.getItem(STORAGE_KEY)}catch(error){storageWriteBlocked=true;storageRecoveryMessage='O navegador bloqueou o acesso ao armazenamento local. O NuTrick está em modo de proteção.';}
 
 function isRecord(value){
   return value!==null&&typeof value==='object'&&!Array.isArray(value);
@@ -207,6 +211,11 @@ function commitImportedBackup(parsed){
   const prepared=unwrapAndValidateBackup(parsed);
   if(storageWriteBlocked)throw new Error('O armazenamento está em modo de proteção. Baixe a cópia original antes de tentar importar.');
   const currentRaw=localStorage.getItem(STORAGE_KEY);
+  if(currentRaw!==lastStorageRaw){
+    storageWriteBlocked=true;
+    storageRecoveryMessage='Outra aba alterou os dados salvos. Reabra o NuTrick para importar ou restaurar com segurança.';
+    throw new Error(storageRecoveryMessage);
+  }
   const rollbackRaw=currentRaw===null?JSON.stringify(persistedState(st)):currentRaw;
   const importedState={...prepared.state,foods:[...tacoCatalog,...prepared.state.foods.filter(food=>!isCatalogFood(food))]};
   const importedRaw=JSON.stringify(persistedState(importedState));
@@ -216,6 +225,7 @@ function commitImportedBackup(parsed){
   st=importedState;
   prepared.state=importedState;
   lastSavedRaw=importedRaw;
+  lastStorageRaw=importedRaw;
   try{
     localStorage.setItem(PREIMPORT_KEY,rollbackRaw);
     localStorage.removeItem(PREIMPORT_ALT_KEY);
@@ -236,6 +246,11 @@ function restorePreImportBackup(){
   if(rollbackRaw===null)throw new Error('Não há uma cópia anterior disponível neste navegador.');
   const prepared=unwrapAndValidateBackup(JSON.parse(rollbackRaw));
   const currentRaw=localStorage.getItem(STORAGE_KEY);
+  if(currentRaw!==lastStorageRaw){
+    storageWriteBlocked=true;
+    storageRecoveryMessage='Outra aba alterou os dados salvos. Reabra o NuTrick para importar ou restaurar com segurança.';
+    throw new Error(storageRecoveryMessage);
+  }
   const currentStateRaw=currentRaw===null?JSON.stringify(persistedState(st)):currentRaw;
   const restoredState={...prepared.state,foods:[...tacoCatalog,...prepared.state.foods.filter(food=>!isCatalogFood(food))]};
   const restoredRaw=JSON.stringify(persistedState(restoredState));
@@ -245,6 +260,7 @@ function restorePreImportBackup(){
   st=restoredState;
   prepared.state=restoredState;
   lastSavedRaw=restoredRaw;
+  lastStorageRaw=restoredRaw;
   try{
     localStorage.setItem(PREIMPORT_KEY,currentStateRaw);
     localStorage.removeItem(PREIMPORT_ALT_KEY);
@@ -348,7 +364,7 @@ function save(){
     serialized=JSON.stringify(candidate);
     if(typeof serialized!=='string')throw new Error('Não foi possível serializar os dados.');
     const currentRaw=localStorage.getItem(STORAGE_KEY);
-    if(currentRaw!==lastSavedRaw){
+    if(currentRaw!==lastStorageRaw){
       storageWriteBlocked=true;
       storageRecoveryMessage='Conflito entre abas detectado. Esta aba está desatualizada e foi bloqueada para evitar sobrescrever registros. Feche esta aba e reabra o NuTrick para carregar os dados mais recentes.';
       rollbackUnsavedState();
@@ -358,6 +374,7 @@ function save(){
     }
     localStorage.setItem(STORAGE_KEY,serialized);
     lastSavedRaw=serialized;
+    lastStorageRaw=serialized;
     return true;
   }catch(error){
     rollbackUnsavedState();
