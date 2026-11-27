@@ -20,6 +20,9 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Edição de refeições preserva a fotografia nutricional do momento do registro: alterar quantidade ou porção ajusta proporcionalmente os valores salvos, sem recalcular registros antigos pela composição atual do catálogo.
 - Alimentos de registros históricos são associados ao catálogo apenas por identificador exato, evitando vincular por engano produtos diferentes com nomes iguais.
 - Itens novos adicionados durante a edição usam a referência nutricional atual; itens antigos continuam preservando sua composição original.
+- Edição de refeições preserva a fotografia nutricional do momento do registro: alterar quantidade ou porção ajusta proporcionalmente os valores salvos, sem recalcular registros antigos pela composição atual do catálogo.
+- Alimentos de registros históricos são associados ao catálogo apenas por identificador exato, evitando vincular por engano produtos diferentes com nomes iguais.
+- Itens novos adicionados durante a edição usam a referência nutricional atual; itens antigos continuam preservando sua composição original.
 - Cadastro manual e pesquisa de alimentos.
 - Registro por texto e botão **Analisar macros**.
 - Perguntas de esclarecimento e confirmação antes de salvar estimativas.
