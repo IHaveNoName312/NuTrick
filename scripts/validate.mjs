@@ -3,6 +3,7 @@ import vm from "node:vm";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const taco = JSON.parse(await readFile(new URL("../data/taco.json", import.meta.url), "utf8"));
+const serviceWorker = await readFile(new URL("../sw.js", import.meta.url), "utf8");
 
 const scriptStart = html.indexOf("<script>");
 const scriptEnd = html.indexOf("</script>", scriptStart);
@@ -685,4 +686,126 @@ if (!html.includes("const validationError=validateStateShape(st)") ||
     !html.includes("Reabra o NuTrick para importar ou restaurar com segurança")) {
   throw new Error("Backup export validation and stale-tab protection for import/restore must remain wired into the app");
 }
+
+const workerListeners = new Map();
+const appScope = "https://example.github.io/NuTrick/";
+const workerCacheData = new Map();
+const cacheResponse = (body, status = 200, type = "basic") => ({
+  body, status, ok: status >= 200 && status < 300, type,
+  clone() { return cacheResponse(body, status, type); }
+});
+const workerCacheKey = request => typeof request === "string" ? new URL(request, appScope).href : request.url;
+let failWorkerCachePut = false;
+const workerCaches = {
+  async open(name) {
+    if (!workerCacheData.has(name)) workerCacheData.set(name, new Map());
+    const entries = workerCacheData.get(name);
+    return {
+      async addAll(urls) {
+        for (const url of urls) entries.set(workerCacheKey(url), cacheResponse("precache:" + workerCacheKey(url)));
+      },
+      async put(request, response) {
+        if (failWorkerCachePut) throw new Error("Simulated cache quota failure");
+        entries.set(workerCacheKey(request), response);
+      },
+      async match(request) { return entries.get(workerCacheKey(request)) || null; }
+    };
+  },
+  async keys() { return [...workerCacheData.keys()]; },
+  async delete(name) { return workerCacheData.delete(name); }
+};
+let skipWaitingCalled = false;
+let clientsClaimCalled = false;
+let workerFetch = async () => cacheResponse("network response");
+const workerSelf = {
+  registration: { scope: appScope },
+  location: { origin: "https://example.github.io" },
+  clients: { async claim() { clientsClaimCalled = true; } },
+  async skipWaiting() { skipWaitingCalled = true; },
+  addEventListener(type, callback) { workerListeners.set(type, callback); }
+};
+const workerContext = vm.createContext({
+  self: workerSelf,
+  caches: workerCaches,
+  URL,
+  Response,
+  fetch: request => workerFetch(request)
+});
+new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
+if (!serviceWorker.includes('nutrick-v0.6.5-cache')) {
+  throw new Error("Service worker cache version must be bumped when the app shell changes");
+}
+let installWait = null;
+workerListeners.get("install")({ waitUntil(promise) { installWait = promise; } });
+await installWait;
+if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.5-cache")) {
+  throw new Error("Service worker install must precache the app shell before activation");
+}
+const installedEntries = workerCacheData.get("nutrick-v0.6.5-cache");
+for (const path of ["index.html", "manifest.webmanifest", "data/taco.json"]) {
+  if (![...installedEntries.keys()].some(key => key.endsWith("/" + path))) {
+    throw new Error("Offline app shell is missing a required asset: " + path);
+  }
+}
+workerCacheData.set("nutrick-v0.6.4-cache", new Map());
+workerCacheData.set("another-app-cache", new Map());
+let activateWait = null;
+workerListeners.get("activate")({ waitUntil(promise) { activateWait = promise; } });
+await activateWait;
+if (workerCacheData.has("nutrick-v0.6.4-cache") ||
+    !workerCacheData.has("another-app-cache") || !clientsClaimCalled) {
+  throw new Error("Activation must remove only obsolete NuTrick caches and preserve other apps' caches");
+}
+async function dispatchWorkerFetch(request) {
+  let responsePromise = null;
+  workerListeners.get("fetch")({
+    request,
+    respondWith(promise) { responsePromise = Promise.resolve(promise); }
+  });
+  return responsePromise;
+}
+const appRequest = { method: "GET", url: appScope + "index.html", mode: "navigate" };
+const onlineResponse = await dispatchWorkerFetch(appRequest);
+if (!onlineResponse || onlineResponse.body !== "network response" ||
+    (await workerCaches.open("nutrick-v0.6.5-cache")).match(appRequest) === null) {
+  throw new Error("Successful online responses must be cached for later offline use");
+}
+workerFetch = async () => { throw new Error("Simulated offline network"); };
+const cachedOfflineResponse = await dispatchWorkerFetch(appRequest);
+if (!cachedOfflineResponse || cachedOfflineResponse.body !== "network response") {
+  throw new Error("Offline requests must return their cached resource");
+}
+const uncachedNavigation = { method: "GET", url: appScope + "deep-link", mode: "navigate" };
+const fallbackResponse = await dispatchWorkerFetch(uncachedNavigation);
+if (!fallbackResponse || fallbackResponse.body !== "network response") {
+  throw new Error("Offline navigation must fall back to the cached app shell");
+}
+const unavailableAsset = { method: "GET", url: appScope + "missing-resource.json", mode: "cors" };
+const unavailableResponse = await dispatchWorkerFetch(unavailableAsset);
+if (!unavailableResponse || unavailableResponse.status !== 503) {
+  throw new Error("An uncached offline resource must return an explicit 503 response");
+}
+failWorkerCachePut = true;
+workerFetch = async () => cacheResponse("network despite cache failure");
+const cacheQuotaResponse = await dispatchWorkerFetch({ method: "GET", url: appScope + "new-asset.js", mode: "cors" });
+if (!cacheQuotaResponse || cacheQuotaResponse.body !== "network despite cache failure") {
+  throw new Error("A cache quota failure must not break a successful network response");
+}
+failWorkerCachePut = false;
+let externalFetchCalled = false;
+workerFetch = async () => { externalFetchCalled = true; return cacheResponse("external"); };
+const externalResponse = await dispatchWorkerFetch({ method: "GET", url: "https://example.com/external.json", mode: "cors" });
+const postResponse = await dispatchWorkerFetch({ method: "POST", url: appScope + "submit", mode: "cors" });
+if (externalResponse !== null || postResponse !== null || externalFetchCalled) {
+  throw new Error("The service worker must not intercept cross-origin requests or non-GET methods");
+}
+if (!html.includes("updateViaCache:'none'") ||
+    !html.includes("registration.update()") ||
+    !html.includes("document.visibilityState==='visible'")) {
+  throw new Error("The PWA must bypass worker-script HTTP cache and check for updates when returning to foreground");
+}
+if (!html.includes("window.addEventListener('offline'") || !html.includes("window.addEventListener('online'")) {
+  throw new Error("The app should inform users when connectivity changes");
+}
+
 console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; schema v0-to-v1 migration, original snapshot preservation, migration failure rollback, future-schema protection, legacy/versioned backup migration; date-grouped history and multi-day reload; parser, count-unit and Open Food Facts checks passed.`);
