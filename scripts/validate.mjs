@@ -668,7 +668,7 @@ if (!html.includes("if(!save()){render();return}") || !html.includes("if(!save()
   throw new Error("A failed save must stop success-side effects and restore the visible UI");
 }
 
-if (!html.includes("currentRaw!==lastSavedRaw") || !html.includes("window.addEventListener('storage'")) {
+if (!html.includes("currentRaw!==lastStorageRaw") || (html.match(/currentRaw!==lastStorageRaw/g) || []).length < 3 || !html.includes("window.addEventListener('storage'")) {
   throw new Error("Cross-tab conflict detection and stale-tab protection must remain wired into the app");
 }
 
