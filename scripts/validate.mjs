@@ -26,7 +26,7 @@ if (!html.includes('[data-theme="dark"]') ||
 }
 
 
-if (!Array.isArray(taco) || taco.length !== 34) throw new Error("TACO dataset must contain the expected 34 validated foods");
+if (!Array.isArray(taco) || taco.length !== 49) throw new Error("TACO dataset must contain the expected 34 validated foods");
 const ids = new Set();
 for (const food of taco) {
   if (!food.id || ids.has(food.id)) throw new Error(`Missing or duplicate food id: ${food.id}`);
@@ -61,6 +61,8 @@ const verifiedSodium = new Map([
   ["376", 49],
   ["369", 43],
   ["577", 1],
+  ["449", 60],
+  ["490", 166],
 ]);
 for (const [code, expected] of verifiedSodium) {
   const food = taco.find(entry => entry.sourceCode === code);
@@ -209,6 +211,21 @@ assertFood("100 g frango cozido", "taco-408", 163);
 assertFood("100 g patinho cru", "taco-376", 133);
 assertFood("100 g miolo de alcatra cru", "taco-369", 163);
 assertFood("100 g lentilha cozida", "taco-577", 93);
+assertFood("100 g abóbora cabotian cozida", "taco-064", 48);
+assertFood("100 g abobrinha cozida", "taco-070", 15);
+assertFood("100 g beterraba cozida", "taco-097", 32);
+assertFood("100 g beterraba crua", "taco-098", 49);
+assertFood("100 g brócolis cozido", "taco-100", 25);
+assertFood("100 g cebola crua", "taco-107", 39);
+assertFood("100 g chuchu cozido", "taco-112", 19);
+assertFood("100 g couve manteiga crua", "taco-115", 27);
+assertFood("100 g abacate", "taco-163", 96);
+assertFood("100 g abacaxi", "taco-164", 48);
+assertFood("100 g acém moído cozido", "taco-326", 212);
+assertFood("100 g acém moído cru", "taco-327", 137);
+assertFood("100 g peito de frango cru", "taco-409", 119);
+assertFood("100 g iogurte natural desnatado", "taco-449", 41);
+assertFood("50 g de ovo frito", "taco-490", 120);
 assertNeedsClarification("100 g de patinho", "patinho");
 assertNeedsClarification("100 g de alcatra", "alcatra");
 assertNeedsClarification("300 ml de leite integral", "leite");
@@ -235,6 +252,12 @@ if (countedEggs.questions.length || countedEggs.items.length !== 1 ||
     countedEggs.items[0].foodId !== "taco-488" || countedEggs.items[0].unit !== "un" ||
     countedEggs.items[0].qty !== 2 || Math.abs(countedEggs.items[0].kcal - 146) > 0.001) {
   throw new Error("Two cooked eggs must be recognized as two countable 50g portions");
+}
+const countedFriedEggs = parseForTest("2 ovos fritos");
+if (countedFriedEggs.questions.length || countedFriedEggs.items.length !== 1 ||
+    countedFriedEggs.items[0].foodId !== "taco-490" || countedFriedEggs.items[0].unit !== "un" ||
+    countedFriedEggs.items[0].qty !== 2 || Math.abs(countedFriedEggs.items[0].kcal - 240) > 0.001) {
+  throw new Error("Two fried eggs must use the TACO one-egg 50 g portion and preserve unit counting");
 }
 const eggAndRice = parseForTest("2 ovos e 100 g de arroz branco");
 if (!eggAndRice.questions.some(question => question.toLowerCase().includes("preparo")) ||
