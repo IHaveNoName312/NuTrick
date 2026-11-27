@@ -296,17 +296,29 @@ function load(){
     loadRecoveryCopy();
     return validated.state;
   }catch(error){
+    let futureData=false;
+    try{
+      const candidate=JSON.parse(raw);
+      const payload=isRecord(candidate)&&candidate.app==='NuTrick'?candidate.data:candidate;
+      futureData=isRecord(payload)&&Number.isSafeInteger(payload.schemaVersion)&&payload.schemaVersion>CURRENT_SCHEMA_VERSION;
+      futureData=futureData||(isRecord(candidate)&&candidate.app==='NuTrick'&&Number.isSafeInteger(candidate.formatVersion)&&candidate.formatVersion>BACKUP_FORMAT_VERSION);
+    }catch(parseError){}
     recoveryRaw=raw;
     try{
       const recoveryKey=RECOVERY_PREFIX+Date.now();
       localStorage.setItem(recoveryKey,raw);
       recoveryRaw=raw;
       localStorage.setItem(RECOVERY_POINTER_KEY,recoveryKey);
-      storageRecoveryMessage='Os dados locais estavam inválidos. Uma cópia original foi preservada neste navegador para recuperação. Confira e baixe essa cópia antes de limpar os dados do Safari.';
+      storageRecoveryMessage=futureData
+        ?'Os dados pertencem a uma versão mais recente do NuTrick. O conteúdo original foi preservado e o aplicativo entrou em modo de proteção para não sobrescrevê-lo. Atualize o aplicativo antes de continuar.'
+        :'Os dados locais estavam inválidos. Uma cópia original foi preservada neste navegador para recuperação. Confira e baixe essa cópia antes de limpar os dados do Safari.';
     }catch(recoveryError){
       storageWriteBlocked=true;
-      storageRecoveryMessage='Os dados locais parecem inválidos e o navegador não conseguiu criar uma cópia de recuperação. Baixe o arquivo original pelo botão abaixo. O NuTrick não gravará por cima dos dados existentes.';
+      storageRecoveryMessage=futureData
+        ?'Os dados pertencem a uma versão mais recente e não serão sobrescritos. O navegador não conseguiu criar outra cópia de recuperação. Não limpe os dados do Safari.'
+        :'Os dados locais parecem inválidos e o navegador não conseguiu criar uma cópia de recuperação. Baixe o arquivo original pelo botão abaixo. O NuTrick não gravará por cima dos dados existentes.';
     }
+    if(futureData)storageWriteBlocked=true;
     return createDefaultState();
   }
 }
