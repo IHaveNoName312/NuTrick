@@ -35,7 +35,7 @@ if (!html.includes('[data-theme="dark"]') ||
 }
 
 
-if (!Array.isArray(taco) || taco.length !== 49) throw new Error("TACO dataset must contain the expected 49 validated foods");
+if (!Array.isArray(taco) || taco.length !== 111) throw new Error("TACO dataset must contain the expected 111 validated foods");
 const ids = new Set();
 for (const food of taco) {
   if (!food.id || ids.has(food.id)) throw new Error(`Missing or duplicate food id: ${food.id}`);
@@ -338,6 +338,35 @@ if (testContext.formatQuantityForTest({ unit: "un", qty: 2, portionName: "colher
 const genericSpoon = parseForTest("1 colher de sopa");
 if (genericSpoon.items.length || !genericSpoon.questions.length) {
   throw new Error("A generic spoon without a specified food must not be guessed");
+}
+const expandedCatalogCases = [
+  ["100 g de berinjela crua", "taco-096", 20],
+  ["100 g de couve-flor cozida", "taco-118", 19],
+  ["100 g de mandioca cozida", "taco-129", 125],
+  ["100 g de mandioca frita", "taco-132", 300],
+  ["100 g de manga Palmer", "taco-229", 72],
+  ["100 g de suco de laranja pera", "taco-215", 33],
+  ["100 g de coxão mole cru", "taco-352", 169],
+  ["100 g de filé mignon grelhado", "taco-358", 220],
+  ["100 g de sobrecoxa sem pele assada", "taco-413", 233],
+  ["100 g de pescada branca crua", "taco-304", 111]
+];
+for (const [description, foodId, expectedKcal] of expandedCatalogCases) {
+  const result = parseForTest(description);
+  if (result.questions.length || result.items.length !== 1 ||
+      result.items[0].foodId !== foodId ||
+      Math.abs(result.items[0].kcal - expectedKcal) > 0.01) {
+    throw new Error(`Expanded catalog parsing failed for "${description}": ${JSON.stringify(result)}`);
+  }
+}
+const mixedNewPreparations = parseForTest("100 g de berinjela crua e 100 g de couve-flor cozida");
+if (mixedNewPreparations.questions.length ||
+    mixedNewPreparations.items.map(item => item.foodId).join(",") !== "taco-096,taco-118") {
+  throw new Error("New vegetable preparations must remain distinct when parsed in the same meal");
+}
+const ambiguousFraldinha = parseForTest("100 g de fraldinha");
+if (ambiguousFraldinha.items.length || !ambiguousFraldinha.questions.some(question => question.toLowerCase().includes("fraldinha"))) {
+  throw new Error("Fraldinha without preparation must ask for clarification rather than selecting raw or cooked arbitrarily");
 }
 const testOFFFood = {
   id: "off-parser-test",
@@ -1111,16 +1140,16 @@ const workerContext = vm.createContext({
   fetch: request => workerFetch(request)
 });
 new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
-if (!serviceWorker.includes('nutrick-v0.6.14-cache')) {
+if (!serviceWorker.includes('nutrick-v0.6.15-cache')) {
   throw new Error("Service worker cache version must be bumped when the app shell changes");
 }
 let installWait = null;
 workerListeners.get("install")({ waitUntil(promise) { installWait = promise; } });
 await installWait;
-if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.14-cache")) {
+if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.15-cache")) {
   throw new Error("Service worker install must precache the app shell before activation");
 }
-const installedEntries = workerCacheData.get("nutrick-v0.6.14-cache");
+const installedEntries = workerCacheData.get("nutrick-v0.6.15-cache");
 for (const path of ["index.html", "manifest.webmanifest", "data/taco.json"]) {
   if (![...installedEntries.keys()].some(key => key.endsWith("/" + path))) {
     throw new Error("Offline app shell is missing a required asset: " + path);
@@ -1146,7 +1175,7 @@ async function dispatchWorkerFetch(request) {
 const appRequest = { method: "GET", url: appScope + "index.html", mode: "navigate" };
 const onlineResponse = await dispatchWorkerFetch(appRequest);
 if (!onlineResponse || onlineResponse.body !== "network response" ||
-    (await workerCaches.open("nutrick-v0.6.14-cache")).match(appRequest) === null) {
+    (await workerCaches.open("nutrick-v0.6.15-cache")).match(appRequest) === null) {
   throw new Error("Successful online responses must be cached for later offline use");
 }
 workerFetch = async () => { throw new Error("Simulated offline network"); };

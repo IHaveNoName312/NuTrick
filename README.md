@@ -34,6 +34,7 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Ingredientes não reconhecidos ou sem quantidade/preparo suficiente geram pedidos de esclarecimento, em vez de desaparecerem silenciosamente de uma refeição parcialmente identificada.
 - Porções contadas de ovo cozido e produtos cadastrados com porção personalizada podem ser interpretadas por unidade; produtos específicos salvos têm prioridade sobre correspondências genéricas da TACO.
 - O registro inteligente reconhece medidas caseiras específicas, por exemplo colheres de arroz, fatias de mamão, bananas e copos de iogurte; medidas genéricas sem alimento informado não são convertidas por suposição.
+- O catálogo ampliado reconhece preparações novas por aliases explícitos, mantendo separadas as referências cruas, cozidas, assadas, fritas e grelhadas; carnes sem indicação suficiente de preparo geram pergunta de esclarecimento.
 - Perguntas de esclarecimento e confirmação antes de salvar estimativas.
 - Sugestões simples de refeições recorrentes.
 - Registro de peso e cintura.
@@ -63,7 +64,7 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 
 ## Fontes e limitações dos dados
 
-- O catálogo contém 49 registros associados à **TACO, 4ª edição revisada e ampliada, NEPA/UNICAMP (2011)**. A ampliação inclui vegetais, tubérculos, frutas, iogurtes, preparações de ovo, frango cru/cozido/grelhado, acém moído cru/cozido, patinho, alcatra e lentilha. Cada registro conserva o código do alimento e o endereço da fonte. A base ainda é parcial e não cobre todas as marcas, receitas ou métodos de preparo.
+- O catálogo contém 111 registros associados à **TACO, 4ª edição revisada e ampliada, NEPA/UNICAMP (2011)**. Além dos alimentos básicos, inclui hortaliças variadas, raízes e tubérculos, frutas, pão de queijo, cortes bovinos em diferentes preparos, coxa e sobrecoxa de frango e peixes como merluza e pescada branca. Cada registro conserva o código do alimento e o endereço da fonte. A base ainda é parcial e não cobre todas as marcas, receitas ou métodos de preparo.
 - O ovo frito é contabilizado com a preparação padronizada da TACO, que usa uma unidade de 50 g e inclui óleo no preparo. A quantidade real de óleo absorvida e o tamanho do ovo podem variar; para maior precisão, registre o peso ou ajuste a porção.
 - Valores identificados como **NA** ou sem resultado permanecem como dados ausentes, e não são convertidos em zero. A indicação **Tr** (traço) é tratada como zero numérico no cálculo e deve ser entendida como quantidade abaixo do limite de quantificação, não como prova de ausência.
 - A TACO não informa valores completos de energia e macronutrientes para algumas formas de leite, incluindo leite integral. Por isso, o NuTrick não inventa esses valores: use a busca de marca no Open Food Facts ou cadastre os números do rótulo.
