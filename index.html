@@ -939,7 +939,16 @@ $('#import').onchange=async e=>{
     input.value='';
   }
 };
-render();updateRecoveryNotice();if(storageRecoveryMessage)toast(storageRecoveryMessage);loadTacoData();if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+render();updateRecoveryNotice();if(storageRecoveryMessage)toast(storageRecoveryMessage);loadTacoData();
+window.addEventListener('offline',()=>toast('Você está sem internet. Os registros locais continuam disponíveis; pesquisas externas podem ficar indisponíveis.'));
+window.addEventListener('online',()=>toast('Conexão restabelecida.'));
+if('serviceWorker'in navigator&&location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(registration=>{
+    document.addEventListener('visibilitychange',()=>{
+      if(document.visibilityState==='visible')registration.update().catch(()=>{});
+    });
+  }).catch(()=>{});
+}
 })();
 </script>
 </body></html>
