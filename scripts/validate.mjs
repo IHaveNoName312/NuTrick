@@ -686,6 +686,14 @@ if (!html.includes("const validationError=validateStateShape(st)") ||
     !html.includes("Reabra o NuTrick para importar ou restaurar com segurança")) {
   throw new Error("Backup export validation and stale-tab protection for import/restore must remain wired into the app");
 }
+if (!html.includes('id="connectionStatus"') ||
+    !html.includes("function updateConnectionStatus()") ||
+    !html.includes("const offline=!navigator.onLine") ||
+    !html.includes("updateConnectionStatus();") ||
+    !html.includes("window.addEventListener('offline'") ||
+    !html.includes("window.addEventListener('online'")) {
+  throw new Error("The app must show persistent offline status both on launch without internet and after a disconnect");
+}
 
 const workerListeners = new Map();
 const appScope = "https://example.github.io/NuTrick/";
