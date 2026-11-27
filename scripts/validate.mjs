@@ -14,6 +14,15 @@ const scriptEnd = html.indexOf("</script>", scriptStart);
 if (scriptStart <= bootstrapStart || scriptEnd < 0) throw new Error("Could not locate inline app script");
 new vm.Script(html.slice(scriptStart + "<script>".length, scriptEnd), { filename: "NuTrick-inline.js" });
 
+if (!html.includes("function householdPortionsFor(food)") ||
+    !html.includes("function matchHouseholdMeasure(part)") ||
+    !html.includes("function renderPortionFields(food,kind)") ||
+    !html.includes("data-food-portion-preset") ||
+    !html.includes("data-edit-portion-preset") ||
+    !html.includes("formatQuantity(i))") ) {
+  throw new Error("Household portion references must be available in search, meal editor and natural-language parsing");
+}
+
 if (!html.includes('[data-theme="dark"]') ||
     !html.includes('--card:#18231c') ||
     !html.includes('id="themeToggle"') ||
@@ -26,7 +35,7 @@ if (!html.includes('[data-theme="dark"]') ||
 }
 
 
-if (!Array.isArray(taco) || taco.length !== 49) throw new Error("TACO dataset must contain the expected 34 validated foods");
+if (!Array.isArray(taco) || taco.length !== 49) throw new Error("TACO dataset must contain the expected 49 validated foods");
 const ids = new Set();
 for (const food of taco) {
   if (!food.id || ids.has(food.id)) throw new Error(`Missing or duplicate food id: ${food.id}`);
@@ -37,6 +46,19 @@ for (const food of taco) {
   for (const key of ["kcal", "protein", "carbs", "fat"]) {
     if (food[key] !== null && (typeof food[key] !== "number" || !Number.isFinite(food[key]))) {
       throw new Error(`Invalid ${key} value for ${food.id}`);
+    }
+  }
+  if (food.householdPortions !== undefined) {
+    if (!Array.isArray(food.householdPortions)) throw new Error(`Household portions for ${food.id} must be an array`);
+    for (const portion of food.householdPortions) {
+      if (!portion || typeof portion.name !== "string" || !portion.name.trim() ||
+          typeof portion.amount !== "number" || !Number.isFinite(portion.amount) || portion.amount <= 0 ||
+          !Array.isArray(portion.aliases) || portion.aliases.some(alias => typeof alias !== "string") ||
+          typeof portion.source !== "string" || !portion.source ||
+          typeof portion.sourceUrl !== "string" || !portion.sourceUrl.startsWith("https://") ||
+          typeof portion.sourceNote !== "string" || !portion.sourceNote) {
+        throw new Error(`Invalid or unsourced household portion for ${food.id}`);
+      }
     }
   }
 }
@@ -113,7 +135,7 @@ const backupCode = extract("function isRecord(value)", "function load()");
 const loadCode = extract("function load()", "function rollbackUnsavedState()");
 const saveCode = extract("function rollbackUnsavedState()", "let tacoReady=false;");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const CURRENT_SCHEMA_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; const PREMIGRATION_KEY='nutrick-pre-migration-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let migrationBackupRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st); let lastStorageRaw=null;\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + rescaleCode + "\n" + findMealFoodCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.rescaleMealItemSnapshotForTest = rescaleMealItemSnapshot; this.findFoodForMealItemForTest = findFoodForMealItem; this.formatQuantityForTest = formatQuantity; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setStorageSnapshotForTest = value => { lastStorageRaw=value; }; this.createDefaultStateForTest = createDefaultState; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.getMigrationBackupForTest = () => migrationBackupRaw; this.isStorageBlockedForTest = () => storageWriteBlocked; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
+new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const CURRENT_SCHEMA_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; const PREMIGRATION_KEY='nutrick-pre-migration-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let migrationBackupRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st); let lastStorageRaw=null;\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + rescaleCode + "\n" + findMealFoodCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.rescaleMealItemSnapshotForTest = rescaleMealItemSnapshot; this.findFoodForMealItemForTest = findFoodForMealItem; this.formatQuantityForTest = formatQuantity; this.householdPortionsForTest = householdPortionsFor; this.matchHouseholdMeasureForTest = matchHouseholdMeasure; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setStorageSnapshotForTest = value => { lastStorageRaw=value; }; this.createDefaultStateForTest = createDefaultState; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.getMigrationBackupForTest = () => migrationBackupRaw; this.isStorageBlockedForTest = () => storageWriteBlocked; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
 const rescaleMealItemSnapshotForTest = testContext.rescaleMealItemSnapshotForTest;
 const findFoodForMealItemForTest = testContext.findFoodForMealItemForTest;
@@ -282,6 +304,40 @@ if (decimalQuantity.questions.length || decimalQuantity.items.length !== 1 ||
     Math.abs(decimalQuantity.items[0].qty - 30.5) > 0.001 ||
     Math.abs(decimalQuantity.items[0].kcal - 120.17) > 0.001) {
   throw new Error("Decimal comma quantities must be converted precisely: " + JSON.stringify(decimalQuantity));
+}
+const householdMeasureCases = [
+  ["4 colheres de sopa de arroz branco", "taco-003", 125],
+  ["2 colheres de sopa de arroz integral", "taco-001", 70],
+  ["1 porção de aveia", "taco-007", 30],
+  ["1 pão francês", "taco-053", 50],
+  ["2 bananas", "taco-179", 172],
+  ["1 unidade de banana prata", "taco-182", 86],
+  ["1 unidade de maçã", "taco-222", 130],
+  ["1 fatia de mamão formosa", "taco-225", 160],
+  ["1 colher de chá de açúcar", "taco-492", 5],
+  ["1 copo de requeijão de iogurte natural", "taco-448", 200],
+  ["2 colheres de sopa de lentilha cozida", "taco-577", 48],
+  ["1 filé de frango grelhado", "taco-410", 100],
+  ["1 colher de servir de cenoura cozida", "taco-109", 36],
+  ["1 batata inglesa cozida", "taco-091", 116.6667],
+  ["2 colheres de sopa de beterraba crua ralada", "taco-098", 42],
+  ["4,5 colheres de sopa de brócolis cozido", "taco-100", 60]
+];
+for (const [description, foodId, baseQuantity] of householdMeasureCases) {
+  const result = parseForTest(description);
+  if (result.questions.length || result.items.length !== 1 ||
+      result.items[0].foodId !== foodId || result.items[0].unit !== "un" ||
+      Math.abs(result.items[0].baseQuantity - baseQuantity) > 0.01) {
+    throw new Error(`Household measure parsing failed for "${description}": ${JSON.stringify(result)}`);
+  }
+}
+if (testContext.formatQuantityForTest({ unit: "un", qty: 2, portionName: "colher de sopa" }) !== "2 colheres de sopa" ||
+    testContext.formatQuantityForTest({ unit: "un", qty: 2, portionName: "unidade de banana nanica" }) !== "2 unidades de banana nanica") {
+  throw new Error("Household measure names must be pluralized correctly in diary entries and meal summaries");
+}
+const genericSpoon = parseForTest("1 colher de sopa");
+if (genericSpoon.items.length || !genericSpoon.questions.length) {
+  throw new Error("A generic spoon without a specified food must not be guessed");
 }
 const testOFFFood = {
   id: "off-parser-test",
