@@ -263,23 +263,24 @@ if (importedState.measures.length !== 2 || importedState.meals.length !== 2 ||
 }
 const importedRaw = fakeStorage.getItem("nutrick-v1");
 const beforeFailedImportState = testContext.st;
-fakeStorage.failKey = "nutrick-v1";
+fakeStorage.failSetKey = "nutrick-v1";
 let mainWriteRejected = false;
 try { commitImportForTest(incomingEnvelope); } catch { mainWriteRejected = true; }
-fakeStorage.failKey = null;
+fakeStorage.failSetKey = null;
 if (!mainWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw || testContext.st !== beforeFailedImportState) {
   throw new Error("A failed main storage write must leave the current state unchanged");
 }
-fakeStorage.failKey = "nutrick-pre-import-alt-v1";
+fakeStorage.failSetKey = "nutrick-pre-import-alt-v1";
 let snapshotWriteRejected = false;
 try { commitImportForTest(incomingEnvelope); } catch { snapshotWriteRejected = true; }
+fakeStorage.failSetKey = null;
 if (!snapshotWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw) {
   throw new Error("A failed restore-point write must abort import before replacing current data");
 }
-fakeStorage.failKey = "nutrick-v1";
+fakeStorage.failSetKey = "nutrick-v1";
 let importMainWriteRejected = false;
 try { commitImportForTest(incomingEnvelope); } catch { importMainWriteRejected = true; }
-fakeStorage.failKey = null;
+fakeStorage.failSetKey = null;
 if (!importMainWriteRejected || fakeStorage.getItem("nutrick-v1") !== importedRaw ||
     getRollbackRawForTest() !== currentRaw) {
   throw new Error("A failed main import write must preserve current data and the previous restore point");
@@ -308,17 +309,17 @@ if (toggledState.measures.length !== 2 || toggledState.measures[1].weight !== 76
 
 const beforeRestoreFailureRaw = fakeStorage.getItem("nutrick-v1");
 const restorePointBeforeFailure = getRollbackRawForTest();
-fakeStorage.failKey = "nutrick-v1";
+fakeStorage.failSetKey = "nutrick-v1";
 let restoreMainWriteRejected = false;
 try { restorePreImportForTest(); } catch { restoreMainWriteRejected = true; }
-fakeStorage.failKey = null;
+fakeStorage.failSetKey = null;
 if (!restoreMainWriteRejected || fakeStorage.getItem("nutrick-v1") !== beforeRestoreFailureRaw ||
     getRollbackRawForTest() !== restorePointBeforeFailure) {
   throw new Error("A failed restore write must preserve both the active data and its previous restore point");
 }
-fakeStorage.failKey = "nutrick-pre-import-v1";
+fakeStorage.failSetKey = "nutrick-pre-import-v1";
 restorePreImportForTest();
-fakeStorage.failKey = null;
+fakeStorage.failSetKey = null;
 if (JSON.parse(fakeStorage.getItem("nutrick-v1")).measures[0].weight !== 75 ||
     getRollbackRawForTest() !== beforeRestoreFailureRaw) {
   throw new Error("If the canonical restore-point write fails, the staged alternate must remain recoverable");
