@@ -557,8 +557,7 @@ function matchHouseholdMeasure(part){
       const measureAliases=[...new Set([...(portion.aliases||[]),portion.name,pluralUnit(portion.name,2)].map(normalizeText).filter(Boolean))];
       for(const measureAlias of measureAliases){
         for(const foodAlias of foodAliases){
-          const directMeasureHasFood=measureAlias===foodAlias||
-            measureAlias.includes(foodAlias)||foodAlias.includes(measureAlias);
+          const directMeasureHasFood=measureAlias===foodAlias||measureAlias.includes(foodAlias);
           const patterns=new Set();
           if(directMeasureHasFood)patterns.add(measureAlias);
           patterns.add(measureAlias+' de '+foodAlias);
