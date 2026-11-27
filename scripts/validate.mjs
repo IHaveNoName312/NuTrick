@@ -213,7 +213,7 @@ const decimalQuantity = parseForTest("30,5 g de aveia");
 if (decimalQuantity.questions.length || decimalQuantity.items.length !== 1 ||
     Math.abs(decimalQuantity.items[0].qty - 30.5) > 0.001 ||
     Math.abs(decimalQuantity.items[0].kcal - 120.17) > 0.001) {
-  throw new Error("Decimal comma quantities must be converted precisely");
+  throw new Error("Decimal comma quantities must be converted precisely: " + JSON.stringify(decimalQuantity));
 }
 const testOFFFood = {
   id: "off-parser-test",
