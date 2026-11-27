@@ -229,7 +229,24 @@ if (envelopeBackup.legacy || envelopeBackup.state.meals.length !== 1 || envelope
   throw new Error("Versioned NuTrick backup envelopes should be accepted");
 }
 const currentRaw = JSON.stringify(legacyBackup);
-const incomingState = { ...validBackupState, measures: [{ date: "2026-11-26", weight: 76, waist: 80 }] };
+const historicalMeal = {
+  ...validBackupState.meals[0],
+  id: "meal-2026-11-24",
+  date: "2026-11-24",
+  items: [{ ...validBackupState.meals[0].items[0], foodId: "taco-retired-999", name: "Alimento fora do catálogo" }]
+};
+const incomingState = {
+  ...validBackupState,
+  meals: [...validBackupState.meals, historicalMeal],
+  measures: [
+    { date: "2026-11-24", weight: 75, waist: 82 },
+    { date: "2026-11-26", weight: 76, waist: 80 }
+  ],
+  water: [
+    { date: "2026-11-24", ml: 1800 },
+    { date: "2026-11-26", ml: 500 }
+  ]
+};
 const incomingEnvelope = { app: "NuTrick", formatVersion: 1, exportedAt: "2026-11-26T20:00:00.000Z", data: incomingState };
 fakeStorage.data = new Map([["nutrick-v1", currentRaw]]);
 fakeStorage.failKey = null;
@@ -238,7 +255,10 @@ const imported = commitImportForTest(incomingEnvelope);
 if (imported.legacy || fakeStorage.getItem("nutrick-pre-import-v1") !== currentRaw) {
   throw new Error("Import should save the old state as a restore point before replacing it");
 }
-if (JSON.parse(fakeStorage.getItem("nutrick-v1")).measures[0].weight !== 76 || JSON.parse(fakeStorage.getItem("nutrick-v1")).schemaVersion !== 1) {
+const importedState = JSON.parse(fakeStorage.getItem("nutrick-v1"));
+if (importedState.measures.length !== 2 || importedState.meals.length !== 2 ||
+    importedState.water.length !== 2 || importedState.schemaVersion !== 1 ||
+    importedState.meals.find(meal => meal.id === "meal-2026-11-24")?.items[0]?.name !== "Alimento fora do catálogo") {
   throw new Error("Validated import should persist the new state");
 }
 const importedRaw = fakeStorage.getItem("nutrick-v1");
@@ -272,12 +292,17 @@ fakeStorage.data = new Map([
 restorePreImportForTest();
 const restoredState = JSON.parse(fakeStorage.getItem("nutrick-v1"));
 const alternateState = JSON.parse(fakeStorage.getItem("nutrick-pre-import-v1"));
-if (restoredState.measures[0].weight !== 75 || alternateState.measures[0].weight !== 76) {
+if (restoredState.measures.length !== 1 || restoredState.measures[0].weight !== 75 ||
+    restoredState.meals.length !== 1 || restoredState.water.length !== 1 ||
+    alternateState.measures.length !== 2 || alternateState.measures[1].weight !== 76 ||
+    alternateState.meals.length !== 2 || alternateState.water.length !== 2) {
   throw new Error("Restoring a previous backup should preserve the replaced state as the next restore point");
 }
 restorePreImportForTest();
 const toggledState = JSON.parse(fakeStorage.getItem("nutrick-v1"));
-if (toggledState.measures[0].weight !== 76) {
+if (toggledState.measures.length !== 2 || toggledState.measures[1].weight !== 76 ||
+    toggledState.meals.length !== 2 || toggledState.water.length !== 2 ||
+    toggledState.meals.find(meal => meal.id === "meal-2026-11-24")?.items[0]?.foodId !== "taco-retired-999") {
   throw new Error("The restore point should be reversible without losing either state");
 }
 const userFood = {
