@@ -36,6 +36,7 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - O registro inteligente reconhece medidas caseiras específicas, por exemplo colheres de arroz, fatias de mamão, bananas e copos de iogurte; medidas genéricas sem alimento informado não são convertidas por suposição.
 - O catálogo ampliado reconhece preparações novas por aliases explícitos, mantendo separadas as referências cruas, cozidas, assadas, fritas e grelhadas; carnes sem indicação suficiente de preparo geram pergunta de esclarecimento.
 - O registro inteligente também reconhece novas proteínas animais e vegetais, ovos por partes, queijos, embutidos e leite em pó. Formas de leite sem valores completos na TACO não recebem macros inventados e devem ser consultadas pelo rótulo ou Open Food Facts.
+- Preparações prontas da TACO e receitas específicas da TBCA/USP também são reconhecidas no registro por texto. Panquecas com e sem molho e lasanhas de massa, abobrinha ou berinjela permanecem como referências distintas.
 - Perguntas de esclarecimento e confirmação antes de salvar estimativas.
 - Sugestões simples de refeições recorrentes.
 - Registro de peso e cintura.
@@ -65,7 +66,7 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 
 ## Fontes e limitações dos dados
 
-- O catálogo contém 168 registros associados à **TACO, 4ª edição revisada e ampliada, NEPA/UNICAMP (2011)**. A ampliação inclui pescados (abadejo, atum, pintado, salmão, sardinha e tucunaré), cortes bovinos, presunto e salame, queijos, leite em pó, ovos por partes, soja, tofu, tremoço, amendoim, castanhas, gergelim e linhaça. Cada registro conserva o código do alimento e o endereço da fonte. A base ainda é parcial e não cobre todas as marcas, receitas ou métodos de preparo.
+- O catálogo contém 209 referências: 198 registros da **TACO, 4ª edição, NEPA/UNICAMP (2011)** e 11 preparações específicas da **TBCA/USP**. A ampliação inclui pratos brasileiros (arroz carreteiro, baião de dois, feijoada, feijão tropeiro, salpicão, tacacá, vatapá, virado à paulista e vaca atolada) e receitas da TBCA para lasanhas, panquecas, escondidinho e diferentes farofas. Cada item conserva o código e o endereço da fonte; preparos e receitas não são tratados como equivalentes quando diferem.
 - O ovo frito é contabilizado com a preparação padronizada da TACO, que usa uma unidade de 50 g e inclui óleo no preparo. A quantidade real de óleo absorvida e o tamanho do ovo podem variar; para maior precisão, registre o peso ou ajuste a porção.
 - Valores identificados como **NA** ou sem resultado permanecem como dados ausentes, e não são convertidos em zero. A indicação **Tr** (traço) é tratada como zero numérico no cálculo e deve ser entendida como quantidade abaixo do limite de quantificação, não como prova de ausência.
 - A TACO não informa valores completos de energia e macronutrientes para algumas formas de leite, incluindo leite integral. Por isso, o NuTrick não inventa esses valores: use a busca de marca no Open Food Facts ou cadastre os números do rótulo.
@@ -80,6 +81,8 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - O ponto de restauração local e os dados principais continuam no mesmo armazenamento do navegador. Mantenha backups externos, pois falhas, limpeza do Safari ou perda do aparelho podem apagar ambos.
 
 **Fonte TACO:** [NEPA/UNICAMP, 4ª edição](https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf).
+
+**Fonte TBCA:** [Base Brasileira de Composição de Alimentos (FoRC/USP)](https://www.tbca.net.br/). As preparações TBCA preservam ingredientes, preparo e medidas caseiras descritos nas fichas específicas.
 
 ## Executar localmente
 

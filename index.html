@@ -149,7 +149,7 @@ function createDefaultState(){
   return {schemaVersion:CURRENT_SCHEMA_VERSION,goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[],portions:{}};
 }
 function isCatalogFood(food){
-  return Boolean(food&&typeof food.id==='string'&&food.id.startsWith('taco-'));
+  return Boolean(food&&typeof food.id==='string'&&(food.id.startsWith('taco-')||food.id.startsWith('tbca-')));
 }
 function persistedState(source=st){
   return {...source,foods:(source.foods||[]).filter(food=>!isCatalogFood(food))};
@@ -817,7 +817,9 @@ function parse(text){
   const ask=message=>questions.push(message);
   const parts=String(text).split(/;|\+|\s+e\s+|(?<!\d),(?=\s*\d+(?:[,.]\d+)?\s*(?:g|ml)\b)/i).flatMap(rawPart=>{
     const normalizedPart=normalizeText(rawPart);
-    const componentParts=normalizedPart.includes('tapioca com manteiga')?[rawPart]:rawPart.split(/\s+com\s+/i);
+    const compoundPreparations=['tapioca com manteiga','frango com acafrao','salada de legumes com maionese','farofa com ovo','farofa com ovos','panqueca de carne moida com molho de tomate artesanal'];
+    const isCompoundPreparation=compoundPreparations.some(name=>normalizedPart.includes(normalizeText(name)));
+    const componentParts=isCompoundPreparation?[rawPart]:rawPart.split(/\s+com\s+/i);
     return componentParts.flatMap(component=>{
       const quantities=[...component.matchAll(/\d+(?:[,.]\d+)?\s*(?:g|ml)\b/gi)];
       if(quantities.length<=1)return [component];
@@ -874,7 +876,7 @@ function parse(text){
     }
 
     // New catalog entries use explicit aliases so each preparation is matched independently.
-    const supportedNewTacoIds=new Set(['taco-088','taco-091','taco-109','taco-110','taco-078','taco-161','taco-222','taco-225','taco-448','taco-408','taco-376','taco-369','taco-577','taco-064','taco-070','taco-097','taco-098','taco-100','taco-107','taco-112','taco-115','taco-163','taco-164','taco-326','taco-327','taco-409','taco-449','taco-490','taco-095','taco-096','taco-101','taco-102','taco-103','taco-111','taco-117','taco-118','taco-119','taco-120','taco-126','taco-127','taco-129','taco-132','taco-134','taco-137','taco-138','taco-140','taco-142','taco-143','taco-144','taco-145','taco-149','taco-150','taco-152','taco-190','taco-200','taco-201','taco-203','taco-207','taco-208','taco-214','taco-215','taco-226','taco-229','taco-232','taco-235','taco-236','taco-237','taco-239','taco-242','taco-244','taco-247','taco-251','taco-342','taco-351','taco-352','taco-357','taco-358','taco-361','taco-362','taco-363','taco-364','taco-371','taco-372','taco-398','taco-399','taco-411','taco-413','taco-414','taco-302','taco-304','taco-273','taco-274','taco-275','taco-276','taco-277','taco-278','taco-311','taco-312','taco-313','taco-314','taco-315','taco-316','taco-317','taco-318','taco-319','taco-320','taco-321','taco-322','taco-341','taco-343','taco-344','taco-345','taco-346','taco-353','taco-354','taco-367','taco-368','taco-438','taco-439','taco-443','taco-453','taco-455','taco-456','taco-459','taco-462','taco-463','taco-464','taco-466','taco-467','taco-468','taco-469','taco-484','taco-485','taco-486','taco-487','taco-489','taco-557','taco-581','taco-582','taco-583','taco-584','taco-585','taco-586','taco-588','taco-589','taco-593','taco-594']);
+    const supportedNewTacoIds=new Set(['taco-088','taco-091','taco-109','taco-110','taco-078','taco-161','taco-222','taco-225','taco-448','taco-408','taco-376','taco-369','taco-577','taco-064','taco-070','taco-097','taco-098','taco-100','taco-107','taco-112','taco-115','taco-163','taco-164','taco-326','taco-327','taco-409','taco-449','taco-490','taco-095','taco-096','taco-101','taco-102','taco-103','taco-111','taco-117','taco-118','taco-119','taco-120','taco-126','taco-127','taco-129','taco-132','taco-134','taco-137','taco-138','taco-140','taco-142','taco-143','taco-144','taco-145','taco-149','taco-150','taco-152','taco-190','taco-200','taco-201','taco-203','taco-207','taco-208','taco-214','taco-215','taco-226','taco-229','taco-232','taco-235','taco-236','taco-237','taco-239','taco-242','taco-244','taco-247','taco-251','taco-342','taco-351','taco-352','taco-357','taco-358','taco-361','taco-362','taco-363','taco-364','taco-371','taco-372','taco-398','taco-399','taco-411','taco-413','taco-414','taco-302','taco-304','taco-273','taco-274','taco-275','taco-276','taco-277','taco-278','taco-311','taco-312','taco-313','taco-314','taco-315','taco-316','taco-317','taco-318','taco-319','taco-320','taco-321','taco-322','taco-341','taco-343','taco-344','taco-345','taco-346','taco-353','taco-354','taco-367','taco-368','taco-438','taco-439','taco-443','taco-453','taco-455','taco-456','taco-459','taco-462','taco-463','taco-464','taco-466','taco-467','taco-468','taco-469','taco-484','taco-485','taco-486','taco-487','taco-489','taco-557','taco-581','taco-582','taco-583','taco-584','taco-585','taco-586','taco-588','taco-589','taco-593','taco-594','taco-525','taco-526','taco-527','taco-528','taco-529','taco-530','taco-531','taco-532','taco-534','taco-535','taco-536','taco-537','taco-538','taco-539','taco-540','taco-541','taco-542','taco-543','taco-544','taco-545','taco-546','taco-547','taco-548','taco-549','taco-550','taco-552','taco-553','taco-554','taco-555','taco-556','tbca-BRC0395A','tbca-BRC1025B','tbca-BRC0684B','tbca-BRC0814A','tbca-BRC0324A','tbca-BRC0764B','tbca-BRC0792B','tbca-BRC1096B','tbca-BRC1043B','tbca-BRC0788B','tbca-BRC0711N']);
     const tacoMatches=st.foods.filter(food=>supportedNewTacoIds.has(food.id)&&Array.isArray(food.aliases))
       .flatMap(food=>food.aliases.map(alias=>({food,alias:normalizeText(alias)})))
       .filter(match=>match.alias&&(' '+part+' ').includes(' '+match.alias+' '))

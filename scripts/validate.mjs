@@ -35,7 +35,7 @@ if (!html.includes('[data-theme="dark"]') ||
 }
 
 
-if (!Array.isArray(taco) || taco.length !== 168) throw new Error("TACO dataset must contain the expected 168 validated foods");
+if (!Array.isArray(taco) || taco.length !== 209) throw new Error("TACO dataset must contain the expected 209 validated foods");
 const ids = new Set();
 for (const food of taco) {
   if (!food.id || ids.has(food.id)) throw new Error(`Missing or duplicate food id: ${food.id}`);
@@ -92,6 +92,10 @@ const verifiedSodium = new Map([
   ["462",501],["463",581],["464",1844],["466",412],["467",580],["468",558],["469",283],
   ["484",216],["485",129],["486",181],["487",45],["489",168],
   ["557",0],["581",6],["582",57],["583",83],["584",1],["585",3],["586",1809],["588",125],["589",1],["593",3],["594",9],
+  ["525",305],["526",1622],["527",93],["528",48],["529",83],["530",59],["531",85],["532",12],
+  ["534",236],["535",1344],["536",29],["537",123],["538",99],["539",365],["540",278],["541",29],
+  ["542",9],["543",407],["544",247],["545",228],["546",3],["547",248],["548",216],["549",1],
+  ["550",1349],["552",5],["553",26],["554",880],["555",346],["556",794],
 ]);
 for (const [code, expected] of verifiedSodium) {
   const food = taco.find(entry => entry.sourceCode === code);
@@ -100,7 +104,28 @@ for (const [code, expected] of verifiedSodium) {
   }
 }
 
-const tacoFoods = taco.map(food => ({ ...food, base: food.basis, sourceStatus: "taco" }));
+const tbcaExpected = new Map([
+  ["BRC0395A", [178, 11.3, 15.2, 8.23, 1.16, 271]],
+  ["BRC1025B", [102, 7.86, 5.28, 6.02, 2.52, 427]],
+  ["BRC0684B", [99, 7.70, 5.24, 6.01, 3.20, 427]],
+  ["BRC0814A", [243, 17.1, 16.6, 12.1, 0.51, 373]],
+  ["BRC0324A", [197, 16.1, 10.9, 10.0, 0.92, 245]],
+  ["BRC0764B", [188, 8.24, 16.5, 10.1, 1.24, 360]],
+  ["BRC0792B", [259, 1.77, 50.2, 6.78, 4.69, 137]],
+  ["BRC1096B", [178, 2.06, 30.4, 6.03, 3.36, 230]],
+  ["BRC1043B", [197, 3.79, 26.1, 9.09, 2.63, 279]],
+  ["BRC0788B", [304, 4.56, 50.5, 10.1, 3.93, 248]],
+  ["BRC0711N", [365, 1.43, 86.4, 2.80, 6.51, 139]]
+]);
+for (const [code, expected] of tbcaExpected) {
+  const food = taco.find(entry => entry.sourceCode === code);
+  const actual = food && [food.kcal, food.protein, food.carbs, food.fat, food.fiber, food.sodium];
+  if (!food || food.sourceStatus !== "tbca" || !food.sourceUrl.startsWith("https://www.tbca.net.br/") ||
+      actual.some((value, index) => Math.abs(Number(value) - expected[index]) > 0.02)) {
+    throw new Error(`TBCA nutrition/source check failed for ${code}: ${JSON.stringify(actual)}`);
+  }
+}
+const tacoFoods = taco.map(food => ({ ...food, base: food.basis, sourceStatus: food.sourceStatus || "taco" }));
 const fakeStorage = {
   data: new Map(),
   failKey: null,
@@ -142,8 +167,9 @@ const backupCode = extract("function isRecord(value)", "function load()");
 const loadCode = extract("function load()", "function rollbackUnsavedState()");
 const saveCode = extract("function rollbackUnsavedState()", "let tacoReady=false;");
 const parserCode = extract("function parse(text)", "let pending=null;");
-new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const CURRENT_SCHEMA_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; const PREMIGRATION_KEY='nutrick-pre-migration-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let migrationBackupRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st); let lastStorageRaw=null;\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + rescaleCode + "\n" + findMealFoodCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.rescaleMealItemSnapshotForTest = rescaleMealItemSnapshot; this.findFoodForMealItemForTest = findFoodForMealItem; this.formatQuantityForTest = formatQuantity; this.householdPortionsForTest = householdPortionsFor; this.matchHouseholdMeasureForTest = matchHouseholdMeasure; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setStorageSnapshotForTest = value => { lastStorageRaw=value; }; this.createDefaultStateForTest = createDefaultState; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.getMigrationBackupForTest = () => migrationBackupRaw; this.isStorageBlockedForTest = () => storageWriteBlocked; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
+new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const CURRENT_SCHEMA_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; const PREMIGRATION_KEY='nutrick-pre-migration-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let migrationBackupRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st); let lastStorageRaw=null;\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + rescaleCode + "\n" + findMealFoodCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.rescaleMealItemSnapshotForTest = rescaleMealItemSnapshot; this.findFoodForMealItemForTest = findFoodForMealItem; this.formatQuantityForTest = formatQuantity; this.householdPortionsForTest = householdPortionsFor; this.isCatalogFoodForTest = isCatalogFood; this.matchHouseholdMeasureForTest = matchHouseholdMeasure; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setStorageSnapshotForTest = value => { lastStorageRaw=value; }; this.createDefaultStateForTest = createDefaultState; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.getMigrationBackupForTest = () => migrationBackupRaw; this.isStorageBlockedForTest = () => storageWriteBlocked; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
+const isCatalogFoodForTest = testContext.isCatalogFoodForTest;
 const rescaleMealItemSnapshotForTest = testContext.rescaleMealItemSnapshotForTest;
 const findFoodForMealItemForTest = testContext.findFoodForMealItemForTest;
 const mapOFFForTest = testContext.mapOFFForTest;
@@ -415,6 +441,48 @@ const completePowderedMilk = tacoFoods.find(food => food.id === "taco-459");
 if (!completePowderedMilk || completePowderedMilk.kcal !== 497 || tacoFoods.some(food => food.id === "taco-458")) {
   throw new Error("The catalogue must include complete powdered milk values but must not invent missing liquid whole-milk macros");
 }
+const preparedRecipeCases = [
+  ["100 g de arroz carreteiro", "taco-526", 154],
+  ["100 g de baião de dois", "taco-527", 136],
+  ["100 g de feijoada", "taco-540", 117],
+  ["100 g de feijão tropeiro", "taco-539", 152],
+  ["100 g de estrogonofe de frango", "taco-538", 157],
+  ["100 g de salpicão de frango", "taco-547", 148],
+  ["100 g de tacacá", "taco-550", 47],
+  ["100 g de vatapá", "taco-554", 255],
+  ["100 g de yakisoba", "taco-556", 113],
+  ["100 g de lasanha à bolonhesa caseira", "tbca-BRC0395A", 178],
+  ["100 g de lasanha de abobrinha à bolonhesa", "tbca-BRC1025B", 102],
+  ["100 g de lasanha de berinjela à bolonhesa", "tbca-BRC0684B", 99],
+  ["100 g de panqueca de carne moída sem molho", "tbca-BRC0814A", 243],
+  ["100 g de panqueca de carne moída com molho de tomate artesanal", "tbca-BRC0324A", 197],
+  ["100 g de escondidinho de carne bovina", "tbca-BRC0764B", 188],
+  ["100 g de farofa de couve", "tbca-BRC0792B", 259],
+  ["100 g de farofa com ovo", "tbca-BRC0788B", 304],
+  ["100 g de farofa molhada", "tbca-BRC1043B", 197],
+  ["100 g de farofa vegana", "tbca-BRC1096B", 178],
+  ["100 g de farofa light", "tbca-BRC0711N", 365]
+];
+for (const [description, foodId, kcal] of preparedRecipeCases) {
+  const result = parseForTest(description);
+  if (result.questions.length || result.items.length !== 1 ||
+      result.items[0].foodId !== foodId ||
+      Math.abs(result.items[0].kcal - kcal) > 0.01) {
+    throw new Error(`Prepared recipe parser failed for "${description}": ${JSON.stringify(result)}`);
+  }
+}
+const protectedDish = parseForTest("100 g de frango com açafrão");
+if (protectedDish.questions.length || protectedDish.items[0]?.foodId !== "taco-541") {
+  throw new Error("Compound dish with 'com' must remain a single recognized preparation");
+}
+const lasagnaPortion = parseForTest("1 fatia média de lasanha à bolonhesa caseira");
+if (lasagnaPortion.questions.length || lasagnaPortion.items[0]?.foodId !== "tbca-BRC0395A" || lasagnaPortion.items[0]?.baseQuantity !== 190) {
+  throw new Error("TBCA lasagna slice measure should use 190 g");
+}
+const farofaPortion = parseForTest("2 colheres de sopa rasas de farofa de couve");
+if (farofaPortion.questions.length || farofaPortion.items[0]?.foodId !== "tbca-BRC0792B" || farofaPortion.items[0]?.baseQuantity !== 50) {
+  throw new Error("TBCA farofa spoon measure should use 25 g");
+}
 const testOFFFood = {
   id: "off-parser-test",
   name: "Leite integral marca teste",
@@ -493,6 +561,18 @@ if (testContext.formatQuantityForTest(threeEggs) !== "3 ovos") {
   throw new Error("Counted foods should be displayed with a plural unit label");
 }
 
+const persistentCatalogOnly = testContext.persistedStateForTest({
+  ...validBackupState,
+  foods: [
+    { id: "taco-526", name: "Arroz carreteiro", base: 100, unit: "g", kcal: 154, protein: 10.8, carbs: 11.6, fat: 7.1 },
+    { id: "tbca-BRC0395A", name: "Lasanha à bolonhesa", base: 100, unit: "g", kcal: 178, protein: 11.3, carbs: 15.2, fat: 8.23 },
+    { id: "manual-test", name: "Receita pessoal", base: 100, unit: "g", kcal: 200, protein: 12, carbs: 20, fat: 8 }
+  ]
+});
+if (persistentCatalogOnly.foods.length !== 1 || persistentCatalogOnly.foods[0].id !== "manual-test" ||
+    !isCatalogFoodForTest({ id: "tbca-BRC0395A" })) {
+  throw new Error("TACO and TBCA references must stay out of personal storage and backups");
+}
 const historicalRiceSnapshot = {
   foodId: "taco-003",
   name: "Arroz cozido",
@@ -1187,16 +1267,16 @@ const workerContext = vm.createContext({
   fetch: request => workerFetch(request)
 });
 new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
-if (!serviceWorker.includes('nutrick-v0.6.16-cache')) {
+if (!serviceWorker.includes('nutrick-v0.6.17-cache')) {
   throw new Error("Service worker cache version must be bumped when the app shell changes");
 }
 let installWait = null;
 workerListeners.get("install")({ waitUntil(promise) { installWait = promise; } });
 await installWait;
-if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.16-cache")) {
+if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.17-cache")) {
   throw new Error("Service worker install must precache the app shell before activation");
 }
-const installedEntries = workerCacheData.get("nutrick-v0.6.16-cache");
+const installedEntries = workerCacheData.get("nutrick-v0.6.17-cache");
 for (const path of ["index.html", "manifest.webmanifest", "data/taco.json"]) {
   if (![...installedEntries.keys()].some(key => key.endsWith("/" + path))) {
     throw new Error("Offline app shell is missing a required asset: " + path);
@@ -1222,7 +1302,7 @@ async function dispatchWorkerFetch(request) {
 const appRequest = { method: "GET", url: appScope + "index.html", mode: "navigate" };
 const onlineResponse = await dispatchWorkerFetch(appRequest);
 if (!onlineResponse || onlineResponse.body !== "network response" ||
-    (await workerCaches.open("nutrick-v0.6.16-cache")).match(appRequest) === null) {
+    (await workerCaches.open("nutrick-v0.6.17-cache")).match(appRequest) === null) {
   throw new Error("Successful online responses must be cached for later offline use");
 }
 workerFetch = async () => { throw new Error("Simulated offline network"); };

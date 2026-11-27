@@ -3982,5 +3982,1012 @@
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-525",
+    "sourceCode": "525",
+    "name": "Acarajé",
+    "aliases": [
+      "acarajé",
+      "acaraje"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 289,
+    "protein": 8.3,
+    "carbs": 19.1,
+    "fat": 19.9,
+    "fiber": 9.4,
+    "sodium": 305,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-526",
+    "sourceCode": "526",
+    "name": "Arroz carreteiro",
+    "aliases": [
+      "arroz carreteiro"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 154,
+    "protein": 10.8,
+    "carbs": 11.6,
+    "fat": 7.1,
+    "fiber": 1.5,
+    "sodium": 1622,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-527",
+    "sourceCode": "527",
+    "name": "Baião de dois, arroz e feijão-de-corda",
+    "aliases": [
+      "baião de dois",
+      "baiao de dois"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 136,
+    "protein": 6.2,
+    "carbs": 20.4,
+    "fat": 3.2,
+    "fiber": 5.1,
+    "sodium": 93,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-528",
+    "sourceCode": "528",
+    "name": "Barreado",
+    "aliases": [
+      "barreado"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 165,
+    "protein": 18.3,
+    "carbs": 0.2,
+    "fat": 9.5,
+    "fiber": 0.1,
+    "sodium": 48,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-529",
+    "sourceCode": "529",
+    "name": "Bife à cavalo, com contra-filé",
+    "aliases": [
+      "bife à cavalo",
+      "bife a cavalo"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 291,
+    "protein": 23.7,
+    "carbs": 0,
+    "fat": 21.1,
+    "fiber": null,
+    "sodium": 83,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-530",
+    "sourceCode": "530",
+    "name": "Bolinho de arroz",
+    "aliases": [
+      "bolinho de arroz"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 274,
+    "protein": 8,
+    "carbs": 41.7,
+    "fat": 8.3,
+    "fiber": 2.7,
+    "sodium": 59,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-531",
+    "sourceCode": "531",
+    "name": "Camarão à baiana",
+    "aliases": [
+      "camarão à baiana",
+      "camarao a baiana"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 101,
+    "protein": 7.9,
+    "carbs": 3.2,
+    "fat": 6,
+    "fiber": 0.4,
+    "sodium": 85,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-532",
+    "sourceCode": "532",
+    "name": "Charuto de repolho",
+    "aliases": [
+      "charuto de repolho"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 78,
+    "protein": 6.8,
+    "carbs": 10.1,
+    "fat": 1.1,
+    "fiber": 1.5,
+    "sodium": 12,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-534",
+    "sourceCode": "534",
+    "name": "Cuscuz paulista",
+    "aliases": [
+      "cuscuz paulista"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 142,
+    "protein": 2.6,
+    "carbs": 22.5,
+    "fat": 4.6,
+    "fiber": 2.4,
+    "sodium": 236,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-535",
+    "sourceCode": "535",
+    "name": "Cuxá, molho",
+    "aliases": [
+      "cuxá",
+      "cuxa",
+      "molho de cuxá",
+      "molho de cuxa"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 80,
+    "protein": 5.6,
+    "carbs": 5.7,
+    "fat": 3.6,
+    "fiber": 3,
+    "sodium": 1344,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-536",
+    "sourceCode": "536",
+    "name": "Dobradinha",
+    "aliases": [
+      "dobradinha"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 125,
+    "protein": 19.8,
+    "carbs": 0,
+    "fat": 4.4,
+    "fiber": null,
+    "sodium": 29,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-537",
+    "sourceCode": "537",
+    "name": "Estrogonofe de carne",
+    "aliases": [
+      "estrogonofe de carne",
+      "strogonoff de carne",
+      "estrogonofe bovino"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 173,
+    "protein": 15,
+    "carbs": 3,
+    "fat": 10.8,
+    "fiber": null,
+    "sodium": 123,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-538",
+    "sourceCode": "538",
+    "name": "Estrogonofe de frango",
+    "aliases": [
+      "estrogonofe de frango",
+      "strogonoff de frango"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 157,
+    "protein": 17.6,
+    "carbs": 2.6,
+    "fat": 8,
+    "fiber": null,
+    "sodium": 99,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-539",
+    "sourceCode": "539",
+    "name": "Feijão tropeiro mineiro",
+    "aliases": [
+      "feijão tropeiro",
+      "feijao tropeiro",
+      "feijão tropeiro mineiro",
+      "feijao tropeiro mineiro"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 152,
+    "protein": 10.2,
+    "carbs": 19.6,
+    "fat": 6.8,
+    "fiber": 3.6,
+    "sodium": 365,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-540",
+    "sourceCode": "540",
+    "name": "Feijoada",
+    "aliases": [
+      "feijoada"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 117,
+    "protein": 8.7,
+    "carbs": 11.6,
+    "fat": 6.5,
+    "fiber": 5.1,
+    "sodium": 278,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-541",
+    "sourceCode": "541",
+    "name": "Frango com açafrão",
+    "aliases": [
+      "frango com açafrão",
+      "frango com acafrao"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 113,
+    "protein": 9.7,
+    "carbs": 4.1,
+    "fat": 6.2,
+    "fiber": 0.2,
+    "sodium": 29,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-542",
+    "sourceCode": "542",
+    "name": "Macarrão, molho à bolonhesa",
+    "aliases": [
+      "macarrão à bolonhesa",
+      "macarrao a bolonhesa",
+      "macarrão ao molho bolonhesa",
+      "macarrao ao molho bolonhesa"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 120,
+    "protein": 4.9,
+    "carbs": 22.5,
+    "fat": 0.9,
+    "fiber": 0.8,
+    "sodium": 9,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-543",
+    "sourceCode": "543",
+    "name": "Maniçoba",
+    "aliases": [
+      "maniçoba",
+      "manicoba"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 134,
+    "protein": 10,
+    "carbs": 3.4,
+    "fat": 8.7,
+    "fiber": 2.2,
+    "sodium": 407,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-544",
+    "sourceCode": "544",
+    "name": "Quibebe",
+    "aliases": [
+      "quibebe"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 86,
+    "protein": 8.6,
+    "carbs": 6.6,
+    "fat": 2.7,
+    "fiber": 1.7,
+    "sodium": 247,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-545",
+    "sourceCode": "545",
+    "name": "Salada de legumes com maionese",
+    "aliases": [
+      "salada de legumes com maionese",
+      "salada de legumes e maionese"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 96,
+    "protein": 1.1,
+    "carbs": 8.9,
+    "fat": 7,
+    "fiber": 2.2,
+    "sodium": 228,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-546",
+    "sourceCode": "546",
+    "name": "Salada de legumes cozida no vapor",
+    "aliases": [
+      "salada de legumes cozida no vapor",
+      "legumes cozidos no vapor"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 35,
+    "protein": 2,
+    "carbs": 7.1,
+    "fat": 0.3,
+    "fiber": 2.5,
+    "sodium": 3,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-547",
+    "sourceCode": "547",
+    "name": "Salpicão de frango",
+    "aliases": [
+      "salpicão de frango",
+      "salpicao de frango"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 148,
+    "protein": 13.9,
+    "carbs": 4.6,
+    "fat": 7.8,
+    "fiber": 0.4,
+    "sodium": 248,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-548",
+    "sourceCode": "548",
+    "name": "Sarapatel",
+    "aliases": [
+      "sarapatel"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 123,
+    "protein": 18.5,
+    "carbs": 1.1,
+    "fat": 4.4,
+    "fiber": null,
+    "sodium": 216,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-549",
+    "sourceCode": "549",
+    "name": "Tabule",
+    "aliases": [
+      "tabule"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 57,
+    "protein": 2,
+    "carbs": 10.6,
+    "fat": 1.2,
+    "fiber": 2.1,
+    "sodium": 1,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-550",
+    "sourceCode": "550",
+    "name": "Tacacá",
+    "aliases": [
+      "tacacá",
+      "tacaca"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 47,
+    "protein": 7,
+    "carbs": 3.4,
+    "fat": 0.4,
+    "fiber": 0.2,
+    "sodium": 1349,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-552",
+    "sourceCode": "552",
+    "name": "Tucupi com pimenta-de-cheiro",
+    "aliases": [
+      "tucupi com pimenta",
+      "tucupi com pimenta-de-cheiro"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 27,
+    "protein": 2.1,
+    "carbs": 4.7,
+    "fat": 0.3,
+    "fiber": 0.2,
+    "sodium": 5,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-553",
+    "sourceCode": "553",
+    "name": "Vaca atolada",
+    "aliases": [
+      "vaca atolada"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 145,
+    "protein": 5.1,
+    "carbs": 10.1,
+    "fat": 9.3,
+    "fiber": 2.3,
+    "sodium": 26,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-554",
+    "sourceCode": "554",
+    "name": "Vatapá",
+    "aliases": [
+      "vatapá",
+      "vatapa"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 255,
+    "protein": 6,
+    "carbs": 9.7,
+    "fat": 23.2,
+    "fiber": 1.7,
+    "sodium": 880,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-555",
+    "sourceCode": "555",
+    "name": "Virado à paulista",
+    "aliases": [
+      "virado à paulista",
+      "virado a paulista"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 307,
+    "protein": 10.2,
+    "carbs": 14.1,
+    "fat": 25.6,
+    "fiber": 2.2,
+    "sodium": 346,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-556",
+    "sourceCode": "556",
+    "name": "Yakisoba",
+    "aliases": [
+      "yakisoba"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 113,
+    "protein": 7.5,
+    "carbs": 18.3,
+    "fat": 2.6,
+    "fiber": 1.1,
+    "sodium": 794,
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "tbca-BRC0395A",
+    "sourceCode": "BRC0395A",
+    "name": "Lasanha à bolonhesa caseira, assada",
+    "aliases": [
+      "lasanha à bolonhesa caseira",
+      "lasanha a bolonhesa caseira",
+      "lasanha bolonhesa",
+      "lasanha tradicional à bolonhesa"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 178,
+    "protein": 11.3,
+    "carbs": 15.2,
+    "fat": 8.23,
+    "fiber": 1.16,
+    "sodium": 271,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=wQcZdZWFaOq9LdS47cLhxQ%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "fatia média",
+        "amount": 190,
+        "aliases": [
+          "fatia média",
+          "fatia de lasanha",
+          "pedaço de lasanha"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=wQcZdZWFaOq9LdS47cLhxQ%3D%3D",
+        "sourceNote": "A TBCA indica 190 g para pedaço/unidade/fatia média."
+      }
+    ],
+    "sourceNote": "Receita artesanal com massa fresca, carne bovina, muçarela, molho branco e molho de tomate."
+  },
+  {
+    "id": "tbca-BRC1025B",
+    "sourceCode": "BRC1025B",
+    "name": "Lasanha de abobrinha à bolonhesa, caseira",
+    "aliases": [
+      "lasanha de abobrinha à bolonhesa",
+      "lasanha de abobrinha a bolonhesa"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 102,
+    "protein": 7.86,
+    "carbs": 5.28,
+    "fat": 6.02,
+    "fiber": 2.52,
+    "sodium": 427,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=vYUViCW4JLyYPYTEPOVomQ%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "colher de servir cheia",
+        "amount": 100,
+        "aliases": [
+          "colher de servir cheia",
+          "colheres de servir cheias"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=vYUViCW4JLyYPYTEPOVomQ%3D%3D",
+        "sourceNote": "A TBCA indica 100 g por colher de servir cheia."
+      }
+    ],
+    "sourceNote": "Abobrinha grelhada, muçarela e molho bolonhesa de patinho."
+  },
+  {
+    "id": "tbca-BRC0684B",
+    "sourceCode": "BRC0684B",
+    "name": "Lasanha de berinjela à bolonhesa, caseira",
+    "aliases": [
+      "lasanha de berinjela à bolonhesa",
+      "lasanha de berinjela a bolonhesa"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 99,
+    "protein": 7.7,
+    "carbs": 5.24,
+    "fat": 6.01,
+    "fiber": 3.2,
+    "sodium": 427,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=DurkAx5VBXQr8LBhC8ZUHA%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "colher de servir cheia",
+        "amount": 80,
+        "aliases": [
+          "colher de servir cheia",
+          "colheres de servir cheias"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=DurkAx5VBXQr8LBhC8ZUHA%3D%3D",
+        "sourceNote": "A TBCA indica 80 g por colher de servir cheia."
+      }
+    ],
+    "sourceNote": "Berinjela grelhada, muçarela e molho bolonhesa de patinho."
+  },
+  {
+    "id": "tbca-BRC0814A",
+    "sourceCode": "BRC0814A",
+    "name": "Panqueca recheada com carne moída, sem molho",
+    "aliases": [
+      "panqueca de carne moída sem molho",
+      "panqueca de carne moida sem molho",
+      "panqueca recheada de carne moída sem molho"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 243,
+    "protein": 17.1,
+    "carbs": 16.6,
+    "fat": 12.1,
+    "fiber": 0.51,
+    "sodium": 373,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=KRQuUTf6lt1e%2BwioYiVKCg%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "prato fundo",
+        "amount": 80,
+        "aliases": [
+          "prato fundo",
+          "pratos fundos"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=KRQuUTf6lt1e%2BwioYiVKCg%3D%3D",
+        "sourceNote": "A TBCA indica 80 g por prato fundo."
+      }
+    ],
+    "sourceNote": "Massa com leite, farinha e ovo; recheio de acém refogado, sem molho."
+  },
+  {
+    "id": "tbca-BRC0324A",
+    "sourceCode": "BRC0324A",
+    "name": "Panqueca com carne moída e molho de tomate artesanal",
+    "aliases": [
+      "panqueca de carne moída com molho de tomate artesanal",
+      "panqueca de carne moida com molho de tomate artesanal",
+      "panqueca de carne ao molho artesanal"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 197,
+    "protein": 16.1,
+    "carbs": 10.9,
+    "fat": 10,
+    "fiber": 0.92,
+    "sodium": 245,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=xOCK1P8zmzsrKt8pRcC8NA%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "porção média",
+        "amount": 140,
+        "aliases": [
+          "porção média",
+          "porcoes medias"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=xOCK1P8zmzsrKt8pRcC8NA%3D%3D",
+        "sourceNote": "A TBCA indica porção média de 140 g."
+      }
+    ],
+    "sourceNote": "Massa com leite, farinha e ovo; recheio de acém e molho de tomate artesanal."
+  },
+  {
+    "id": "tbca-BRC0764B",
+    "sourceCode": "BRC0764B",
+    "name": "Escondidinho de carne bovina com mandioca",
+    "aliases": [
+      "escondidinho de carne bovina",
+      "escondidinho de carne",
+      "escondidinho de mandioca com carne"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 188,
+    "protein": 8.24,
+    "carbs": 16.5,
+    "fat": 10.1,
+    "fiber": 1.24,
+    "sodium": 360,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=QoDTcwnoqUPMNPZ91c%2Fqlw%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "porção média",
+        "amount": 110,
+        "aliases": [
+          "porção média",
+          "porcoes medias"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=QoDTcwnoqUPMNPZ91c%2Fqlw%3D%3D",
+        "sourceNote": "A TBCA indica porção média de 110 g."
+      }
+    ],
+    "sourceNote": "Mandioca, patinho moído refogado, tomate, salsa e parmesão."
+  },
+  {
+    "id": "tbca-BRC0792B",
+    "sourceCode": "BRC0792B",
+    "name": "Farofa de couve",
+    "aliases": [
+      "farofa de couve",
+      "farofa com couve",
+      "farofa de farinha de mandioca com couve"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 259,
+    "protein": 1.77,
+    "carbs": 50.2,
+    "fat": 6.78,
+    "fiber": 4.69,
+    "sodium": 137,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=DPXp2H8M0Kw2olRJm36ECg%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "colher de sopa rasa",
+        "amount": 25,
+        "aliases": [
+          "colher de sopa rasa",
+          "colheres de sopa rasas"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=DPXp2H8M0Kw2olRJm36ECg%3D%3D",
+        "sourceNote": "A TBCA indica 25 g por colher de sopa rasa."
+      }
+    ],
+    "sourceNote": "Farinha de mandioca, couve, óleo, cebola e alho."
+  },
+  {
+    "id": "tbca-BRC1096B",
+    "sourceCode": "BRC1096B",
+    "name": "Farofa vegana de mandioca",
+    "aliases": [
+      "farofa vegana",
+      "farofa de mandioca vegana"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 178,
+    "protein": 2.06,
+    "carbs": 30.4,
+    "fat": 6.03,
+    "fiber": 3.36,
+    "sodium": 230,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=KiRt%2BS%2Bniwib6pDbyyfzwg%3D%3D",
+    "sourceStatus": "tbca",
+    "sourceNote": "Farofa de mandioca com tofu, pimentão, tomate, cenoura, azeitona e temperos."
+  },
+  {
+    "id": "tbca-BRC1043B",
+    "sourceCode": "BRC1043B",
+    "name": "Farofa molhada",
+    "aliases": [
+      "farofa molhada",
+      "farofa úmida",
+      "farofa umida"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 197,
+    "protein": 3.79,
+    "carbs": 26.1,
+    "fat": 9.09,
+    "fiber": 2.63,
+    "sodium": 279,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=02%2B1g%2BEWM0pWSjc%2BTAXVmA%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "colher de servir rasa",
+        "amount": 25,
+        "aliases": [
+          "colher de servir rasa",
+          "colheres de servir rasas"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=02%2B1g%2BEWM0pWSjc%2BTAXVmA%3D%3D",
+        "sourceNote": "A TBCA indica 25 g por colher de servir rasa."
+      }
+    ],
+    "sourceNote": "Farinha de mandioca e de milho, vegetais, ovo cozido, azeitona e azeite."
+  },
+  {
+    "id": "tbca-BRC0788B",
+    "sourceCode": "BRC0788B",
+    "name": "Farofa com ovo",
+    "aliases": [
+      "farofa com ovo",
+      "farofa com ovos",
+      "farofa de ovo"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 304,
+    "protein": 4.56,
+    "carbs": 50.5,
+    "fat": 10.1,
+    "fiber": 3.93,
+    "sodium": 248,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=4yRqZLkx5N6slxrFJKCvmQ%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "colher de sopa rasa",
+        "amount": 25,
+        "aliases": [
+          "colher de sopa rasa",
+          "colheres de sopa rasas"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=4yRqZLkx5N6slxrFJKCvmQ%3D%3D",
+        "sourceNote": "A TBCA indica 25 g por colher de sopa rasa."
+      }
+    ],
+    "sourceNote": "Farinha de mandioca, ovo, azeitona, salsa, óleo, cebola e alho."
+  },
+  {
+    "id": "tbca-BRC0711N",
+    "sourceCode": "BRC0711N",
+    "name": "Farofa com teor reduzido de gordura",
+    "aliases": [
+      "farofa light",
+      "farofa com menos gordura",
+      "farofa reduzida em gordura"
+    ],
+    "category": "Preparações",
+    "basis": 100,
+    "unit": "g",
+    "kcal": 365,
+    "protein": 1.43,
+    "carbs": 86.4,
+    "fat": 2.8,
+    "fiber": 6.51,
+    "sodium": 139,
+    "source": "TBCA, Food Research Center (FoRC), USP",
+    "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=G5hcpo5aYKBlA4nGX7EIdg%3D%3D",
+    "sourceStatus": "tbca",
+    "householdPortions": [
+      {
+        "name": "colher de servir rasa",
+        "amount": 45,
+        "aliases": [
+          "colher de servir rasa",
+          "colheres de servir rasas"
+        ],
+        "source": "TBCA, Food Research Center (FoRC), USP",
+        "sourceUrl": "https://www.tbca.net.br/base-dados/int_composicao_alimentos.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=G5hcpo5aYKBlA4nGX7EIdg%3D%3D",
+        "sourceNote": "A TBCA indica 45 g por colher de servir rasa."
+      }
+    ],
+    "sourceNote": "Farinha de mandioca torrada, pouco óleo de soja, cebola, alho e sal."
   }
 ]
