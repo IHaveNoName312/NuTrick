@@ -644,7 +644,9 @@
     "sourceCode": "91",
     "name": "Batata, inglesa, cozida",
     "aliases": [
-      "batata inglesa cozida"
+      "batata inglesa cozida",
+      "batata cozida",
+      "batatas cozidas"
     ],
     "category": "Tubérculos",
     "basis": 100,
@@ -1149,7 +1151,8 @@
     "sourceCode": "98",
     "name": "Beterraba, crua",
     "aliases": [
-      "beterraba crua"
+      "beterraba crua",
+      "beterraba crua ralada"
     ],
     "category": "Verduras e hortaliças",
     "kcal": 49,
