@@ -720,7 +720,7 @@ function parse(text){
     const quantities=[...rawPart.matchAll(/\d+(?:[,.]\d+)?\s*(?:g|ml)\b/gi)];
     if(quantities.length<=1)return [rawPart];
     return quantities.map((match,index)=>rawPart.slice(match.index,quantities[index+1]?.index??rawPart.length));
-  }).map(part=>normalizeText(part.replace(/(\d),(\d)/g,\x27$1.$2\x27))).filter(Boolean);
+  }).map(part=>normalizeText(part.replace(/(\d),(\d)/g,'$1.$2'))).filter(Boolean);
   for(const part of parts){
     let handled=false;
     const quantityMatch=part.match(/(\d+(?:[,.]\d+)?)\s*(g|ml)\b/i);
