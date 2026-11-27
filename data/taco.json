@@ -715,5 +715,319 @@
     "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
     "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
     "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-064",
+    "sourceCode": "64",
+    "name": "Abóbora, cabotian, cozida",
+    "aliases": [
+      "abóbora cabotian cozida",
+      "abóbora cabotiá cozida"
+    ],
+    "category": "Verduras e hortaliças",
+    "kcal": 48,
+    "protein": 1.4,
+    "carbs": 10.8,
+    "fat": 0.7,
+    "fiber": 2.5,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-070",
+    "sourceCode": "70",
+    "name": "Abobrinha, italiana, cozida",
+    "aliases": [
+      "abobrinha italiana cozida",
+      "abobrinha cozida"
+    ],
+    "category": "Verduras e hortaliças",
+    "kcal": 15,
+    "protein": 1.1,
+    "carbs": 3,
+    "fat": 0.2,
+    "fiber": 1.6,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-097",
+    "sourceCode": "97",
+    "name": "Beterraba, cozida",
+    "aliases": [
+      "beterraba cozida"
+    ],
+    "category": "Verduras e hortaliças",
+    "kcal": 32,
+    "protein": 1.3,
+    "carbs": 7.2,
+    "fat": 0.1,
+    "fiber": 1.9,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-098",
+    "sourceCode": "98",
+    "name": "Beterraba, crua",
+    "aliases": [
+      "beterraba crua"
+    ],
+    "category": "Verduras e hortaliças",
+    "kcal": 49,
+    "protein": 1.9,
+    "carbs": 11.1,
+    "fat": 0.1,
+    "fiber": 3.4,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-100",
+    "sourceCode": "100",
+    "name": "Brócolis, cozido",
+    "aliases": [
+      "brócolis cozido"
+    ],
+    "category": "Verduras e hortaliças",
+    "kcal": 25,
+    "protein": 2.1,
+    "carbs": 4.4,
+    "fat": 0.5,
+    "fiber": 3.4,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-107",
+    "sourceCode": "107",
+    "name": "Cebola, crua",
+    "aliases": [
+      "cebola crua"
+    ],
+    "category": "Verduras e hortaliças",
+    "kcal": 39,
+    "protein": 1.7,
+    "carbs": 8.9,
+    "fat": 0.1,
+    "fiber": 2.2,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-112",
+    "sourceCode": "112",
+    "name": "Chuchu, cozido",
+    "aliases": [
+      "chuchu cozido"
+    ],
+    "category": "Verduras e hortaliças",
+    "kcal": 19,
+    "protein": 0.4,
+    "carbs": 4.8,
+    "fat": 0,
+    "fiber": 1,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-115",
+    "sourceCode": "115",
+    "name": "Couve, manteiga, crua",
+    "aliases": [
+      "couve manteiga crua",
+      "couve crua"
+    ],
+    "category": "Verduras e hortaliças",
+    "kcal": 27,
+    "protein": 2.9,
+    "carbs": 4.3,
+    "fat": 0.5,
+    "fiber": 3.1,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-163",
+    "sourceCode": "163",
+    "name": "Abacate, cru",
+    "aliases": [
+      "abacate",
+      "abacate cru"
+    ],
+    "category": "Frutas",
+    "kcal": 96,
+    "protein": 1.2,
+    "carbs": 6,
+    "fat": 8.4,
+    "fiber": 6.3,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-164",
+    "sourceCode": "164",
+    "name": "Abacaxi, cru",
+    "aliases": [
+      "abacaxi",
+      "abacaxi cru"
+    ],
+    "category": "Frutas",
+    "kcal": 48,
+    "protein": 0.9,
+    "carbs": 12.3,
+    "fat": 0.1,
+    "fiber": 1,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-326",
+    "sourceCode": "326",
+    "name": "Carne bovina, acém moído, cozido",
+    "aliases": [
+      "acém moído cozido",
+      "carne moída de acém cozida"
+    ],
+    "category": "Carnes",
+    "kcal": 212,
+    "protein": 26.7,
+    "carbs": 0,
+    "fat": 10.9,
+    "fiber": null,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-327",
+    "sourceCode": "327",
+    "name": "Carne bovina, acém moído, cru",
+    "aliases": [
+      "acém moído cru",
+      "carne moída de acém crua"
+    ],
+    "category": "Carnes",
+    "kcal": 137,
+    "protein": 19.4,
+    "carbs": 0,
+    "fat": 5.9,
+    "fiber": null,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-409",
+    "sourceCode": "409",
+    "name": "Frango, peito, sem pele, cru",
+    "aliases": [
+      "peito de frango cru",
+      "frango peito cru"
+    ],
+    "category": "Carnes",
+    "kcal": 119,
+    "protein": 21.5,
+    "carbs": 0,
+    "fat": 3,
+    "fiber": null,
+    "sodium": null,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-449",
+    "sourceCode": "449",
+    "name": "Iogurte, natural, desnatado",
+    "aliases": [
+      "iogurte natural desnatado",
+      "iogurte desnatado natural"
+    ],
+    "category": "Laticínios",
+    "kcal": 41,
+    "protein": 3.8,
+    "carbs": 5.8,
+    "fat": 0.3,
+    "fiber": null,
+    "sodium": 60,
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
+  },
+  {
+    "id": "taco-490",
+    "sourceCode": "490",
+    "name": "Ovo de galinha, inteiro, frito",
+    "aliases": [
+      "ovo frito",
+      "ovos fritos"
+    ],
+    "category": "Ovos",
+    "kcal": 240,
+    "protein": 15.6,
+    "carbs": 1.2,
+    "fat": 18.6,
+    "fiber": null,
+    "sodium": 166,
+    "portionName": "ovo",
+    "portionAmount": 50,
+    "portionNote": "Porção de 50 g por unidade conforme o protocolo TACO; preparo inclui óleo e escorrimento em papel absorvente.",
+    "sourceNote": "Preparação de ovo frito descrita no protocolo TACO, com óleo; não representa necessariamente ovos feitos em outras quantidades de óleo ou outros métodos.",
+    "basis": 100,
+    "unit": "g",
+    "source": "TACO 4ª edição, NEPA/UNICAMP (2011)",
+    "sourceUrl": "https://nepa.unicamp.br/wp-content/uploads/sites/27/2023/10/taco_4_edicao_ampliada_e_revisada.pdf",
+    "sourceStatus": "reference"
   }
 ]
