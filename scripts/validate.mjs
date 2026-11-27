@@ -680,4 +680,8 @@ if (!html.includes("groupMealsByDate(st.meals)") ||
 if (!html.includes("loadTacoData()") || !html.includes("searchOFFProducts") || !html.includes("lookupOFFBarcode")) {
   throw new Error("Nutrition data integrations are not wired into the app");
 }
+if (!html.includes("const validationError=validateStateShape(st)") ||
+    !html.includes("Reabra o NuTrick para importar ou restaurar com segurança")) {
+  throw new Error("Backup export validation and stale-tab protection for import/restore must remain wired into the app");
+}
 console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; schema v0-to-v1 migration, original snapshot preservation, migration failure rollback, future-schema protection, legacy/versioned backup migration; date-grouped history and multi-day reload; parser, count-unit and Open Food Facts checks passed.`);
