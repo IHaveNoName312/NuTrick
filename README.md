@@ -23,6 +23,7 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Itens novos adicionados durante a edição usam a referência nutricional atual; itens antigos continuam preservando sua composição original.
 - Cadastro manual e pesquisa de alimentos.
 - Cálculo proporcional de nutrientes para gramas, mililitros e unidades, usando a base de referência declarada pelo alimento e sem arredondar valores intermediários.
+- Medidas caseiras por alimento, com opções como colher de sopa/chá, colher de servir, concha, fatia, copo e unidades; o seletor permite escolher uma equivalência documentada ou informar uma porção personalizada.
 - Validação de quantidades, unidades, referências nutricionais e nutrientes antes de realizar cálculos; valores negativos ou não finitos não são aceitos como dados nutricionais válidos.
 - Open Food Facts usa a base real dos campos nutricionais (por 100 g ou 100 ml), independentemente da unidade declarada para o tamanho da embalagem.
 - Conversão de energia de kJ para kcal; conversão de sódio em gramas para mg; quando só há sal, estimativa de sódio equivalente a 40% do sal. Um valor direto de sódio tem prioridade sobre o valor derivado do sal.
@@ -32,6 +33,7 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Preparos e qualificadores nutricionais avaliados por ingrediente, sem deixar que palavras como integral, grelhado ou cru alterem a classificação de outros alimentos da mesma refeição.
 - Ingredientes não reconhecidos ou sem quantidade/preparo suficiente geram pedidos de esclarecimento, em vez de desaparecerem silenciosamente de uma refeição parcialmente identificada.
 - Porções contadas de ovo cozido e produtos cadastrados com porção personalizada podem ser interpretadas por unidade; produtos específicos salvos têm prioridade sobre correspondências genéricas da TACO.
+- O registro inteligente reconhece medidas caseiras específicas, por exemplo colheres de arroz, fatias de mamão, bananas e copos de iogurte; medidas genéricas sem alimento informado não são convertidas por suposição.
 - Perguntas de esclarecimento e confirmação antes de salvar estimativas.
 - Sugestões simples de refeições recorrentes.
 - Registro de peso e cintura.
@@ -66,6 +68,7 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Valores identificados como **NA** ou sem resultado permanecem como dados ausentes, e não são convertidos em zero. A indicação **Tr** (traço) é tratada como zero numérico no cálculo e deve ser entendida como quantidade abaixo do limite de quantificação, não como prova de ausência.
 - A TACO não informa valores completos de energia e macronutrientes para algumas formas de leite, incluindo leite integral. Por isso, o NuTrick não inventa esses valores: use a busca de marca no Open Food Facts ou cadastre os números do rótulo.
 - O café aparece em ml por uma aproximação de densidade de 1 g/ml; a TACO apresenta a composição por 100 g. Porções caseiras também podem variar, então pese o alimento quando precisar de mais precisão.
+- As equivalências caseiras usam o Anexo C do Guia Alimentar para a População Brasileira (Ministério da Saúde, 2005) e, para porções de referência como aveia, açúcar e iogurte, o Anexo V da Instrução Normativa Anvisa nº 75/2020. São médias orientativas: tamanho, corte, utensílio e preparo alteram o peso real. O NuTrick não converte uma colher ou xícara genérica em gramas sem uma referência específica para o alimento.
 - Produtos pesquisados no **Open Food Facts** vêm de uma base colaborativa. Confira os dados com o rótulo da embalagem; produtos sem calorias, proteínas, carboidratos ou gorduras identificados não podem ser adicionados ao diário.
 - Cadastros manuais dependem das informações digitadas pelo usuário.
 - A interpretação de texto é local e baseada em regras, **não é uma IA conectada**.
