@@ -43,12 +43,13 @@ const tacoFoods = taco.map(food => ({ ...food, base: food.basis, sourceStatus: "
 const fakeStorage = {
   data: new Map(),
   failKey: null,
+  failSetKey: null,
   getItem(key) {
     if (this.failKey === key) throw new Error("Simulated storage read failure");
     return this.data.has(key) ? this.data.get(key) : null;
   },
   setItem(key, value) {
-    if (this.failKey === key) throw new Error("Simulated storage write failure");
+    if (this.failKey === key || this.failSetKey === key) throw new Error("Simulated storage write failure");
     this.data.set(key, String(value));
   },
   removeItem(key) {
@@ -499,18 +500,18 @@ if (fakeStorage.getItem("nutrick-v1") !== currentSchemaRaw) {
   throw new Error("Loading current schema data must not trigger another migration or rewrite");
 }
 fakeStorage.data = new Map([["nutrick-v1", originalMultiDayRaw]]);
-fakeStorage.failKey = "nutrick-pre-migration-v1";
+fakeStorage.failSetKey = "nutrick-pre-migration-v1";
 const blockedSnapshotMigration = loadStateForTest();
-fakeStorage.failKey = null;
+fakeStorage.failSetKey = null;
 if (fakeStorage.getItem("nutrick-v1") !== originalMultiDayRaw ||
-    !isStorageBlockedForTest() || blockedSnapshotMigration.meals.length !== 2) {
+    !isStorageBlockedForTest() || blockedSnapshotMigration.meals.length !== 2 || getMigrationBackupForTest() !== originalMultiDayRaw) {
   throw new Error("Migration must abort without touching source data when the safety snapshot cannot be written");
 }
 setStorageProtectionForTest(false);
 fakeStorage.data = new Map([["nutrick-v1", originalMultiDayRaw]]);
-fakeStorage.failKey = "nutrick-v1";
+fakeStorage.failSetKey = "nutrick-v1";
 const blockedMainMigration = loadStateForTest();
-fakeStorage.failKey = null;
+fakeStorage.failSetKey = null;
 if (fakeStorage.getItem("nutrick-v1") !== originalMultiDayRaw ||
     fakeStorage.getItem("nutrick-pre-migration-v1") !== originalMultiDayRaw ||
     !isStorageBlockedForTest() || blockedMainMigration.meals.length !== 2) {
