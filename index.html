@@ -717,7 +717,7 @@ function parse(text){
   };
   const ask=message=>questions.push(message);
   const parts=String(text).split(/[,;+]|\s+e\s+/i).flatMap(rawPart=>{
-    const quantities=[...rawPart.matchAll(/\\d+(?:[,.]\\d+)?\\s*(?:g|ml)\\b/gi)];
+    const quantities=[...rawPart.matchAll(/\d+(?:[,.]\d+)?\s*(?:g|ml)\b/gi)];
     if(quantities.length<=1)return [rawPart];
     return quantities.map((match,index)=>rawPart.slice(match.index,quantities[index+1]?.index??rawPart.length));
   }).map(part=>normalizeText(part)).filter(Boolean);
