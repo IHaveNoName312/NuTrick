@@ -26,6 +26,10 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Open Food Facts usa a base real dos campos nutricionais (por 100 g ou 100 ml), independentemente da unidade declarada para o tamanho da embalagem.
 - Conversão de energia de kJ para kcal; conversão de sódio em gramas para mg; quando só há sal, estimativa de sódio equivalente a 40% do sal. Um valor direto de sódio tem prioridade sobre o valor derivado do sal.
 - Registro por texto e botão **Analisar macros**.
+- Interpretador de refeições que separa ingredientes por vírgulas, ponto e vírgula, sinal de adição ou conjunção, e também identifica quantidades consecutivas quando os ingredientes são escritos sem separadores.
+- Preparos e qualificadores nutricionais avaliados por ingrediente, sem deixar que palavras como integral, grelhado ou cru alterem a classificação de outros alimentos da mesma refeição.
+- Ingredientes não reconhecidos ou sem quantidade/preparo suficiente geram pedidos de esclarecimento, em vez de desaparecerem silenciosamente de uma refeição parcialmente identificada.
+- Porções contadas de ovo cozido e produtos cadastrados com porção personalizada podem ser interpretadas por unidade; produtos específicos salvos têm prioridade sobre correspondências genéricas da TACO.
 - Perguntas de esclarecimento e confirmação antes de salvar estimativas.
 - Sugestões simples de refeições recorrentes.
 - Registro de peso e cintura.
