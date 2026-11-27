@@ -10,6 +10,18 @@ const scriptEnd = html.indexOf("</script>", scriptStart);
 if (scriptStart < 0 || scriptEnd < 0) throw new Error("Could not locate inline app script");
 new vm.Script(html.slice(scriptStart + "<script>".length, scriptEnd), { filename: "NuTrick-inline.js" });
 
+if (!html.includes('[data-theme="dark"]') ||
+    !html.includes('--card:#18231c') ||
+    !html.includes('id="themeToggle"') ||
+    !html.includes('localStorage.getItem("nutrick-theme-v1")') ||
+    !html.includes('localStorage.setItem(THEME_KEY,next)') ||
+    !html.includes('prefers-color-scheme: dark') ||
+    !html.includes('aria-pressed') ||
+    !html.includes('background:var(--card);color:var(--ink)')) {
+  throw new Error("Dark mode must support accessible manual switching, saved preference, system theme detection and themed dialogs");
+}
+
+
 if (!Array.isArray(taco) || taco.length < 10) throw new Error("TACO dataset is missing or unexpectedly small");
 const ids = new Set();
 for (const food of taco) {
@@ -987,16 +999,16 @@ const workerContext = vm.createContext({
   fetch: request => workerFetch(request)
 });
 new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
-if (!serviceWorker.includes('nutrick-v0.6.10-cache')) {
+if (!serviceWorker.includes('nutrick-v0.6.11-cache')) {
   throw new Error("Service worker cache version must be bumped when the app shell changes");
 }
 let installWait = null;
 workerListeners.get("install")({ waitUntil(promise) { installWait = promise; } });
 await installWait;
-if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.10-cache")) {
+if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.11-cache")) {
   throw new Error("Service worker install must precache the app shell before activation");
 }
-const installedEntries = workerCacheData.get("nutrick-v0.6.10-cache");
+const installedEntries = workerCacheData.get("nutrick-v0.6.11-cache");
 for (const path of ["index.html", "manifest.webmanifest", "data/taco.json"]) {
   if (![...installedEntries.keys()].some(key => key.endsWith("/" + path))) {
     throw new Error("Offline app shell is missing a required asset: " + path);
@@ -1022,7 +1034,7 @@ async function dispatchWorkerFetch(request) {
 const appRequest = { method: "GET", url: appScope + "index.html", mode: "navigate" };
 const onlineResponse = await dispatchWorkerFetch(appRequest);
 if (!onlineResponse || onlineResponse.body !== "network response" ||
-    (await workerCaches.open("nutrick-v0.6.10-cache")).match(appRequest) === null) {
+    (await workerCaches.open("nutrick-v0.6.11-cache")).match(appRequest) === null) {
   throw new Error("Successful online responses must be cached for later offline use");
 }
 workerFetch = async () => { throw new Error("Simulated offline network"); };
