@@ -389,7 +389,7 @@ let foodSelection=[];
 let editingMealId=null;
 let editDraft=[];
 let editSearchResults=[];
-function normalizeText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/(\d)[,.](\d)/g,'$1§$2').replace(/[^a-z0-9]+/g,' ').replace(/§/g,'.').trim()}
+function normalizeText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/(\d)[,.](\d)/g,'$1§$2').replace(/[^a-z0-9§]+/g,' ').replace(/§/g,'.').trim()}
 async function loadTacoData(){
   try{
     const response=await fetch('./data/taco.json');
