@@ -898,6 +898,8 @@ window.addEventListener('storage',event=>{
 });
 $('#export').onclick=()=>{
   try{
+    const validationError=validateStateShape(st);
+    if(validationError)throw new Error('Os dados atuais não passaram pela validação de backup: '+validationError);
     const backup={app:'NuTrick',formatVersion:BACKUP_FORMAT_VERSION,exportedAt:new Date().toISOString(),data:st};
     downloadText(JSON.stringify(backup,null,2),'nutrick-backup.json','application/json');
     toast('Backup exportado.');
