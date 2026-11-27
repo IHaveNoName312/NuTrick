@@ -603,7 +603,8 @@ function mealHtml(m){
   return '<div class="meal"><b>'+esc(m.type)+'</b><span class="right">'+formatNutrientTotal(t,'kcal','kcal')+'</span><small>'+m.items.map(i=>esc(i.name)+' ('+esc(formatQuantity(i))+')').join(' · ')+'</small><button class="smallbtn" data-edit-meal="'+esc(m.id)+'">Editar</button> <button class="smallbtn" data-delete="'+esc(m.id)+'">Excluir</button></div>';
 }
 function findFoodForMealItem(item){
-  return st.foods.find(f=>f.id===item.foodId) || st.foods.find(f=>normalizeText(f.name)===normalizeText(item.name) && f.unit===item.unit) || null;
+  // An exact ID match is required. A same-name food may be a different product or formulation.
+  return st.foods.find(f=>f.id===item.foodId) || null;
 }
 function renderMealEditorItems(){
   $('#editMealItems').innerHTML=editDraft.length?editDraft.map((d,i)=>'<div class="result"><div style="flex:1;min-width:0"><b>'+esc(d.name)+'</b><small>'+esc(formatQuantity(d))+' · '+(d.food?esc(d.food.source||'Base nutricional'):'registro anterior')+(d.unit==='un'?' · 1 '+esc(d.portionName||'unidade')+' = '+fmt(d.portionAmount)+' '+esc(d.baseUnit||'g'):'')+'</small></div><div><input type="number" min="0.1" step="0.1" value="'+esc(d.qty)+'" data-edit-qty="'+i+'" aria-label="Quantidade de '+esc(d.name)+'" style="width:88px">'+(d.unit==='un'?'<label class="notice">g/ml por unidade<input type="number" min="0.1" step="0.1" value="'+esc(d.portionAmount||'')+'" data-edit-portion="'+i+'" style="width:88px;padding:7px"></label>':'')+'</div><button class="smallbtn" data-edit-remove="'+i+'">Remover</button></div>').join(''):'<div class="empty">Nenhum alimento nesta refeição. Pesquise e adicione pelo menos um antes de salvar.</div>';
@@ -630,6 +631,34 @@ function closeMealEditor(){
   $('#mealEditor').setAttribute('aria-hidden','true');
   editingMealId=null;editDraft=[];editSearchResults=[];
 }
+function rescaleMealItemSnapshot(baseItem,qty,portionAmount,portionName){
+  if(!baseItem||!Number.isFinite(qty)||qty<=0)throw new Error('Não foi possível ajustar este item sem uma referência nutricional válida.');
+  const unit=baseItem.unit||'g';
+  const oldQty=Number(baseItem.qty);
+  if(!Number.isFinite(oldQty)||oldQty<=0)throw new Error('A quantidade original deste item é inválida.');
+  let oldBaseQuantity=Number(baseItem.baseQuantity);
+  if(!Number.isFinite(oldBaseQuantity)||oldBaseQuantity<=0){
+    if(unit==='un'){
+      const oldPortion=Number(baseItem.portionAmount);
+      if(!Number.isFinite(oldPortion)||oldPortion<=0)throw new Error('Este registro antigo não possui o peso por unidade necessário para ajustar a quantidade com segurança.');
+      oldBaseQuantity=oldQty*oldPortion;
+    }else oldBaseQuantity=oldQty;
+  }
+  const nextPortion=unit==='un'?Number(portionAmount===null||portionAmount===undefined?baseItem.portionAmount:portionAmount):null;
+  if(unit==='un'&&(!Number.isFinite(nextPortion)||nextPortion<=0))throw new Error('Informe quanto pesa ou mede uma unidade.');
+  const nextBaseQuantity=unit==='un'?qty*nextPortion:qty;
+  const ratio=nextBaseQuantity/oldBaseQuantity;
+  if(!Number.isFinite(ratio)||ratio<=0)throw new Error('Não foi possível calcular a nova quantidade com segurança.');
+  const scaled={...baseItem,qty,unit,baseQuantity:nextBaseQuantity};
+  if(unit==='un'){
+    scaled.portionAmount=nextPortion;
+    scaled.portionName=portionName||baseItem.portionName||'unidade';
+  }
+  ['kcal','protein','carbs','fat','fiber','sodium'].forEach(key=>{
+    scaled[key]=baseItem[key]===null||baseItem[key]===undefined?null:Number(baseItem[key])*ratio;
+  });
+  return scaled;
+}
 function saveMealEdits(){
   const meal=st.meals.find(m=>String(m.id)===String(editingMealId));
   if(!meal)return closeMealEditor();
@@ -639,16 +668,18 @@ function saveMealEdits(){
     const field=$('#editMealItems').querySelector('[data-edit-qty="'+i+'"]');
     const qty=Number(field?field.value:draft.qty);
     if(!Number.isFinite(qty)||qty<=0){toast('Confira as quantidades. Use valores maiores que zero.');return}
-    if(draft.food){
-      const portionField=$('#editMealItems').querySelector('[data-edit-portion="'+i+'"]');
-      const portionAmount=draft.unit==='un'?Number(portionField?portionField.value:draft.portionAmount):null;
-      if(draft.unit==='un'&&(!Number.isFinite(portionAmount)||portionAmount<=0)){toast('Informe o peso/volume de uma unidade.');return}
+    const portionField=$('#editMealItems').querySelector('[data-edit-portion="'+i+'"]');
+    const portionAmount=draft.unit==='un'?Number(portionField?portionField.value:draft.portionAmount):null;
+    if(draft.unit==='un'&&(!Number.isFinite(portionAmount)||portionAmount<=0)){toast('Informe o peso/volume de uma unidade.');return}
+    if(draft.baseItem){
+      // Existing diary entries keep their original nutrient snapshot, even if the catalog changes.
+      updated.push(rescaleMealItemSnapshot(draft.baseItem,qty,portionAmount,draft.portionName));
+    }else if(draft.food){
+      // Only newly added items are calculated from the current food reference.
       updated.push(calc(draft.food,qty,draft.unit,draft.unit==='un'?{amount:portionAmount,name:draft.portionName||'unidade'}:null));
-    }
-    else{
-      const old=draft.baseItem,ratio=qty/(Number(old.qty)||qty),scaled={...old,qty,unit:old.unit||draft.unit};
-      ['kcal','protein','carbs','fat','fiber','sodium'].forEach(key=>{scaled[key]=old[key]===null||old[key]===undefined?null:Number(old[key])*ratio});
-      updated.push(scaled);
+    }else{
+      toast('Não foi possível identificar a referência nutricional deste novo item.');
+      return;
     }
   }
   if(!updated.length){toast('Adicione pelo menos um alimento antes de salvar.');return}
@@ -755,7 +786,7 @@ document.addEventListener('click',e=>{
     if(!food||!Number.isFinite(qty)||qty<=0){toast('Informe uma quantidade válida.');return}
     if(measure==='un'&&(!Number.isFinite(portionAmount)||portionAmount<=0)){toast('Informe quanto pesa ou mede uma unidade.');return}
     if(measure==='un'){st.portions[food.id]={amount:portionAmount,name:portionName};if(!save()){render();return}}
-    const existing=editDraft.find(x=>x.food&&x.food.id===food.id&&x.unit===measure&&Number(x.portionAmount||0)===Number(measure==='un'?portionAmount:0));
+    const existing=editDraft.find(x=>!x.baseItem&&x.food&&x.food.id===food.id&&x.unit===measure&&Number(x.portionAmount||0)===Number(measure==='un'?portionAmount:0));
     if(existing)existing.qty+=qty;
     else editDraft.push({food,baseItem:null,name:food.name,qty,unit:measure,portionAmount:measure==='un'?portionAmount:null,portionName:measure==='un'?portionName:null,baseUnit:food.unit});
     renderMealEditorItems();toast('Alimento adicionado à edição.');
