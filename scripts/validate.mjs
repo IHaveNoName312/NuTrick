@@ -5,9 +5,13 @@ const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const taco = JSON.parse(await readFile(new URL("../data/taco.json", import.meta.url), "utf8"));
 const serviceWorker = await readFile(new URL("../sw.js", import.meta.url), "utf8");
 
-const scriptStart = html.indexOf("<script>");
+const bootstrapStart = html.indexOf("<script>");
+const bootstrapEnd = html.indexOf("</script>", bootstrapStart);
+if (bootstrapStart < 0 || bootstrapEnd < 0) throw new Error("Could not locate theme bootstrap script");
+new vm.Script(html.slice(bootstrapStart + "<script>".length, bootstrapEnd), { filename: "NuTrick-theme-bootstrap.js" });
+const scriptStart = html.lastIndexOf("<script>");
 const scriptEnd = html.indexOf("</script>", scriptStart);
-if (scriptStart < 0 || scriptEnd < 0) throw new Error("Could not locate inline app script");
+if (scriptStart <= bootstrapStart || scriptEnd < 0) throw new Error("Could not locate inline app script");
 new vm.Script(html.slice(scriptStart + "<script>".length, scriptEnd), { filename: "NuTrick-inline.js" });
 
 if (!html.includes('[data-theme="dark"]') ||
