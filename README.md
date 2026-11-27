@@ -23,6 +23,11 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Sugestões simples de refeições recorrentes.
 - Registro de peso e cintura.
 - Exportação de backup JSON versionado e importação com validação estrutural antes de substituir os dados.
+- Validação do estado completo antes de exportar um backup, evitando gerar arquivos que o próprio aplicativo não conseguiria restaurar.
+- Importação e restauração protegidas contra abas desatualizadas: se outra aba já gravou dados novos, a operação é bloqueada em vez de sobrescrever o estado mais recente.
+- Ponto de restauração transacional com cópia alternativa: falhas ao gravar o estado principal ou finalizar o ponto de restauração não descartam a cópia anterior.
+- Testes de ida e volta com refeições, água, medidas e snapshots nutricionais de vários dias, inclusive itens históricos cujo alimento não existe mais no catálogo atual.
+- Primeira gravação validada em instalações novas, mesmo quando ainda não existe uma chave de armazenamento local.
 - Versão interna do esquema de dados independente da versão do arquivo de backup, com migração automática e explícita de dados legados sem reescrever refeições, medidas ou hidratação.
 - Cópia exata do armazenamento anterior à migração, disponível para download na área **Dados e privacidade**.
 - Migração transacional: se a cópia de segurança ou a gravação da nova estrutura falhar, o armazenamento original permanece intacto e o aplicativo entra em modo de proteção.
