@@ -170,6 +170,103 @@ assertFood("100 g de tapioca com manteiga", "taco-551", 348);
 assertNeedsClarification("300 ml de leite integral", "leite");
 assertNeedsClarification("duas fatias de pão de forma Wickbold", "pão");
 
+const mixedLunch = parseForTest("150 g de arroz branco, 100 g de frango grelhado");
+if (mixedLunch.questions.length ||
+    mixedLunch.items.map(item => item.foodId).join(",") !== "taco-003,taco-410" ||
+    mixedLunch.items[0].qty !== 150 || mixedLunch.items[1].qty !== 100) {
+  throw new Error("A meal with rice and grilled chicken must identify both foods independently");
+}
+const adjacentIngredients = parseForTest("150 g arroz branco 100 g frango grelhado");
+if (adjacentIngredients.questions.length ||
+    adjacentIngredients.items.map(item => item.foodId).join(",") !== "taco-003,taco-410") {
+  throw new Error("Adjacent quantities without commas or conjunctions must be split into separate ingredients");
+}
+const localQualifier = parseForTest("100 g arroz branco e 50 g pão integral");
+if (localQualifier.questions.length ||
+    localQualifier.items.map(item => item.foodId).join(",") !== "taco-003,taco-052") {
+  throw new Error("The word integral in one ingredient must not change the classification of rice in another ingredient");
+}
+const countedEggs = parseForTest("2 ovos cozidos");
+if (countedEggs.questions.length || countedEggs.items.length !== 1 ||
+    countedEggs.items[0].foodId !== "taco-488" || countedEggs.items[0].unit !== "un" ||
+    countedEggs.items[0].qty !== 2 || Math.abs(countedEggs.items[0].kcal - 146) > 0.001) {
+  throw new Error("Two cooked eggs must be recognized as two countable 50g portions");
+}
+const eggAndRice = parseForTest("2 ovos e 100 g de arroz branco");
+if (!eggAndRice.questions.some(question => question.toLowerCase().includes("preparo")) ||
+    !eggAndRice.items.some(item => item.foodId === "taco-003") ||
+    eggAndRice.items.some(item => item.foodId === "taco-488")) {
+  throw new Error("An egg without a specified preparation must not inherit the preparation of another ingredient");
+}
+const rawBeefAndChicken = parseForTest("100 g frango grelhado e 100 g alcatra crua");
+if (!rawBeefAndChicken.items.some(item => item.foodId === "taco-410") ||
+    rawBeefAndChicken.items.some(item => item.foodId === "taco-370") ||
+    !rawBeefAndChicken.questions.some(question => question.toLowerCase().includes("alcatra"))) {
+  throw new Error("A grilled preparation in one ingredient must not validate raw beef in another ingredient");
+}
+const unknownIngredient = parseForTest("30 g chia e 100 g arroz branco");
+if (!unknownIngredient.items.some(item => item.foodId === "taco-003") ||
+    !unknownIngredient.questions.some(question => question.toLowerCase().includes("chia"))) {
+  throw new Error("Unrecognized ingredients must require clarification instead of being silently omitted from a partially recognized meal");
+}
+const decimalQuantity = parseForTest("30,5 g de aveia");
+if (decimalQuantity.questions.length || decimalQuantity.items.length !== 1 ||
+    Math.abs(decimalQuantity.items[0].qty - 30.5) > 0.001 ||
+    Math.abs(decimalQuantity.items[0].kcal - 120.17) > 0.001) {
+  throw new Error("Decimal comma quantities must be converted precisely");
+}
+const testOFFFood = {
+  id: "off-parser-test",
+  name: "Leite integral marca teste",
+  brand: "Marca Teste",
+  base: 100,
+  unit: "ml",
+  kcal: 62,
+  protein: 3.1,
+  carbs: 4.7,
+  fat: 3.2,
+  fiber: null,
+  sodium: 45,
+  source: "Open Food Facts",
+  sourceStatus: "openfoodfacts"
+};
+const foodsBeforeParserTest = testContext.st.foods;
+testContext.st.foods = [...foodsBeforeParserTest, testOFFFood];
+const brandedProductMeal = parseForTest("300 ml leite integral marca teste e 50 g arroz branco");
+if (brandedProductMeal.questions.length || brandedProductMeal.items.length !== 2 ||
+    brandedProductMeal.items[0].foodId !== testOFFFood.id ||
+    brandedProductMeal.items[1].foodId !== "taco-003" ||
+    Math.abs(brandedProductMeal.items[0].kcal - 186) > 0.001) {
+  throw new Error("A saved branded product must be recognized alongside TACO foods without duplication or wrong-unit conversion");
+}
+testContext.st.foods = foodsBeforeParserTest;
+const savedBrandFood = {
+  id: "off-rice-test",
+  name: "Arroz branco marca teste",
+  brand: "Marca Teste",
+  aliases: ["arroz branco"],
+  base: 100,
+  unit: "g",
+  kcal: 150,
+  protein: 3,
+  carbs: 30,
+  fat: 1,
+  source: "Open Food Facts",
+  sourceStatus: "openfoodfacts"
+};
+testContext.st.foods = [...foodsBeforeParserTest, savedBrandFood];
+const brandedRiceMeal = parseForTest("100 g arroz branco marca teste");
+testContext.st.foods = foodsBeforeParserTest;
+if (brandedRiceMeal.questions.length || brandedRiceMeal.items.length !== 1 ||
+    brandedRiceMeal.items[0].foodId !== savedBrandFood.id) {
+  throw new Error("A specific saved food must take precedence over a generic TACO match and must not be double-counted");
+}
+const missingAmount = parseForTest("arroz branco e frango grelhado");
+if (missingAmount.items.length !== 0 || missingAmount.questions.length < 2) {
+  throw new Error("Ingredients without quantities must be individually clarified instead of silently ignored");
+}
+
+
 const eggFood = tacoFoods.find(food => food.id === "taco-488");
 const threeEggs = testContext.calcForTest(eggFood, 3, "un");
 if (threeEggs.unit !== "un" || threeEggs.qty !== 3 || threeEggs.baseQuantity !== 150 || Math.abs(threeEggs.kcal - 219) > 0.01) {
