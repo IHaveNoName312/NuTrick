@@ -26,7 +26,7 @@ if (!html.includes('[data-theme="dark"]') ||
 }
 
 
-if (!Array.isArray(taco) || taco.length < 10) throw new Error("TACO dataset is missing or unexpectedly small");
+if (!Array.isArray(taco) || taco.length !== 34) throw new Error("TACO dataset must contain the expected 34 validated foods");
 const ids = new Set();
 for (const food of taco) {
   if (!food.id || ids.has(food.id)) throw new Error(`Missing or duplicate food id: ${food.id}`);
@@ -48,6 +48,19 @@ const verifiedSodium = new Map([
   ["410", 50],
   ["461", 31],
   ["551", 158],
+  ["88", 3],
+  ["91", 2],
+  ["109", 8],
+  ["110", 3],
+  ["78", 3],
+  ["161", 5],
+  ["222", 0],
+  ["225", 3],
+  ["448", 52],
+  ["408", 36],
+  ["376", 49],
+  ["369", 43],
+  ["577", 1],
 ]);
 for (const [code, expected] of verifiedSodium) {
   const food = taco.find(entry => entry.sourceCode === code);
@@ -183,6 +196,21 @@ assertFood("100 g de batata frita", "taco-093", 267);
 assertFood("100 g de queijo minas frescal", "taco-461", 264);
 assertFood("100 g de cuscuz de milho cozido", "taco-533", 113);
 assertFood("100 g de tapioca com manteiga", "taco-551", 348);
+assertFood("100 g batata doce cozida", "taco-088", 77);
+assertFood("100 g batata inglesa cozida", "taco-091", 52);
+assertFood("100 g cenoura cozida", "taco-109", 30);
+assertFood("100 g cenoura crua", "taco-110", 34);
+assertFood("100 g alface crespa crua", "taco-078", 11);
+assertFood("100 g tomate cru", "taco-161", 21);
+assertFood("100 g maçã fuji", "taco-222", 56);
+assertFood("100 g mamão formosa", "taco-225", 45);
+assertFood("100 g iogurte natural", "taco-448", 51);
+assertFood("100 g frango cozido", "taco-408", 163);
+assertFood("100 g patinho cru", "taco-376", 133);
+assertFood("100 g miolo de alcatra cru", "taco-369", 163);
+assertFood("100 g lentilha cozida", "taco-577", 93);
+assertNeedsClarification("100 g de patinho", "patinho");
+assertNeedsClarification("100 g de alcatra", "alcatra");
 assertNeedsClarification("300 ml de leite integral", "leite");
 assertNeedsClarification("duas fatias de pão de forma Wickbold", "pão");
 
@@ -216,9 +244,10 @@ if (!eggAndRice.questions.some(question => question.toLowerCase().includes("prep
 }
 const rawBeefAndChicken = parseForTest("100 g frango grelhado e 100 g alcatra crua");
 if (!rawBeefAndChicken.items.some(item => item.foodId === "taco-410") ||
+    !rawBeefAndChicken.items.some(item => item.foodId === "taco-369") ||
     rawBeefAndChicken.items.some(item => item.foodId === "taco-370") ||
-    !rawBeefAndChicken.questions.some(question => question.toLowerCase().includes("alcatra"))) {
-  throw new Error("A grilled preparation in one ingredient must not validate raw beef in another ingredient");
+    rawBeefAndChicken.questions.some(question => question.toLowerCase().includes("alcatra"))) {
+  throw new Error("A raw beef reference must be selected from its own ingredient qualifier without inheriting grilled preparation from chicken");
 }
 const unknownIngredient = parseForTest("30 g chia e 100 g arroz branco");
 if (!unknownIngredient.items.some(item => item.foodId === "taco-003") ||
@@ -1003,16 +1032,16 @@ const workerContext = vm.createContext({
   fetch: request => workerFetch(request)
 });
 new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
-if (!serviceWorker.includes('nutrick-v0.6.11-cache')) {
+if (!serviceWorker.includes('nutrick-v0.6.12-cache')) {
   throw new Error("Service worker cache version must be bumped when the app shell changes");
 }
 let installWait = null;
 workerListeners.get("install")({ waitUntil(promise) { installWait = promise; } });
 await installWait;
-if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.11-cache")) {
+if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.12-cache")) {
   throw new Error("Service worker install must precache the app shell before activation");
 }
-const installedEntries = workerCacheData.get("nutrick-v0.6.11-cache");
+const installedEntries = workerCacheData.get("nutrick-v0.6.12-cache");
 for (const path of ["index.html", "manifest.webmanifest", "data/taco.json"]) {
   if (![...installedEntries.keys()].some(key => key.endsWith("/" + path))) {
     throw new Error("Offline app shell is missing a required asset: " + path);
@@ -1038,7 +1067,7 @@ async function dispatchWorkerFetch(request) {
 const appRequest = { method: "GET", url: appScope + "index.html", mode: "navigate" };
 const onlineResponse = await dispatchWorkerFetch(appRequest);
 if (!onlineResponse || onlineResponse.body !== "network response" ||
-    (await workerCaches.open("nutrick-v0.6.11-cache")).match(appRequest) === null) {
+    (await workerCaches.open("nutrick-v0.6.12-cache")).match(appRequest) === null) {
   throw new Error("Successful online responses must be cached for later offline use");
 }
 workerFetch = async () => { throw new Error("Simulated offline network"); };
