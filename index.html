@@ -795,7 +795,7 @@ function parse(text){
     }
 
     // New catalog entries use explicit aliases so each preparation is matched independently.
-    const supportedNewTacoIds=new Set(['taco-088','taco-091','taco-109','taco-110','taco-078','taco-161','taco-222','taco-225','taco-448','taco-408','taco-376','taco-369','taco-577']);
+    const supportedNewTacoIds=new Set(['taco-088','taco-091','taco-109','taco-110','taco-078','taco-161','taco-222','taco-225','taco-448','taco-408','taco-376','taco-369','taco-577','taco-064','taco-070','taco-097','taco-098','taco-100','taco-107','taco-112','taco-115','taco-163','taco-164','taco-326','taco-327','taco-409','taco-449','taco-490']);
     const tacoMatches=st.foods.filter(food=>supportedNewTacoIds.has(food.id)&&Array.isArray(food.aliases))
       .flatMap(food=>food.aliases.map(alias=>({food,alias:normalizeText(alias)})))
       .filter(match=>match.alias&&(' '+part+' ').includes(' '+match.alias+' '))
@@ -806,7 +806,18 @@ function parse(text){
       if(bestFoodIds.length>1){
         ask('Encontrei mais de uma referência para "'+part+'". Informe o tipo ou preparo com mais detalhes.');
       }else if(quantity===null||!quantityUnit){
-        ask(best.food.name+': informe a quantidade em '+best.food.unit+'.');
+        if(best.food.id==='taco-490'){
+          const countMatch=part.match(/(\d+(?:[,.]\d+)?)\s*(?:unidades?\s+de\s+)?ovos?\b/);
+          const portion=portionFor(best.food);
+          if(countMatch&&portion){
+            try{items.push(calc(best.food,Number(countMatch[1].replace(',','.')),'un',portion))}
+            catch(error){ask(error.message||('Não foi possível calcular '+best.food.name+'.'))}
+          }else{
+            ask('Ovo frito: informe a quantidade em gramas ou unidades.');
+          }
+        }else{
+          ask(best.food.name+': informe a quantidade em '+best.food.unit+'.');
+        }
       }else{
         try{items.push(calc(best.food,quantity,quantityUnit))}
         catch(error){ask(error.message||('Não foi possível calcular '+best.food.name+'.'))}
