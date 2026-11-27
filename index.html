@@ -763,11 +763,11 @@ function parse(text){
       ask('Leite: a TACO disponível não traz uma composição completa para este item. Busque a marca no Open Food Facts ou cadastre os dados do rótulo na aba Alimentos.');
     }else if(/\barroz\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Arroz: informe a quantidade em gramas.');
-      else if(/\bcru\b/.test(part))ask('Arroz cru: a referência inicial disponível é de arroz cozido. Informe o alimento já cozido ou cadastre a referência do arroz cru.');
+      else if(/\bcru(?:a)?\b/.test(part))ask('Arroz cru: a referência inicial disponível é de arroz cozido. Informe o alimento já cozido ou cadastre a referência do arroz cru.');
       else{add(/\bintegral\b/.test(part)?'taco-001':'taco-003',quantity,'g');handled=true}
     }else if(/\bfeijao\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Feijão: informe a quantidade em gramas.');
-      else if(/\bcru\b/.test(part))ask('Feijão cru: a referência inicial disponível é de feijão cozido.');
+      else if(/\bcru(?:a)?\b/.test(part))ask('Feijão cru: a referência inicial disponível é de feijão cozido.');
       else{add(/\bpreto\b/.test(part)?'taco-567':'taco-561',quantity,'g');handled=true}
     }else if(/\baveia\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Aveia: informe a quantidade em gramas.');
@@ -794,22 +794,22 @@ function parse(text){
       else{add(/\bprata\b/.test(part)?'taco-182':'taco-179',quantity,'g');handled=true}
     }else if(/\bpatinho\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Patinho: informe a quantidade em gramas.');
-      else if(/\bcru\b/.test(part))ask('Patinho: a referência disponível é grelhada. Informe o peso após grelhar ou cadastre o alimento cru.');
-      else if(/\bgrelhad\b/.test(part)){add('taco-377',quantity,'g');handled=true}
+      else if(/\bcru(?:a)?\b/.test(part))ask('Patinho: a referência disponível é grelhada. Informe o peso após grelhar ou cadastre o alimento cru.');
+      else if(/grelhad/.test(part)){add('taco-377',quantity,'g');handled=true}
       else ask('Patinho: informe se o peso é do alimento grelhado ou cru.');
     }else if(/\balcatra\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Alcatra: informe a quantidade em gramas.');
-      else if(/\bcru\b/.test(part))ask('Alcatra: a referência disponível é grelhada. Informe o peso após grelhar ou cadastre o alimento cru.');
-      else if(/\bgrelhad\b/.test(part)){add('taco-370',quantity,'g');handled=true}
+      else if(/\bcru(?:a)?\b/.test(part))ask('Alcatra: a referência disponível é grelhada. Informe o peso após grelhar ou cadastre o alimento cru.');
+      else if(/grelhad/.test(part)){add('taco-370',quantity,'g');handled=true}
       else ask('Alcatra: informe se o peso é do alimento grelhado ou cru.');
     }else if(/\b(?:peito de frango|frango)\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Frango: informe a quantidade em gramas.');
-      else if(/\bcru\b/.test(part))ask('Frango: a referência disponível é peito sem pele grelhado. Informe o peso após grelhar ou cadastre o alimento cru.');
-      else if(/\bgrelhad\b/.test(part)){add('taco-410',quantity,'g');handled=true}
+      else if(/\bcru(?:a)?\b/.test(part))ask('Frango: a referência disponível é peito sem pele grelhado. Informe o peso após grelhar ou cadastre o alimento cru.');
+      else if(/grelhad/.test(part)){add('taco-410',quantity,'g');handled=true}
       else ask('Frango: informe o preparo. A referência TACO disponível corresponde ao peito sem pele grelhado.');
     }else if(/\bovos?\b/.test(part)){
       const eggCount=part.match(/(\d+(?:[,.]\d+)?)\s*(?:unidades?\s+de\s+)?ovos?\b/);
-      if(/\bcozid\b/.test(part)){
+      if(/cozid/.test(part)){
         if(eggCount){add('taco-488',Number(eggCount[1].replace(',','.')),'un');handled=true}
         else if(quantity!==null&&quantityUnit==='g'){add('taco-488',quantity,'g');handled=true}
         else ask('Ovo cozido: informe a quantidade em unidades ou gramas.');
