@@ -24,6 +24,11 @@
 #results .portionFields input,#editFoodResults .portionFields input{display:block;width:100%!important;min-width:0;margin-top:4px}
 #results [data-food-pick]{grid-column:1/-1;justify-self:start}
 #editFoodResults .result>[data-edit-add]{align-self:flex-start}
+#diaryList .diary-day+.diary-day{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}
+#diaryList .diary-day-head{display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:8px}
+#diaryList .diary-day-title{font-size:13px;font-weight:800;text-transform:capitalize}
+#diaryList .diary-day-total{text-align:right;font-size:11px;white-space:nowrap}
+#diaryList .diary-day-total small{display:block;color:var(--muted);font-size:10px}
 
 </style>
 </head>
@@ -40,7 +45,7 @@
 <article class="card entry"><p class="eyebrow">REGISTRO INTELIGENTE</p><h2>O que você consumiu?</h2><p class="muted">Descreva sua refeição em linguagem natural. A análise só começa quando você tocar no botão.</p><textarea id="entry" placeholder="Ex.: 150 ml de café sem açúcar, 300 ml de leite integral e 2 ovos."></textarea><label class="field">Tipo de refeição</label><select id="mealType"><option>Café da manhã</option><option>Almoço</option><option>Lanche</option><option>Jantar</option><option>Outra refeição</option></select><button class="primary" id="analyze">✳ Analisar macros</button><div id="recurring" class="suggest hidden"></div><p class="notice">A interpretação é local e baseada em regras, não é uma IA conectada. Confira a fonte dos alimentos e os rótulos dos produtos de marca antes de registrar.</p></article>
 <article class="card"><div class="titleRow"><h2>Refeições de hoje</h2><span class="badge" id="mealCount">0</span></div><div id="todayMeals" class="empty">Nenhuma refeição registrada.</div></article>
 </section>
-<section id="s-diario" class="screen"><p class="eyebrow">SEU HISTÓRICO</p><h1>Diário alimentar</h1><article class="card"><div class="grid"><div><span class="muted">Calorias</span><div class="metric" id="diaryKcal">0</div></div><div><span class="muted">Proteínas</span><div class="metric" id="diaryProtein">0 g</div></div></div></article><article class="card" id="diaryList"></article></section>
+<section id="s-diario" class="screen"><p class="eyebrow">SEU HISTÓRICO</p><h1>Diário alimentar</h1><article class="card"><div class="grid"><div><span class="muted">Refeições registradas</span><div class="metric" id="diaryMealCount">0</div></div><div><span class="muted">Dias com registros</span><div class="metric" id="diaryDayCount">0</div></div></div></article><article class="card" id="diaryList"></article></section>
 
 <section id="s-alimentos" class="screen"><p class="eyebrow">BASE NUTRICIONAL</p><h1>Alimentos</h1>
 <article class="card"><label class="field" for="foodMealType">Registrar os alimentos como</label><select id="foodMealType"><option>Café da manhã</option><option>Almoço</option><option>Lanche</option><option>Jantar</option><option>Outra refeição</option></select><label class="field">Pesquisar na base TACO e nos seus alimentos</label><input id="search" placeholder="Ex.: leite, banana, arroz"><div id="results"></div><div id="foodSelection"></div></article>
@@ -463,6 +468,31 @@ function formatGoalTotal(total,key,goal){
   const amount=value===null?'Não informado':(missing>0?'≥ ':'')+fmt(value);
   return amount+' / '+fmt(goal)+' g'+(missing>0?' · parcial':'');
 }
+function formatDiaryDate(dateKey){
+  const [year,month,day]=dateKey.split('-').map(Number);
+  return new Date(year,month-1,day,12).toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+}
+function groupMealsByDate(meals){
+  const groups=new Map();
+  for(const meal of meals){
+    if(!groups.has(meal.date))groups.set(meal.date,[]);
+    groups.get(meal.date).push(meal);
+  }
+  return [...groups.entries()].map(([date,items])=>({date,meals:items})).sort((a,b)=>b.date.localeCompare(a.date));
+}
+function sortRecordsByDateNewestFirst(records){
+  return records.slice().sort((a,b)=>b.date.localeCompare(a.date));
+}
+function removeMealById(meals,id){
+  return meals.filter(meal=>String(meal.id)!==String(id));
+}
+function createRecordId(prefix,records,timestamp=Date.now()){
+  const existing=new Set(records.map(record=>String(record.id)));
+  const base=prefix+'-'+String(timestamp);
+  let candidate=base,suffix=1;
+  while(existing.has(candidate))candidate=base+'-'+suffix++;
+  return candidate;
+}
 function todayMeals(){return st.meals.filter(m=>m.date===today())}
 function render(){
   let ms=todayMeals(),t=sum(ms.flatMap(m=>m.items)),g=st.goals,w=st.water.filter(x=>x.date===today()).reduce((a,x)=>a+x.ml,0);
@@ -479,10 +509,15 @@ function render(){
   $('#mealCount').textContent=ms.length;
   $('#todayMeals').className=ms.length?'':'empty';
   $('#todayMeals').innerHTML=ms.length?ms.map(m=>mealHtml(m)).join(''):'Nenhuma refeição registrada.';
-  $('#diaryKcal').textContent=formatNutrientTotal(t,'kcal','kcal');
-  $('#diaryProtein').textContent=formatNutrientTotal(t,'protein','g');
-  $('#diaryList').innerHTML=st.meals.slice().reverse().map(mealHtml).join('')||'<div class="empty">Sem registros.</div>';
-  $('#measures').innerHTML=st.measures.slice().reverse().map(m=>'<div class="meal"><b>'+m.date+'</b><small>Peso: '+(m.weight||'--')+' kg · Cintura: '+(m.waist||'--')+' cm</small></div>').join('')||'<div class="empty">Sem medidas.</div>';
+  const diaryDays=groupMealsByDate(st.meals);
+  $('#diaryMealCount').textContent=st.meals.length;
+  $('#diaryDayCount').textContent=diaryDays.length;
+  $('#diaryList').innerHTML=diaryDays.map(day=>{
+    const dailyTotal=sum(day.meals.flatMap(meal=>meal.items));
+    const mealLabel=day.meals.length===1?'refeição':'refeições';
+    return '<section class="diary-day"><div class="diary-day-head"><div><div class="diary-day-title">'+esc(formatDiaryDate(day.date))+'</div><small class="muted">'+day.meals.length+' '+mealLabel+'</small></div><div class="diary-day-total"><b>'+formatNutrientTotal(dailyTotal,'kcal','kcal')+'</b><small>Proteínas: '+formatNutrientTotal(dailyTotal,'protein','g')+'</small></div></div>'+day.meals.map(mealHtml).join('')+'</section>';
+  }).join('')||'<div class="empty">Sem registros.</div>';
+  $('#measures').innerHTML=sortRecordsByDateNewestFirst(st.measures).map(m=>'<div class="meal"><b>'+esc(formatDiaryDate(m.date))+'</b><small>Peso: '+(m.weight||'--')+' kg · Cintura: '+(m.waist||'--')+' cm</small></div>').join('')||'<div class="empty">Sem medidas.</div>';
   suggest();
 }
 function mealHtml(m){
@@ -545,7 +580,7 @@ function saveMealEdits(){
   if(!save()){render();return}
   render();closeMealEditor();toast('Refeição atualizada com os novos macros.');
 }
-function suggest(){let el=$('#recurring'),items=st.meals.filter(m=>m.date!==today());if(items.length<2){el.classList.add('hidden');return}let prev=items[items.length-1];if(prev.items.length){el.classList.remove('hidden');el.innerHTML='<b>Refeição recorrente detectada</b><p class="muted">Você registrou algo parecido recentemente.</p><button class="smallbtn" id="reuse">Preencher com a refeição anterior</button>';$('#reuse').onclick=()=>{$('#entry').value=prev.items.map(i=>fmt(i.qty)+' '+i.unit+' de '+i.name).join(', ');toast('Descrição preenchida. Revise antes de analisar.')}}
+function suggest(){let el=$('#recurring'),items=st.meals.filter(m=>m.date!==today()).sort((a,b)=>b.date.localeCompare(a.date));if(items.length<2){el.classList.add('hidden');return}let prev=items[0];if(prev.items.length){el.classList.remove('hidden');el.innerHTML='<b>Refeição recorrente detectada</b><p class="muted">Você registrou algo parecido recentemente.</p><button class="smallbtn" id="reuse">Preencher com a refeição anterior</button>';$('#reuse').onclick=()=>{$('#entry').value=prev.items.map(i=>fmt(i.qty)+' '+i.unit+' de '+i.name).join(', ');toast('Descrição preenchida. Revise antes de analisar.')}}
 }
 
 function parse(text){
@@ -624,7 +659,7 @@ function showAnalysis(){
 }
 function saveMeal(){
 if(!pending||pending.saved||pending.questions.length||!pending.items.length||!pending.estimatedAccepted)return;
-st.meals.push({id:Date.now().toString(),date:today(),type:$('#mealType').value,items:pending.items,raw:pending.raw});
+st.meals.push({id:createRecordId('meal',st.meals),date:today(),type:$('#mealType').value,items:pending.items,raw:pending.raw});
 if(!save()){render();return}
 pending.saved=true;render();showAnalysis();toast('Refeição salva no diário.');
 }
@@ -668,7 +703,7 @@ document.addEventListener('click',e=>{
   if(logSelected){
     if(!foodSelection.length)return;
     const items=foodSelection.map(x=>calc(x.food,x.qty,x.measureUnit,x.measureUnit==='un'?{amount:x.portionAmount,name:x.portionName}:null));
-    st.meals.push({id:Date.now().toString(),date:today(),type:$('#foodMealType').value,items,raw:items.map(i=>formatQuantity(i)+' de '+i.name).join(', ')});
+    st.meals.push({id:createRecordId('meal',st.meals),date:today(),type:$('#foodMealType').value,items,raw:items.map(i=>formatQuantity(i)+' de '+i.name).join(', ')});
     if(!save()){render();return}
     foodSelection=[];render();renderFoodSelection();toast('Alimentos registrados no diário.');
   }
@@ -688,7 +723,7 @@ document.addEventListener('click',e=>{
   if(tab){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$('#s-'+tab.dataset.tab).classList.add('active');tab.classList.add('active')}
   const del=e.target.closest('[data-delete]');
   if(del&&confirm('Excluir esta refeição?')){
-    st.meals=st.meals.filter(m=>m.id!==del.dataset.delete);
+    st.meals=removeMealById(st.meals,del.dataset.delete);
     if(!save()){render();return}
     render();
   }
@@ -732,7 +767,7 @@ $('#foodForm').onsubmit=e=>{
   if(!name||![base,kcal,protein,carbs,fat].every(Number.isFinite)||base<=0||[kcal,protein,carbs,fat].some(v=>v<0)){toast('Confira o nome, a referência e os valores nutricionais. Use números válidos e não negativos.');return}
   if(Boolean(portionName)!==Boolean(portionAmount)){toast('Preencha o nome e a quantidade por unidade, ou deixe os dois campos vazios.');return}
   if(portionAmount&&(!Number.isFinite(Number(portionAmount))||Number(portionAmount)<=0)){toast('A quantidade por unidade deve ser um número maior que zero.');return}
-  st.foods.push({id:'u'+Date.now(),name,base,unit:f.get('unit'),kcal,protein,carbs,fat,portionName:portionName||null,portionAmount:portionAmount?Number(portionAmount):null,source:'Cadastro manual',sourceStatus:'manual',fiber:null});
+  st.foods.push({id:createRecordId('u',st.foods),name,base,unit:f.get('unit'),kcal,protein,carbs,fat,portionName:portionName||null,portionAmount:portionAmount?Number(portionAmount):null,source:'Cadastro manual',sourceStatus:'manual',fiber:null});
   if(!save()){renderFoodResults($('#search').value);return}
   e.target.reset();renderFoodResults($('#search').value);toast('Alimento cadastrado.');
 };
