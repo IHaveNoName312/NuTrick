@@ -254,7 +254,7 @@ function restorePreImportBackup(){
   return prepared;
 }
 function loadPreMigrationBackup(){
-  try{migrationBackupRaw=localStorage.getItem(PREMIGRATION_KEY)}catch(error){migrationBackupRaw=null}
+  try{const saved=localStorage.getItem(PREMIGRATION_KEY);if(saved!==null)migrationBackupRaw=saved}catch(error){}
 }
 function loadRecoveryCopy(){
   try{
