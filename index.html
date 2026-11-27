@@ -52,7 +52,7 @@
 <article class="card"><h2>Buscar produto por marca ou nome</h2><p class="notice">Consulta colaborativa ao Open Food Facts. Confira o rótulo antes de registrar.</p><form id="offSearchForm"><label class="field">Produto ou marca</label><input name="query" placeholder="Ex.: Wickbold pão de forma" required><button class="primary">Buscar no Open Food Facts</button></form><div id="offResults"></div><div class="divider"></div><form id="barcodeForm"><label class="field">Ou consultar código de barras</label><input name="barcode" inputmode="numeric" placeholder="Digite o código de barras" required><button class="soft">Consultar produto</button></form></article>
 <article class="card"><h2>Cadastrar alimento manualmente</h2><form id="foodForm" class="formgrid"><label class="span">Nome<input name="name" required></label><label>Referência (g/ml)<input name="base" type="number" value="100" min="0.1" step="0.1" required></label><label>Unidade<select name="unit"><option>g</option><option>ml</option></select></label><label>Calorias<input name="kcal" type="number" min="0" step=".1" required></label><label>Proteínas<input name="protein" type="number" min="0" step=".1" required></label><label>Carboidratos<input name="carbs" type="number" min="0" step=".1" required></label><label>Gorduras<input name="fat" type="number" min="0" step=".1" required></label><label>Nome da unidade (opcional)<input name="portionName" placeholder="Ex.: ovo, castanha"></label><label>Quantidade por unidade (g/ml)<input name="portionAmount" type="number" min="0.1" step=".1" placeholder="Ex.: 50"></label><button class="primary span">Salvar alimento</button></form></article>
 <p class="notice">A base local inicial contém alimentos selecionados da TACO 4ª edição (NEPA/UNICAMP, 2011). Produtos industrializados vêm do Open Food Facts e podem conter dados incompletos ou informados por colaboradores.</p></section>
-<section id="s-evolucao" class="screen"><p class="eyebrow">ACOMPANHAMENTO</p><h1>Sua evolução</h1><article class="card"><h2>Registrar medidas</h2><form id="measureForm" class="formgrid"><label>Peso (kg)<input name="weight" type="number" step=".1" min="1" placeholder="75"></label><label>Cintura (cm)<input name="waist" type="number" step=".1" min="1"></label><button class="primary span">Salvar medida</button></form></article><article class="card"><h2>Histórico</h2><div id="measures"></div></article><article class="card"><h2>Metas</h2><form id="goalsForm" class="formgrid"><label>Calorias<input name="kcal" type="number" value="2250"></label><label>Proteínas<input name="protein" type="number" value="160"></label><label>Carboidratos<input name="carbs" type="number" value="265"></label><label>Gorduras<input name="fat" type="number" value="60"></label><label>Fibras<input name="fiber" type="number" value="30"></label><label>Água (ml)<input name="water" type="number" value="2700"></label><button class="primary span">Atualizar metas</button></form></article><article class="card"><h2>Dados e privacidade</h2><p class="notice">Os registros ficam neste navegador. Exporte cópias de segurança regularmente.</p><div class="row"><button class="soft" id="export">Exportar backup</button><label class="soft">Importar backup<input id="import" type="file" accept="application/json,.json" hidden></label></div><p class="notice">Ao importar um backup, uma cópia local dos dados atuais será mantida para que você possa voltar atrás.</p><div id="recoveryNotice" class="status hidden" role="status"></div><button class="soft hidden" id="downloadRecovery" type="button">Baixar arquivo original preservado</button><button class="soft hidden" id="restorePreImport" type="button">Restaurar dados anteriores à última importação</button></article></section>
+<section id="s-evolucao" class="screen"><p class="eyebrow">ACOMPANHAMENTO</p><h1>Sua evolução</h1><article class="card"><h2>Registrar medidas</h2><form id="measureForm" class="formgrid"><label>Peso (kg)<input name="weight" type="number" step=".1" min="1" placeholder="75"></label><label>Cintura (cm)<input name="waist" type="number" step=".1" min="1"></label><button class="primary span">Salvar medida</button></form></article><article class="card"><h2>Histórico</h2><div id="measures"></div></article><article class="card"><h2>Metas</h2><form id="goalsForm" class="formgrid"><label>Calorias<input name="kcal" type="number" value="2250"></label><label>Proteínas<input name="protein" type="number" value="160"></label><label>Carboidratos<input name="carbs" type="number" value="265"></label><label>Gorduras<input name="fat" type="number" value="60"></label><label>Fibras<input name="fiber" type="number" value="30"></label><label>Água (ml)<input name="water" type="number" value="2700"></label><button class="primary span">Atualizar metas</button></form></article><article class="card"><h2>Dados e privacidade</h2><p class="notice">Os registros ficam neste navegador. Exporte cópias de segurança regularmente.</p><div class="row"><button class="soft" id="export">Exportar backup</button><label class="soft">Importar backup<input id="import" type="file" accept="application/json,.json" hidden></label></div><p class="notice">Ao importar um backup, uma cópia local dos dados atuais será mantida para que você possa voltar atrás.</p><div id="recoveryNotice" class="status hidden" role="status"></div><button class="soft hidden" id="downloadRecovery" type="button">Baixar arquivo original preservado</button><button class="soft hidden" id="downloadPreMigration" type="button">Baixar cópia anterior à migração</button><button class="soft hidden" id="restorePreImport" type="button">Restaurar dados anteriores à última importação</button></article></section>
 </div>
 <nav class="tabs"><button class="tab active" data-tab="hoje"><span>⌂</span>Hoje</button><button class="tab" data-tab="diario"><span>▤</span>Diário</button><button class="tab" data-tab="alimentos"><span>⌕</span>Alimentos</button><button class="tab" data-tab="evolucao"><span>↗</span>Evolução</button></nav>
 <div id="toast" class="toast"></div><div id="analysis" class="hidden" role="dialog" aria-hidden="true" aria-modal="true" aria-labelledby="analysisTitle" style="position:fixed;inset:0;z-index:30;background:#10251b88;padding:18px;overflow:auto"><div style="background:white;border-radius:18px;padding:18px;width:min(560px,100%);margin:7vh auto;max-height:85vh;overflow:auto"><div class="titleRow"><h2 id="analysisTitle">Análise da refeição</h2><button class="smallbtn" id="close" type="button">Fechar</button></div><div id="analysisBody"></div></div></div>
@@ -79,10 +79,13 @@ const RECOVERY_PREFIX='nutrick-recovery-v1-';
 const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1';
 const PREIMPORT_KEY='nutrick-pre-import-v1';
 const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1';
+const PREMIGRATION_KEY='nutrick-pre-migration-v1';
 const BACKUP_FORMAT_VERSION=1;
+const CURRENT_SCHEMA_VERSION=1;
 const MAX_BACKUP_BYTES=10*1024*1024;
 const seed=[];
 let recoveryRaw=null;
+let migrationBackupRaw=null;
 let storageRecoveryMessage='';
 let storageWriteBlocked=false;
 let tacoCatalog=[];
@@ -102,7 +105,7 @@ function isValidDate(value){
   return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;
 }
 function createDefaultState(){
-  return {goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[],portions:{}};
+  return {schemaVersion:CURRENT_SCHEMA_VERSION,goals:{kcal:2250,protein:160,carbs:265,fat:60,fiber:30,water:2700},foods:seed,meals:[],measures:[],water:[],portions:{}};
 }
 function isCatalogFood(food){
   return Boolean(food&&typeof food.id==='string'&&food.id.startsWith('taco-'));
@@ -112,6 +115,8 @@ function persistedState(source=st){
 }
 function validateStateShape(value){
   if(!isRecord(value))return 'O arquivo não contém um objeto de dados válido.';
+  if(value.schemaVersion!==undefined&&(!Number.isSafeInteger(value.schemaVersion)||value.schemaVersion<1))return 'A versão interna dos dados é inválida.';
+  if(value.schemaVersion>CURRENT_SCHEMA_VERSION)return 'Os dados foram criados por uma versão mais recente do NuTrick. Atualize o aplicativo antes de continuar.';
   if(!isRecord(value.goals))return 'As metas nutricionais estão ausentes ou inválidas.';
   for(const key of ['kcal','protein','carbs','fat','fiber','water']){
     if(!isFiniteNonNegative(value.goals[key]))return 'A meta "'+key+'" precisa ser um número válido e não negativo.';
@@ -171,6 +176,22 @@ function validateStateShape(value){
   }
   return null;
 }
+function migrateState(value){
+  let version=value.schemaVersion===undefined?0:value.schemaVersion;
+  if(!Number.isSafeInteger(version)||version<0)throw new Error('A versão interna dos dados é inválida.');
+  if(version>CURRENT_SCHEMA_VERSION)throw new Error('Os dados foram criados por uma versão mais recente do NuTrick. Atualize o aplicativo antes de continuar.');
+  let migrated={...value,portions:isRecord(value.portions)?{...value.portions}:{}};
+  while(version<CURRENT_SCHEMA_VERSION){
+    if(version===0){
+      // v0 already has the current fields; v1 records that its structure is now explicit.
+      migrated={...migrated,schemaVersion:1};
+      version=1;
+    }else{
+      throw new Error('Não existe uma migração segura para esta versão dos dados.');
+    }
+  }
+  return migrated;
+}
 function unwrapAndValidateBackup(parsed){
   let payload=parsed,legacy=true;
   if(isRecord(parsed)&&parsed.app==='NuTrick'){
@@ -180,7 +201,7 @@ function unwrapAndValidateBackup(parsed){
   }
   const error=validateStateShape(payload);
   if(error)throw new Error(error);
-  return {state:{...payload,portions:isRecord(payload.portions)?{...payload.portions}:{}},legacy};
+  return {state:migrateState(payload),legacy};
 }
 function commitImportedBackup(parsed){
   const prepared=unwrapAndValidateBackup(parsed);
@@ -232,6 +253,9 @@ function restorePreImportBackup(){
   }
   return prepared;
 }
+function loadPreMigrationBackup(){
+  try{migrationBackupRaw=localStorage.getItem(PREMIGRATION_KEY)}catch(error){migrationBackupRaw=null}
+}
 function loadRecoveryCopy(){
   try{
     const recoveryKey=localStorage.getItem(RECOVERY_POINTER_KEY);
@@ -244,6 +268,7 @@ function loadRecoveryCopy(){
   }catch(error){}
 }
 function load(){
+  loadPreMigrationBackup();
   let raw;
   try{raw=localStorage.getItem(STORAGE_KEY)}catch(error){
     storageWriteBlocked=true;
@@ -253,7 +278,21 @@ function load(){
   if(raw===null){loadRecoveryCopy();return createDefaultState();}
   try{
     const parsed=JSON.parse(raw);
+    const sourcePayload=isRecord(parsed)&&parsed.app==='NuTrick'?parsed.data:parsed;
+    const needsMigration=isRecord(sourcePayload)&&sourcePayload.schemaVersion!==CURRENT_SCHEMA_VERSION;
     const validated=unwrapAndValidateBackup(parsed);
+    if(needsMigration){
+      migrationBackupRaw=raw;
+      try{
+        localStorage.setItem(PREMIGRATION_KEY,raw);
+        const migratedRaw=JSON.stringify(persistedState(validated.state));
+        localStorage.setItem(STORAGE_KEY,migratedRaw);
+      }catch(migrationError){
+        storageWriteBlocked=true;
+        storageRecoveryMessage='Os dados antigos foram reconhecidos, mas o navegador não permitiu concluir a migração com segurança. O conteúdo original não foi substituído. Baixe a cópia anterior à migração ou exporte os dados antes de tentar novamente.';
+      }
+      loadPreMigrationBackup();
+    }
     loadRecoveryCopy();
     return validated.state;
   }catch(error){
@@ -799,14 +838,15 @@ function downloadText(content,filename,type){
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function updateRecoveryNotice(){
-  const notice=$('#recoveryNotice'),button=$('#downloadRecovery'),restore=$('#restorePreImport');
-  if(storageRecoveryMessage||recoveryRaw){
-    notice.textContent=storageRecoveryMessage||'Uma cópia original de recuperação está disponível.';
+  const notice=$('#recoveryNotice'),button=$('#downloadRecovery'),migrationButton=$('#downloadPreMigration'),restore=$('#restorePreImport');
+  if(storageRecoveryMessage||recoveryRaw||migrationBackupRaw!==null){
+    notice.textContent=storageRecoveryMessage||(migrationBackupRaw!==null?'Uma cópia dos dados anteriores à migração está preservada neste navegador. Você pode baixá-la como backup JSON.':'Uma cópia original de recuperação está disponível.');
     notice.classList.remove('hidden');
   }else{
     notice.classList.add('hidden');
   }
   button.classList.toggle('hidden',recoveryRaw===null);
+  migrationButton.classList.toggle('hidden',migrationBackupRaw===null);
   try{restore.classList.toggle('hidden',getPreImportBackupRaw()===null)}
   catch(error){restore.classList.add('hidden')}
 }
@@ -821,6 +861,11 @@ $('#downloadRecovery').onclick=()=>{
   if(recoveryRaw===null)return;
   downloadText(recoveryRaw,'nutrick-recovery-original.txt','text/plain;charset=utf-8');
   toast('Cópia original de recuperação baixada.');
+};
+$('#downloadPreMigration').onclick=()=>{
+  if(migrationBackupRaw===null)return;
+  downloadText(migrationBackupRaw,'nutrick-pre-migration.json','application/json');
+  toast('Cópia anterior à migração baixada.');
 };
 $('#restorePreImport').onclick=()=>{
   if(!confirm('Restaurar os dados que estavam no NuTrick antes da última importação? A versão atual será mantida como cópia alternativa.'))return;
