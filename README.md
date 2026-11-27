@@ -20,10 +20,11 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - Edição de refeições preserva a fotografia nutricional do momento do registro: alterar quantidade ou porção ajusta proporcionalmente os valores salvos, sem recalcular registros antigos pela composição atual do catálogo.
 - Alimentos de registros históricos são associados ao catálogo apenas por identificador exato, evitando vincular por engano produtos diferentes com nomes iguais.
 - Itens novos adicionados durante a edição usam a referência nutricional atual; itens antigos continuam preservando sua composição original.
-- Edição de refeições preserva a fotografia nutricional do momento do registro: alterar quantidade ou porção ajusta proporcionalmente os valores salvos, sem recalcular registros antigos pela composição atual do catálogo.
-- Alimentos de registros históricos são associados ao catálogo apenas por identificador exato, evitando vincular por engano produtos diferentes com nomes iguais.
-- Itens novos adicionados durante a edição usam a referência nutricional atual; itens antigos continuam preservando sua composição original.
 - Cadastro manual e pesquisa de alimentos.
+- Cálculo proporcional de nutrientes para gramas, mililitros e unidades, usando a base de referência declarada pelo alimento e sem arredondar valores intermediários.
+- Validação de quantidades, unidades, referências nutricionais e nutrientes antes de realizar cálculos; valores negativos ou não finitos não são aceitos como dados nutricionais válidos.
+- Open Food Facts usa a base real dos campos nutricionais (por 100 g ou 100 ml), independentemente da unidade declarada para o tamanho da embalagem.
+- Conversão de energia de kJ para kcal; conversão de sódio em gramas para mg; quando só há sal, estimativa de sódio equivalente a 40% do sal. Um valor direto de sódio tem prioridade sobre o valor derivado do sal.
 - Registro por texto e botão **Analisar macros**.
 - Perguntas de esclarecimento e confirmação antes de salvar estimativas.
 - Sugestões simples de refeições recorrentes.
