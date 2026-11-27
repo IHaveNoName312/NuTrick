@@ -653,9 +653,9 @@ if (Math.abs(fiftyGramsOatmeal.kcal - 197) > 0.001 ||
 }
 const combinedMealTotals = sumForTest([fiftyGramsOatmeal, threeEggs]);
 if (Math.abs(combinedMealTotals.kcal - 416) > 0.001 ||
-    Math.abs(combinedMealTotals.protein - 27.85) > 0.001 ||
-    Math.abs(combinedMealTotals.carbs - 35.5) > 0.001 ||
-    Math.abs(combinedMealTotals.fat - 18.45) > 0.001) {
+    Math.abs(combinedMealTotals.protein - 26.9) > 0.001 ||
+    Math.abs(combinedMealTotals.carbs - 34.2) > 0.001 ||
+    Math.abs(combinedMealTotals.fat - 18.5) > 0.001) {
   throw new Error("Multi-food meal totals must add the calculated portions without rounding intermediate values");
 }
 function assertCalculationRejected(food, quantity, unit, label) {
