@@ -311,7 +311,17 @@ if (saveForTest() !== false || testContext.st.goals.protein !== 160 || fakeStora
   throw new Error("Failed storage writes must roll back in-memory changes and preserve the last committed data");
 }
 fakeStorage.failKey = null;
+const externalTabRaw = JSON.stringify({ ...testContext.st, goals: { ...testContext.st.goals, protein: 145 } });
+fakeStorage.data.set("nutrick-v1", externalTabRaw);
+testContext.st.goals.protein = 149;
+if (saveForTest() !== false || testContext.st.goals.protein !== 150 || fakeStorage.data.get("nutrick-v1") !== externalTabRaw || !isStorageBlockedForTest()) {
+  throw new Error("A stale tab must detect a newer external storage state, block saving and preserve the newer data");
+}
+setStorageProtectionForTest(false);
+fakeStorage.data.set("nutrick-v1", durableRaw);
 testContext.st.goals.protein = 150;
+fakeStorage.failKey = null;
+
 if (saveForTest() !== true || JSON.parse(fakeStorage.data.get("nutrick-v1")).goals.protein !== 150) {
   throw new Error("Successful storage writes should commit the new state and update the rollback snapshot");
 }
@@ -554,6 +564,10 @@ const userMutationSaveCalls = (html.match(/if\(!save\(\)\)/g) || []).length;
 if (userMutationSaveCalls < 10) throw new Error("Expected user-facing mutations to check save() success before confirming changes");
 if (!html.includes("if(!save()){render();return}") || !html.includes("if(!save()){renderFoodResults")) {
   throw new Error("A failed save must stop success-side effects and restore the visible UI");
+}
+
+if (!html.includes("currentRaw!==lastSavedRaw") || !html.includes("window.addEventListener('storage'")) {
+  throw new Error("Cross-tab conflict detection and stale-tab protection must remain wired into the app");
 }
 
 if (!html.includes("groupMealsByDate(st.meals)") ||
