@@ -176,6 +176,20 @@ const saveCode = extract("function rollbackUnsavedState()", "let tacoReady=false
 const parserCode = extract("function parse(text)", "let pending=null;");
 new vm.Script("const seed=[]; const BACKUP_FORMAT_VERSION=1; const CURRENT_SCHEMA_VERSION=1; const STORAGE_KEY='nutrick-v1'; const RECOVERY_PREFIX='nutrick-recovery-v1-'; const RECOVERY_POINTER_KEY='nutrick-recovery-latest-v1'; const PREIMPORT_KEY='nutrick-pre-import-v1'; const PREIMPORT_ALT_KEY='nutrick-pre-import-alt-v1'; const PREMIGRATION_KEY='nutrick-pre-migration-v1'; let storageWriteBlocked=false; let recoveryRaw=null; let migrationBackupRaw=null; let storageRecoveryMessage=''; let tacoCatalog=[]; let lastSavedRaw=JSON.stringify(st); let lastStorageRaw=null;\n" + backupCode + "\n" + loadCode + "\n" + saveCode + "\n" + normalizeCode + "\n" + offCode + "\n" + portionCode + "\n" + diaryCode + "\n" + rescaleCode + "\n" + findMealFoodCode + "\n" + parserCode + "\nthis.parseForTest = parse; this.calcForTest = calc; this.rescaleMealItemSnapshotForTest = rescaleMealItemSnapshot; this.findFoodForMealItemForTest = findFoodForMealItem; this.formatQuantityForTest = formatQuantity; this.householdPortionsForTest = householdPortionsFor; this.isCatalogFoodForTest = isCatalogFood; this.matchHouseholdMeasureForTest = matchHouseholdMeasure; this.mapOFFForTest = mapOFFProduct; this.mapOFFResponseForTest = mapOFFResponse; this.sumForTest = sum; this.formatNutrientTotalForTest = formatNutrientTotal; this.formatGoalTotalForTest = formatGoalTotal; this.validateStateForTest = validateStateShape; this.unwrapBackupForTest = unwrapAndValidateBackup; this.commitImportForTest = commitImportedBackup; this.restorePreImportForTest = restorePreImportBackup; this.loadStateForTest = load; this.getRollbackRawForTest = getPreImportBackupRaw; this.getRecoveryRawForTest = () => recoveryRaw; this.saveForTest = save; this.setStorageProtectionForTest = value => { storageWriteBlocked=value; }; this.setStorageSnapshotForTest = value => { lastStorageRaw=value; }; this.createDefaultStateForTest = createDefaultState; this.setTacoCatalogForTest = value => { tacoCatalog=value; }; this.refreshSavedSnapshotForTest = () => { lastSavedRaw=JSON.stringify(persistedState(st)); }; this.persistedStateForTest = persistedState; this.getMigrationBackupForTest = () => migrationBackupRaw; this.isStorageBlockedForTest = () => storageWriteBlocked; this.groupMealsByDateForTest = groupMealsByDate; this.sortRecordsByDateNewestFirstForTest = sortRecordsByDateNewestFirst; this.removeMealByIdForTest = removeMealById; this.formatDiaryDateForTest = formatDiaryDate; this.createRecordIdForTest = createRecordId;").runInContext(testContext);
 const parseForTest = testContext.parseForTest;
+const deterministicParserKnown = parseForTest("150 g arroz cozido");
+if (deterministicParserKnown.items.length !== 1 || deterministicParserKnown.questions.length !== 0 ||
+    Math.abs(deterministicParserKnown.items[0].baseQuantity - 150) > 1e-9) {
+  throw new Error("A fully specified known food must be parsed and calculated without clarification");
+}
+const deterministicParserUnknown = parseForTest("100 g fruta inventada");
+if (deterministicParserUnknown.items.length !== 0 || deterministicParserUnknown.questions.length === 0) {
+  throw new Error("An unknown food must never be silently omitted or assigned guessed nutrients");
+}
+const deterministicParserPartial = parseForTest("150 g arroz cozido e 100 g fruta inventada");
+if (deterministicParserPartial.items.length !== 1 || deterministicParserPartial.questions.length === 0) {
+  throw new Error("A mixed known/unknown meal must preserve the known calculation and explicitly block completion for the unknown item");
+}
+
 const isCatalogFoodForTest = testContext.isCatalogFoodForTest;
 const rescaleMealItemSnapshotForTest = testContext.rescaleMealItemSnapshotForTest;
 const findFoodForMealItemForTest = testContext.findFoodForMealItemForTest;
@@ -1274,7 +1288,7 @@ const workerContext = vm.createContext({
   fetch: request => workerFetch(request)
 });
 new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
-if (!serviceWorker.includes('nutrick-v0.6.19-cache')) {
+if (!serviceWorker.includes('nutrick-v0.6.20-cache')) {
   throw new Error("Service worker cache version must be bumped when the app shell changes");
 }
 let installWait = null;

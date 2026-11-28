@@ -105,3 +105,6 @@ Abra http://localhost:8000.
 ## Algoritmos locais e validação matemática
 
 Os cálculos de nutrientes são feitos localmente, sem IA ou API. A validação automatizada inclui escalonamento por peso, conversão de porções caseiras para gramas/ml, soma de refeições, nutrientes ausentes, quantidades inválidas e bloqueio de mistura indevida entre g e ml. Os valores de catálogo são referências; resultados só são tão precisos quanto os dados nutricionais e a quantidade/preparo informados.
+
+
+Parser regressions (v0.6.20): fully specified known food, unknown food blocking, and mixed known/unknown meals verified to retain known calculations while requiring clarification.
