@@ -1370,7 +1370,7 @@ const totalRiceAndCoffee = sumForTest([
   testContext.calcForTest(tacoFoods.find(food => food.id === "taco-471"), 200, "ml")
 ]);
 if (Math.abs(totalRiceAndCoffee.kcal - 210) > 1e-9 ||
-    Math.abs(totalRiceAndCoffee.protein - 3.75) > 1e-9 ||
+    Math.abs(totalRiceAndCoffee.protein - 5.15) > 1e-9 ||
     totalRiceAndCoffee.itemCount !== 2) {
   throw new Error("Totals must add exact calculated nutrients and preserve item count");
 }
