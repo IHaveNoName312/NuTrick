@@ -203,8 +203,7 @@
     "sourceCode": "179",
     "name": "Banana, nanica, crua",
     "aliases": [
-      "banana nanica",
-      "banana"
+      "banana nanica"
     ],
     "category": "Frutas",
     "basis": 100,
@@ -300,8 +299,7 @@
     "sourceCode": "561",
     "name": "Feijão, carioca, cozido",
     "aliases": [
-      "feijão carioca",
-      "feijão"
+      "feijão carioca"
     ],
     "category": "Leguminosas",
     "basis": 100,
@@ -840,9 +838,7 @@
     "name": "Maçã, Fuji, com casca, crua",
     "aliases": [
       "maçã fuji",
-      "maçã fuji com casca",
-      "maçã",
-      "maçãs"
+      "maçã fuji com casca"
     ],
     "category": "Frutas",
     "basis": 100,

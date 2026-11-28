@@ -919,7 +919,9 @@ function parse(text){
     }else if(/\bfeijao\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Feijão: informe a quantidade em gramas.');
       else if(/\bcru(?:a)?\b/.test(part))ask('Feijão cru: a referência inicial disponível é de feijão cozido.');
-      else{add(/\bpreto\b/.test(part)?'taco-567':'taco-561',quantity,'g');handled=true}
+      else if(/\bcarioca\b/.test(part)){add('taco-561',quantity,'g');handled=true}
+      else if(/\bpreto\b/.test(part)){add('taco-567',quantity,'g');handled=true}
+      else ask('Feijão: informe se é carioca ou preto para selecionar a referência correta.');
     }else if(/\baveia\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Aveia: informe a quantidade em gramas.');
       else{add('taco-007',quantity,'g');handled=true}
@@ -942,7 +944,13 @@ function parse(text){
       else ask('Tapioca: a referência TACO disponível é tapioca com manteiga. Confirme o preparo ou cadastre a composição específica.');
     }else if(/\bbanana\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Banana: informe a quantidade em gramas.');
-      else{add(/\bprata\b/.test(part)?'taco-182':'taco-179',quantity,'g');handled=true}
+      else if(/\bprata\b/.test(part)){add('taco-182',quantity,'g');handled=true}
+      else if(/\bnanica\b/.test(part)){add('taco-179',quantity,'g');handled=true}
+      else ask('Banana: informe se é nanica ou prata para selecionar a referência correta.');
+    }else if(/\bmacas?\b/.test(part)){
+      if(quantity===null||quantityUnit!=='g')ask('Maçã: informe a variedade e a quantidade em gramas.');
+      else if(/\bfuji\b/.test(part)){add('taco-222',quantity,'g');handled=true}
+      else ask('Maçã: a referência disponível é Fuji. Confirme a variedade ou cadastre outra referência.');
     }else if(/\bpatinho\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Patinho: informe a quantidade em gramas.');
       else if(/\bcru(?:a)?\b/.test(part))ask('Patinho: a referência disponível é grelhada. Informe o peso após grelhar ou cadastre o alimento cru.');

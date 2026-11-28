@@ -270,6 +270,9 @@ function assertNeedsClarification(description, expectedWord) {
 assertFood("150 ml de café sem açúcar", "taco-471", 13.5);
 assertFood("100 g de arroz branco cozido", "taco-003", 128);
 assertFood("100 g de feijão carioca cozido", "taco-561", 76);
+assertFood("100 g de feijão preto cozido", "taco-567", 77);
+assertFood("100 g banana nanica", "taco-179", 92);
+assertFood("100 g banana prata", "taco-182", 98);
 assertFood("100 g de batata frita", "taco-093", 267);
 assertFood("100 g de queijo minas frescal", "taco-461", 264);
 assertFood("100 g de cuscuz de milho cozido", "taco-533", 113);
@@ -281,6 +284,9 @@ assertFood("100 g cenoura crua", "taco-110", 34);
 assertFood("100 g alface crespa crua", "taco-078", 11);
 assertFood("100 g tomate cru", "taco-161", 21);
 assertFood("100 g maçã fuji", "taco-222", 56);
+assertNeedsClarification("100 g banana", "banana");
+assertNeedsClarification("100 g feijão", "feijão");
+assertNeedsClarification("100 g maçã", "maçã");
 assertFood("100 g mamão formosa", "taco-225", 45);
 assertFood("100 g iogurte natural", "taco-448", 51);
 assertFood("100 g frango cozido", "taco-408", 163);
@@ -304,6 +310,7 @@ assertFood("100 g iogurte natural desnatado", "taco-449", 41);
 assertFood("50 g de ovo frito", "taco-490", 120);
 assertNeedsClarification("100 g de patinho", "patinho");
 assertNeedsClarification("100 g de alcatra", "alcatra");
+assertNeedsClarification("2 bananas", "banana");
 assertNeedsClarification("300 ml de leite integral", "leite");
 assertNeedsClarification("duas fatias de pão de forma Wickbold", "pão");
 
@@ -374,7 +381,6 @@ const householdMeasureCases = [
   ["2 colheres de sopa de arroz integral", "taco-001", 70],
   ["1 porção de aveia", "taco-007", 30],
   ["1 pão francês", "taco-053", 50],
-  ["2 bananas", "taco-179", 172],
   ["1 unidade de banana prata", "taco-182", 86],
   ["1 unidade de maçã", "taco-222", 130],
   ["1 fatia de mamão formosa", "taco-225", 160],
@@ -1298,16 +1304,16 @@ const workerContext = vm.createContext({
   fetch: request => workerFetch(request)
 });
 new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
-if (!serviceWorker.includes('nutrick-v0.6.21-cache')) {
+if (!serviceWorker.includes('nutrick-v0.6.22-cache')) {
   throw new Error("Service worker cache version must be bumped when the app shell changes");
 }
 let installWait = null;
 workerListeners.get("install")({ waitUntil(promise) { installWait = promise; } });
 await installWait;
-if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.21-cache")) {
+if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.22-cache")) {
   throw new Error("Service worker install must precache the app shell before activation");
 }
-const installedEntries = workerCacheData.get("nutrick-v0.6.21-cache");
+const installedEntries = workerCacheData.get("nutrick-v0.6.22-cache");
 for (const path of ["index.html", "manifest.webmanifest", "data/taco.json"]) {
   if (![...installedEntries.keys()].some(key => key.endsWith("/" + path))) {
     throw new Error("Offline app shell is missing a required asset: " + path);
@@ -1333,7 +1339,7 @@ async function dispatchWorkerFetch(request) {
 const appRequest = { method: "GET", url: appScope + "index.html", mode: "navigate" };
 const onlineResponse = await dispatchWorkerFetch(appRequest);
 if (!onlineResponse || onlineResponse.body !== "network response" ||
-    (await workerCaches.open("nutrick-v0.6.21-cache")).match(appRequest) === null) {
+    (await workerCaches.open("nutrick-v0.6.22-cache")).match(appRequest) === null) {
   throw new Error("Successful online responses must be cached for later offline use");
 }
 workerFetch = async () => { throw new Error("Simulated offline network"); };
