@@ -1009,7 +1009,7 @@ function showAnalysis(){
   }).join('');
   out+='<div class="pillrow"><span class="pill">'+fmt(t.kcal)+' kcal</span><span class="pill">P '+fmt(t.protein)+' g</span><span class="pill">C '+fmt(t.carbs)+' g</span><span class="pill">G '+fmt(t.fat)+' g</span><span class="pill">'+(t.fiberUnknown?'Fibras parciais':'Fibras '+fmt(t.fiber)+' g')+'</span></div>';
   if(pending.questions.length){out+=pending.questions.map(q=>'<div class="status">'+esc(q)+'</div>').join('');
-    if(pending.choices?.length&&(pending.raw.match(/\\bovos?\\b/gi)||[]).length===1){out+='<p class="notice">Selecione uma opção para completar a descrição:</p><div class="pillrow">'+pending.choices[0].options.map(option=>'<button class="smallbtn" type="button" data-egg-choice="'+option+'">'+(option==='outro'?'Outro preparo':option[0].toUpperCase()+option.slice(1))+'</button>').join('')+'</div>'}
+    if(pending.choices?.length&&(pending.raw.match(/\bovos?\b/gi)||[]).length===1){out+='<p class="notice">Selecione uma opção para completar a descrição:</p><div class="pillrow">'+pending.choices[0].options.map(option=>'<button class="smallbtn" type="button" data-egg-choice="'+option+'">'+(option==='outro'?'Outro preparo':option[0].toUpperCase()+option.slice(1))+'</button>').join('')+'</div>'}
     out+='<button class="soft" id="editDescription">Voltar e corrigir descrição</button><p class="notice">Busque produtos industrializados na aba Alimentos e confira os valores no rótulo antes de utilizá-los.</p>'}
   else if(pending.saved){out+='<div class="status ok">Refeição registrada no diário.</div><button class="primary" id="finishAnalysis">Concluir</button>'}
   else{out+='<p class="notice">A TACO apresenta valores por 100 g de parte comestível. Os dados do Open Food Facts são colaborativos e devem ser conferidos no rótulo.</p><button class="primary" id="confirmEstimate">Confirmar e salvar no diário</button>'}
@@ -1019,7 +1019,7 @@ function showAnalysis(){
   $('#analysisBody').querySelectorAll('[data-egg-choice]').forEach(button=>button.addEventListener('click',()=>{
     const preparation=button.dataset.eggChoice;
     if(preparation==='outro'){closeAnalysis();$('#entry').focus();return}
-    const updated=pending.raw.replace(/\\bovos?\\b/i,match=>match+' '+preparation);
+    const updated=pending.raw.replace(/\bovos?\b/i,match=>match+' '+preparation);
     $('#entry').value=updated;
     pending=parse(updated);
     showAnalysis();
