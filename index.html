@@ -808,7 +808,7 @@ function suggest(){let el=$('#recurring'),items=st.meals.filter(m=>m.date!==toda
 }
 
 function parse(text){
-  const items=[],questions=[];
+  const items=[],questions=[],choices=[];
   const add=(foodId,qty,unit)=>{
     const food=st.foods.find(entry=>entry.id===foodId);
     if(!food)return false;
@@ -964,7 +964,12 @@ function parse(text){
         if(eggCount){add('taco-488',Number(eggCount[1].replace(',','.')),'un');handled=true}
         else if(quantity!==null&&quantityUnit==='g'){add('taco-488',quantity,'g');handled=true}
         else ask('Ovo cozido: informe a quantidade em unidades ou gramas.');
-      }else ask('Ovo: informe o preparo (cozido, frito ou outro). A referência TACO disponível corresponde ao ovo cozido.');
+      }else if(/\bcru(?:a)?\b/.test(part))ask('Ovo cru: não há uma referência nutricional completa disponível no catálogo atual. Cadastre os dados do rótulo ou use uma referência específica antes de registrar.');
+      else{
+        const message='Ovo: escolha o preparo para calcular corretamente.';
+        ask(message);
+        choices.push({prompt:message,options:['cozido','frito','cru','outro']});
+      }
     }else if(/\bpao\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Pão: informe o peso total em gramas e selecione a marca/produto, ou cadastre os valores do rótulo.');
       else if(/\bintegral\b/.test(part)){add('taco-052',quantity,'g');handled=true}
@@ -979,7 +984,7 @@ function parse(text){
     if(!handled&&quantity!==null&&quantity<=0)ask('A quantidade precisa ser maior que zero.');
   }
   if(!items.length&&!questions.length)questions.push('Não identifiquei alimentos com quantidade e preparo suficientes. Informe quantidades em gramas, ml ou unidades.');
-  return {items,questions:[...new Set(questions)],raw:text};
+  return {items,questions:[...new Set(questions)],choices,raw:text};
 }
 let pending=null;
 
@@ -1003,12 +1008,22 @@ function showAnalysis(){
     return '<div class="result"><div><b>'+esc(i.name)+'</b><small>'+esc(formatQuantity(i))+' · '+esc(i.source)+'</small></div><b>'+fmt(i.kcal)+' kcal<small>P '+fmt(i.protein)+' · C '+fmt(i.carbs)+' · G '+fmt(i.fat)+' g</small><small>'+fiber+'</small></b></div>';
   }).join('');
   out+='<div class="pillrow"><span class="pill">'+fmt(t.kcal)+' kcal</span><span class="pill">P '+fmt(t.protein)+' g</span><span class="pill">C '+fmt(t.carbs)+' g</span><span class="pill">G '+fmt(t.fat)+' g</span><span class="pill">'+(t.fiberUnknown?'Fibras parciais':'Fibras '+fmt(t.fiber)+' g')+'</span></div>';
-  if(pending.questions.length){out+=pending.questions.map(q=>'<div class="status">'+esc(q)+'</div>').join('');out+='<button class="soft" id="editDescription">Voltar e corrigir descrição</button><p class="notice">Busque produtos industrializados na aba Alimentos e confira os valores no rótulo antes de utilizá-los.</p>'}
+  if(pending.questions.length){out+=pending.questions.map(q=>'<div class="status">'+esc(q)+'</div>').join('');
+    if(pending.choices?.length&&(pending.raw.match(/\\bovos?\\b/gi)||[]).length===1){out+='<p class="notice">Selecione uma opção para completar a descrição:</p><div class="pillrow">'+pending.choices[0].options.map(option=>'<button class="smallbtn" type="button" data-egg-choice="'+option+'">'+(option==='outro'?'Outro preparo':option[0].toUpperCase()+option.slice(1))+'</button>').join('')+'</div>'}
+    out+='<button class="soft" id="editDescription">Voltar e corrigir descrição</button><p class="notice">Busque produtos industrializados na aba Alimentos e confira os valores no rótulo antes de utilizá-los.</p>'}
   else if(pending.saved){out+='<div class="status ok">Refeição registrada no diário.</div><button class="primary" id="finishAnalysis">Concluir</button>'}
   else{out+='<p class="notice">A TACO apresenta valores por 100 g de parte comestível. Os dados do Open Food Facts são colaborativos e devem ser conferidos no rótulo.</p><button class="primary" id="confirmEstimate">Confirmar e salvar no diário</button>'}
   $('#analysisBody').innerHTML=out;
   const panel=$('#analysis');panel.classList.remove('hidden');panel.setAttribute('aria-hidden','false');
   $('#editDescription')?.addEventListener('click',()=>{closeAnalysis();$('#entry').focus()});
+  $('#analysisBody').querySelectorAll('[data-egg-choice]').forEach(button=>button.addEventListener('click',()=>{
+    const preparation=button.dataset.eggChoice;
+    if(preparation==='outro'){closeAnalysis();$('#entry').focus();return}
+    const updated=pending.raw.replace(/\\bovos?\\b/i,match=>match+' '+preparation);
+    $('#entry').value=updated;
+    pending=parse(updated);
+    showAnalysis();
+  }));
   $('#confirmEstimate')?.addEventListener('click',()=>{pending.estimatedAccepted=true;saveMeal()});
   $('#finishAnalysis')?.addEventListener('click',()=>closeAnalysis());
 }

@@ -37,7 +37,7 @@ Aplicativo PWA pessoal para registro alimentar e acompanhamento nutricional.
 - O catálogo ampliado reconhece preparações novas por aliases explícitos, mantendo separadas as referências cruas, cozidas, assadas, fritas e grelhadas; carnes sem indicação suficiente de preparo geram pergunta de esclarecimento.
 - O registro inteligente também reconhece novas proteínas animais e vegetais, ovos por partes, queijos, embutidos e leite em pó. Formas de leite sem valores completos na TACO não recebem macros inventados e devem ser consultadas pelo rótulo ou Open Food Facts.
 - Preparações prontas da TACO e receitas específicas da TBCA/USP também são reconhecidas no registro por texto. Panquecas com e sem molho e lasanhas de massa, abobrinha ou berinjela permanecem como referências distintas.
-- Perguntas de esclarecimento e confirmação antes de salvar estimativas.
+- Perguntas de esclarecimento com opções selecionáveis para o preparo de ovos (cozido, frito, cru ou outro); ovo cru permanece bloqueado enquanto não houver referência nutricional confiável.\n- Confirmação antes de salvar estimativas.
 - Sugestões simples de refeições recorrentes.
 - Registro de peso e cintura.
 - Exportação de backup JSON versionado e importação com validação estrutural antes de substituir os dados.
@@ -107,4 +107,4 @@ Abra http://localhost:8000.
 Os cálculos de nutrientes são feitos localmente, sem IA ou API. A validação automatizada inclui escalonamento por peso, conversão de porções caseiras para gramas/ml, soma de refeições, nutrientes ausentes, quantidades inválidas e bloqueio de mistura indevida entre g e ml. Os valores de catálogo são referências; resultados só são tão precisos quanto os dados nutricionais e a quantidade/preparo informados.
 
 
-Parser regressions (v0.6.20): fully specified known food, unknown food blocking, and mixed known/unknown meals verified to retain known calculations while requiring clarification.
+Parser regressions (v0.6.21): fully specified known food, unknown food blocking, and mixed known/unknown meals verified to retain known calculations while requiring clarification.
