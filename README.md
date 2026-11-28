@@ -107,4 +107,4 @@ Abra http://localhost:8000.
 Os cálculos de nutrientes são feitos localmente, sem IA ou API. A validação automatizada inclui escalonamento por peso, conversão de porções caseiras para gramas/ml, soma de refeições, nutrientes ausentes, quantidades inválidas e bloqueio de mistura indevida entre g e ml. Os valores de catálogo são referências; resultados só são tão precisos quanto os dados nutricionais e a quantidade/preparo informados.
 
 
-Parser regressions (v0.6.22): fully specified known food, unknown food blocking, mixed known/unknown meals, and generic banana/apple/bean variety ambiguity verified to require clarification rather than selecting a specific variety silently.
+Parser regressions (v0.6.23): fully specified known food, unknown food blocking, mixed known/unknown meals, and generic banana/apple/bean variety ambiguity verified to require clarification rather than selecting a specific variety silently; counted bananas remain supported after variety selection.

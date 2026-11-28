@@ -943,9 +943,16 @@ function parse(text){
       else if(/\bmanteiga\b/.test(part)){add('taco-551',quantity,'g');handled=true}
       else ask('Tapioca: a referência TACO disponível é tapioca com manteiga. Confirme o preparo ou cadastre a composição específica.');
     }else if(/\bbanana\b/.test(part)){
-      if(quantity===null||quantityUnit!=='g')ask('Banana: informe a quantidade em gramas.');
-      else if(/\bprata\b/.test(part)){add('taco-182',quantity,'g');handled=true}
-      else if(/\bnanica\b/.test(part)){add('taco-179',quantity,'g');handled=true}
+      const bananaCount=part.match(/^(\d+(?:[,.]\d+)?)\s+(?:unidades?\s+de\s+)?bananas?\b/);
+      const bananaVariety=/\bprata\b/.test(part)?'prata':(/\bnanica\b/.test(part)?'nanica':null);
+      if(quantity!==null&&quantityUnit==='g'&&bananaVariety){add(bananaVariety==='prata'?'taco-182':'taco-179',quantity,'g');handled=true}
+      else if(bananaCount&&bananaVariety){
+        const food=st.foods.find(entry=>entry.id===(bananaVariety==='prata'?'taco-182':'taco-179'));
+        const portion=food&&householdPortionsFor(food)[0];
+        if(food&&portion){try{items.push(calc(food,Number(bananaCount[1].replace(',','.')),'un',portion));}catch(error){ask(error.message||'Não foi possível calcular a banana.')}}
+        else ask('Banana: informe o peso em gramas para calcular esta variedade.');
+      }else if(bananaCount)ask('Banana: informe se é nanica ou prata para calcular as unidades.');
+      else if(quantity===null||quantityUnit!=='g')ask('Banana: informe a variedade (nanica ou prata) e a quantidade em gramas.');
       else ask('Banana: informe se é nanica ou prata para selecionar a referência correta.');
     }else if(/\bmacas?\b/.test(part)){
       if(quantity===null||quantityUnit!=='g')ask('Maçã: informe a variedade e a quantidade em gramas.');

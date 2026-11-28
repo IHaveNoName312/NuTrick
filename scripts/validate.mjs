@@ -287,6 +287,7 @@ assertFood("100 g maçã fuji", "taco-222", 56);
 assertNeedsClarification("100 g banana", "banana");
 assertNeedsClarification("100 g feijão", "feijão");
 assertNeedsClarification("100 g maçã", "maçã");
+assertNeedsClarification("1 unidade de maçã", "maçã");
 assertFood("100 g mamão formosa", "taco-225", 45);
 assertFood("100 g iogurte natural", "taco-448", 51);
 assertFood("100 g frango cozido", "taco-408", 163);
@@ -311,6 +312,12 @@ assertFood("50 g de ovo frito", "taco-490", 120);
 assertNeedsClarification("100 g de patinho", "patinho");
 assertNeedsClarification("100 g de alcatra", "alcatra");
 assertNeedsClarification("2 bananas", "banana");
+const bananaCountWithVariety = parseForTest("2 bananas nanica");
+if (bananaCountWithVariety.questions.length || bananaCountWithVariety.items.length !== 1 ||
+    bananaCountWithVariety.items[0].foodId !== "taco-179" ||
+    Math.abs(bananaCountWithVariety.items[0].baseQuantity - 172) > 0.01) {
+  throw new Error("Counted bananas must be calculated only after the variety is explicit");
+}
 assertNeedsClarification("300 ml de leite integral", "leite");
 assertNeedsClarification("duas fatias de pão de forma Wickbold", "pão");
 
@@ -382,7 +389,6 @@ const householdMeasureCases = [
   ["1 porção de aveia", "taco-007", 30],
   ["1 pão francês", "taco-053", 50],
   ["1 unidade de banana prata", "taco-182", 86],
-  ["1 unidade de maçã", "taco-222", 130],
   ["1 fatia de mamão formosa", "taco-225", 160],
   ["1 colher de chá de açúcar", "taco-492", 5],
   ["1 copo de requeijão de iogurte natural", "taco-448", 200],
@@ -1304,16 +1310,16 @@ const workerContext = vm.createContext({
   fetch: request => workerFetch(request)
 });
 new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
-if (!serviceWorker.includes('nutrick-v0.6.22-cache')) {
+if (!serviceWorker.includes('nutrick-v0.6.23-cache')) {
   throw new Error("Service worker cache version must be bumped when the app shell changes");
 }
 let installWait = null;
 workerListeners.get("install")({ waitUntil(promise) { installWait = promise; } });
 await installWait;
-if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.22-cache")) {
+if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.23-cache")) {
   throw new Error("Service worker install must precache the app shell before activation");
 }
-const installedEntries = workerCacheData.get("nutrick-v0.6.22-cache");
+const installedEntries = workerCacheData.get("nutrick-v0.6.23-cache");
 for (const path of ["index.html", "manifest.webmanifest", "data/taco.json"]) {
   if (![...installedEntries.keys()].some(key => key.endsWith("/" + path))) {
     throw new Error("Offline app shell is missing a required asset: " + path);
@@ -1339,7 +1345,7 @@ async function dispatchWorkerFetch(request) {
 const appRequest = { method: "GET", url: appScope + "index.html", mode: "navigate" };
 const onlineResponse = await dispatchWorkerFetch(appRequest);
 if (!onlineResponse || onlineResponse.body !== "network response" ||
-    (await workerCaches.open("nutrick-v0.6.22-cache")).match(appRequest) === null) {
+    (await workerCaches.open("nutrick-v0.6.23-cache")).match(appRequest) === null) {
   throw new Error("Successful online responses must be cached for later offline use");
 }
 workerFetch = async () => { throw new Error("Simulated offline network"); };
