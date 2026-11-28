@@ -316,7 +316,7 @@ const bananaCountWithVariety = parseForTest("2 bananas nanica");
 if (bananaCountWithVariety.questions.length || bananaCountWithVariety.items.length !== 1 ||
     bananaCountWithVariety.items[0].foodId !== "taco-179" ||
     Math.abs(bananaCountWithVariety.items[0].baseQuantity - 172) > 0.01) {
-  throw new Error("Counted bananas must be calculated only after the variety is explicit");
+  throw new Error("Counted bananas must be calculated only after the variety is explicit: " + JSON.stringify(bananaCountWithVariety));
 }
 assertNeedsClarification("300 ml de leite integral", "leite");
 assertNeedsClarification("duas fatias de pão de forma Wickbold", "pão");
