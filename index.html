@@ -942,7 +942,7 @@ function parse(text){
       if(quantity===null||quantityUnit!=='g')ask('Tapioca: informe a quantidade em gramas.');
       else if(/\bmanteiga\b/.test(part)){add('taco-551',quantity,'g');handled=true}
       else ask('Tapioca: a referência TACO disponível é tapioca com manteiga. Confirme o preparo ou cadastre a composição específica.');
-    }else if(/\bbanana\b/.test(part)){
+    }else if(/\bbananas?\b/.test(part)){
       const bananaCount=part.match(/^(\d+(?:[,.]\d+)?)\s+(?:unidades?\s+de\s+)?bananas?\b/);
       const bananaVariety=/\bprata\b/.test(part)?'prata':(/\bnanica\b/.test(part)?'nanica':null);
       if(quantity!==null&&quantityUnit==='g'&&bananaVariety){add(bananaVariety==='prata'?'taco-182':'taco-179',quantity,'g');handled=true}
