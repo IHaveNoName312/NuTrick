@@ -100,3 +100,8 @@ Abra http://localhost:8000.
 - `manifest.webmanifest`: metadados PWA.
 - `sw.js`: cache offline.
 - `icon.svg`: ícone vetorial.
+
+
+## Algoritmos locais e validação matemática
+
+Os cálculos de nutrientes são feitos localmente, sem IA ou API. A validação automatizada inclui escalonamento por peso, conversão de porções caseiras para gramas/ml, soma de refeições, nutrientes ausentes, quantidades inválidas e bloqueio de mistura indevida entre g e ml. Os valores de catálogo são referências; resultados só são tão precisos quanto os dados nutricionais e a quantidade/preparo informados.

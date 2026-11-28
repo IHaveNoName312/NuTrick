@@ -1274,16 +1274,16 @@ const workerContext = vm.createContext({
   fetch: request => workerFetch(request)
 });
 new vm.Script(serviceWorker, { filename: "NuTrick-service-worker.js" }).runInContext(workerContext);
-if (!serviceWorker.includes('nutrick-v0.6.18-cache')) {
+if (!serviceWorker.includes('nutrick-v0.6.19-cache')) {
   throw new Error("Service worker cache version must be bumped when the app shell changes");
 }
 let installWait = null;
 workerListeners.get("install")({ waitUntil(promise) { installWait = promise; } });
 await installWait;
-if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.18-cache")) {
+if (!skipWaitingCalled || !workerCacheData.has("nutrick-v0.6.19-cache")) {
   throw new Error("Service worker install must precache the app shell before activation");
 }
-const installedEntries = workerCacheData.get("nutrick-v0.6.18-cache");
+const installedEntries = workerCacheData.get("nutrick-v0.6.19-cache");
 for (const path of ["index.html", "manifest.webmanifest", "data/taco.json"]) {
   if (![...installedEntries.keys()].some(key => key.endsWith("/" + path))) {
     throw new Error("Offline app shell is missing a required asset: " + path);
@@ -1309,7 +1309,7 @@ async function dispatchWorkerFetch(request) {
 const appRequest = { method: "GET", url: appScope + "index.html", mode: "navigate" };
 const onlineResponse = await dispatchWorkerFetch(appRequest);
 if (!onlineResponse || onlineResponse.body !== "network response" ||
-    (await workerCaches.open("nutrick-v0.6.18-cache")).match(appRequest) === null) {
+    (await workerCaches.open("nutrick-v0.6.19-cache")).match(appRequest) === null) {
   throw new Error("Successful online responses must be cached for later offline use");
 }
 workerFetch = async () => { throw new Error("Simulated offline network"); };
@@ -1349,5 +1349,43 @@ if (!html.includes("updateViaCache:'none'") ||
 if (!html.includes("window.addEventListener('offline'") || !html.includes("window.addEventListener('online'")) {
   throw new Error("The app should inform users when connectivity changes");
 }
+
+
+const testRice = tacoFoods.find(food => food.id === "taco-003");
+if (!testRice) throw new Error("Calculation integrity checks require the rice reference");
+const rice150 = testContext.calcForTest(testRice, 150, "g");
+if (Math.abs(rice150.kcal - 192) > 1e-9 ||
+    Math.abs(rice150.protein - 3.75) > 1e-9 ||
+    Math.abs(rice150.carbs - 42.15) > 1e-9 ||
+    Math.abs(rice150.baseQuantity - 150) > 1e-9) {
+  throw new Error("Nutrient scaling must use the reference basis precisely without rounding intermediate values");
+}
+const riceTwoSpoons = testContext.calcForTest(testRice, 2, "un", { name: "colher de sopa", amount: 31.25 });
+if (Math.abs(riceTwoSpoons.baseQuantity - 62.5) > 1e-9 ||
+    Math.abs(riceTwoSpoons.kcal - 80) > 1e-9) {
+  throw new Error("Household unit conversion must convert to grams before scaling nutrients");
+}
+const totalRiceAndCoffee = sumForTest([
+  rice150,
+  testContext.calcForTest(tacoFoods.find(food => food.id === "taco-471"), 200, "ml")
+]);
+if (Math.abs(totalRiceAndCoffee.kcal - 210) > 1e-9 ||
+    Math.abs(totalRiceAndCoffee.protein - 3.75) > 1e-9 ||
+    totalRiceAndCoffee.itemCount !== 2) {
+  throw new Error("Totals must add exact calculated nutrients and preserve item count");
+}
+const incompleteNutrients = sumForTest([{ kcal: 10, protein: null, carbs: 2, fat: null, fiber: null, sodium: null }]);
+if (incompleteNutrients.kcal !== 10 || incompleteNutrients.protein !== null ||
+    incompleteNutrients.proteinMissing !== 1 || incompleteNutrients.carbs !== 2) {
+  throw new Error("Missing nutrient values must remain explicitly missing rather than being silently treated as zero");
+}
+for (const badQuantity of [0, -1, NaN, Infinity, ""]) {
+  let rejected = false;
+  try { testContext.calcForTest(testRice, badQuantity, "g"); } catch { rejected = true; }
+  if (!rejected) throw new Error("Invalid calculation quantities must be rejected: " + String(badQuantity));
+}
+let rejectedUnitMismatch = false;
+try { testContext.calcForTest(testRice, 100, "ml"); } catch { rejectedUnitMismatch = true; }
+if (!rejectedUnitMismatch) throw new Error("Gram and milliliter references must not be mixed without an explicit density conversion");
 
 console.log(`NuTrick validation passed: JavaScript syntax OK; ${taco.length} TACO foods valid; schema v0-to-v1 migration, original snapshot preservation, migration failure rollback, future-schema protection, legacy/versioned backup migration; date-grouped history and multi-day reload; parser, count-unit and Open Food Facts checks passed.`);
