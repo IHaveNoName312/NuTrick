@@ -1,4 +1,4 @@
-const CACHE = "nutrick-v0.6.17-cache";
+const CACHE = "nutrick-v0.6.18-cache";
 const CACHE_PREFIX = "nutrick-";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./apple-touch-icon.png", "./data/taco.json"]
   .map(path => new URL(path, self.registration.scope).href);
